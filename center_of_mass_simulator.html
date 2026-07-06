@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Center of Mass · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.14),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.07),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#9bd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#06203a;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2);border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .btns{display:flex;gap:8px;margin-top:12px}
+  .btns button{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  .btns button:hover{background:rgba(124,196,255,.22)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Experiment</div>
+    <h1>Center of Mass</h1>
+    <p>Two bodies collide — or one blows apart — while a gold × tracks their center of mass. However violent the
+       event, the × sails on in a perfectly straight line: internal forces can never move the COM.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#7cc4ff"></i>body A</span><span><i style="background:#ff8a5b"></i>body B</span><span><i style="background:#ffd27a"></i>center of mass (dashed = its path)</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Scenario</label>
+        <div class="seg"><button id="mCol" class="on">Collision</button><button id="mExp">Explosion</button></div></div>
+      <div class="ctl"><label>Mass A <span class="val" id="m1V">2.0 kg</span></label>
+        <div class="row"><input type="range" id="m1" min="0.5" max="8" step="0.5" value="2"><input type="number" id="m1N" min="0.5" max="8" step="0.5" value="2"></div></div>
+      <div class="ctl"><label>Mass B <span class="val" id="m2V">3.0 kg</span></label>
+        <div class="row"><input type="range" id="m2" min="0.5" max="8" step="0.5" value="3"><input type="number" id="m2N" min="0.5" max="8" step="0.5" value="3"></div></div>
+      <div class="ctl" id="ctlE"><label>Restitution e (1 = elastic, 0 = stick) <span class="val" id="eV">1.00</span></label>
+        <div class="row"><input type="range" id="e" min="0" max="1" step="0.05" value="1"><input type="number" id="eN" min="0" max="1" step="0.05" value="1"></div></div>
+      <div class="btns"><button id="rerun">▶ Run again</button></div>
+      <div class="stats">
+        <div class="s"><span>COM velocity (live)</span><span id="sVc">—</span></div>
+        <div class="s"><span>Total momentum (px/s·kg)</span><span id="sP">—</span></div>
+        <div class="s"><span>Total mass</span><span id="sM">—</span></div>
+        <div class="s"><span>Event type</span><span id="sMode">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">The COM moves in a straight line at constant speed — before, during, and after.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      Two pucks on a frictionless surface (no walls, no external forces). The gold × marks their
+      <strong>center of mass</strong> — the mass-weighted average position:
+      <div class="eq">r_COM = (m₁r₁ + m₂r₂) / (m₁ + m₂)</div>
+      The pucks collide, bounce, stick, or fly apart; the × ignores all of it and glides along its dashed straight
+      line at constant velocity.
+
+      <h3>Why internal forces can't move the COM</h3>
+      Differentiate the definition and you find the COM moves with the total momentum:
+      <div class="eq">v_COM = (m₁v₁ + m₂v₂) / M = p_total / M</div>
+      During a collision the bodies hammer each other — but by Newton's third law those forces are
+      <strong>equal and opposite</strong>, so their impulses cancel in the sum. Total momentum can't change, and
+      neither can v_COM. Only an <em>external</em> force can accelerate the center of mass:
+      <div class="eq">F_external = M·a_COM</div>
+
+      <h3>Collisions, seen properly</h3>
+      Sticky or bouncy, gentle or violent — the collision redistributes momentum <em>between</em> the bodies while
+      the total rides through untouched. Kinetic energy is another story (it survives only if e = 1), but momentum
+      conservation holds for every value of e. Watching the × is watching momentum conservation drawn as a line.
+
+      <h3>Explosions run the same law backwards</h3>
+      In explosion mode a moving body splits in two. The fragments' momenta relative to the COM must cancel
+      (m₁v₁' = −m₂v₂'), so the lighter fragment flies off faster — and the × never wavers from its straight path.
+      This is why the sparks of a bursting firework keep their centre gliding along the shell's original arc, and
+      why a rocket can accelerate only by <em>throwing mass out the back</em>: pushing on your own pieces moves
+      the pieces, never the whole.
+
+      <h3>Things to try</h3>
+      Set e = 0 and watch the pucks stick — the merged blob moves at exactly v_COM, because it <em>is</em> the
+      COM now. Make one mass much heavier and see the × hug the heavy puck. In explosion mode, compare fragment
+      speeds against the mass ratio: m₁v₁ = m₂v₂, always.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={mode:'collision', m1:2, m2:3, e:1};
+let A={},B=null, merged=false, exploded=false, tExp=0, t=0;
+let trailA=[],trailB=[],trailC=[];
+function radius(m){ return 10+m*3.4; }
+function initRun(){
+  t=0; trailA=[]; trailB=[]; trailC=[];
+  if(st.mode==='collision'){
+    merged=false;
+    A={x:W*0.14,y:H*0.40,vx:95,vy:22,m:st.m1};
+    B={x:W*0.86,y:H*0.62,vx:-75,vy:-12,m:st.m2};
+  } else {
+    exploded=false; tExp=1.0;
+    A={x:W*0.16,y:H*0.5,vx:55,vy:8,m:st.m1+st.m2};
+    B=null;
+  }
+}
+function com(){
+  if((st.mode==='explosion' && !exploded) || merged || !B) return {x:A.x,y:A.y,vx:A.vx,vy:A.vy};
+  const M=A.m+B.m;
+  return {x:(A.m*A.x+B.m*B.x)/M, y:(A.m*A.y+B.m*B.y)/M,
+          vx:(A.m*A.vx+B.m*B.vx)/M, vy:(A.m*A.vy+B.m*B.vy)/M};
+}
+function update(dt){
+  t+=dt;
+  const bodies = B? [A,B] : [A];
+  for(const p of bodies){ p.x+=p.vx*dt; p.y+=p.vy*dt; }
+  if(st.mode==='collision' && !merged && B){
+    const dx=B.x-A.x, dy=B.y-A.y, d=Math.hypot(dx,dy), rmin=radius(A.m)+radius(B.m);
+    if(d<rmin && d>1e-6){
+      const nx=dx/d, ny=dy/d;
+      const va=A.vx*nx+A.vy*ny, vb=B.vx*nx+B.vy*ny;
+      if(va-vb>0){ // approaching
+        const M=A.m+B.m, e=st.e;
+        if(e<0.02){ // perfectly inelastic: merge
+          const vx=(A.m*A.vx+B.m*B.vx)/M, vy=(A.m*A.vy+B.m*B.vy)/M;
+          A={x:(A.m*A.x+B.m*B.x)/M, y:(A.m*A.y+B.m*B.y)/M, vx, vy, m:M};
+          B=null; merged=true;
+        } else {
+          const va2=(A.m*va+B.m*vb+B.m*e*(vb-va))/M;
+          const vb2=(A.m*va+B.m*vb+A.m*e*(va-vb))/M;
+          A.vx+=(va2-va)*nx; A.vy+=(va2-va)*ny;
+          B.vx+=(vb2-vb)*nx; B.vy+=(vb2-vb)*ny;
+          const push=(rmin-d)/2+0.5;
+          A.x-=nx*push; A.y-=ny*push; B.x+=nx*push; B.y+=ny*push;
+        }
+      }
+    }
+  }
+  if(st.mode==='explosion' && !exploded && t>=tExp){
+    exploded=true;
+    const M=A.m, dv=110, ang=0.9;
+    const nx=Math.cos(ang), ny=-Math.sin(ang);
+    const v1={x:A.vx+dv*st.m2/M*nx, y:A.vy+dv*st.m2/M*ny};
+    const v2={x:A.vx-dv*st.m1/M*nx, y:A.vy-dv*st.m1/M*ny};
+    B={x:A.x-nx*(radius(st.m2)+2), y:A.y+ny*(radius(st.m2)+2), vx:v2.x, vy:v2.y, m:st.m2};
+    A={x:A.x+nx*(radius(st.m1)+2), y:A.y-ny*(radius(st.m1)+2), vx:v1.x, vy:v1.y, m:st.m1};
+  }
+  const c=com();
+  trailC.push({x:c.x,y:c.y});
+  trailA.push({x:A.x,y:A.y});
+  if(B) trailB.push({x:B.x,y:B.y});
+  for(const tr of [trailA,trailB,trailC]) if(tr.length>900)tr.shift();
+  const off=p=>p.x<-60||p.x>W+60||p.y<-60||p.y>H+60;
+  if(off(A)&&(!B||off(B))) initRun();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  function trail(tr,col){ if(tr.length<2)return; ctx.strokeStyle=col; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(tr[0].x,tr[0].y); for(const p of tr)ctx.lineTo(p.x,p.y); ctx.stroke(); }
+  trail(trailA,'rgba(124,196,255,.35)');
+  trail(trailB,'rgba(255,138,91,.35)');
+  if(trailC.length>1){ ctx.setLineDash([5,5]); trail(trailC,'rgba(255,210,122,.8)'); ctx.setLineDash([]); }
+  function puck(p,col,label){
+    ctx.beginPath(); ctx.arc(p.x,p.y,radius(p.m),0,7);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle='rgba(238,244,251,.7)'; ctx.lineWidth=1.6; ctx.stroke();
+    ctx.fillStyle='#0a1424'; ctx.font='bold 10px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText(label, p.x, p.y+3.5);
+    const vl=Math.hypot(p.vx,p.vy);
+    if(vl>2){ const s=Math.min(40,vl*0.35)/vl;
+      ctx.strokeStyle=col; ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+p.vx*s,p.y+p.vy*s);ctx.stroke(); }
+  }
+  puck(A,'#7cc4ff', merged?'A+B':(st.mode==='explosion'&&!exploded?'A+B':'A'));
+  if(B) puck(B,'#ff8a5b','B');
+  const c=com();
+  ctx.strokeStyle='#ffd27a'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(c.x-7,c.y-7);ctx.lineTo(c.x+7,c.y+7);ctx.moveTo(c.x+7,c.y-7);ctx.lineTo(c.x-7,c.y+7);ctx.stroke();
+  ctx.font='10px JetBrains Mono'; ctx.fillStyle='#ffd27a'; ctx.textAlign='left';
+  ctx.fillText('COM', c.x+10, c.y-8);
+  ctx.fillStyle='rgba(238,244,251,.75)'; ctx.font='11px JetBrains Mono';
+  ctx.fillText('v_COM = ('+c.vx.toFixed(0)+', '+c.vy.toFixed(0)+') px/s — constant', 16, 22);
+  requestAnimationFrame(()=>{});
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const c=com();
+  const px=B? A.m*A.vx+B.m*B.vx : A.m*A.vx;
+  const py=B? A.m*A.vy+B.m*B.vy : A.m*A.vy;
+  document.getElementById('sVc').textContent='('+c.vx.toFixed(1)+', '+c.vy.toFixed(1)+') px/s';
+  document.getElementById('sP').textContent='('+px.toFixed(0)+', '+py.toFixed(0)+')';
+  document.getElementById('sM').textContent=(st.m1+st.m2).toFixed(1)+' kg';
+  document.getElementById('sMode').textContent= st.mode==='collision'? (st.e<0.02?'perfectly inelastic':(st.e>0.98?'elastic':'e = '+st.e.toFixed(2))) : 'explosion';
+  const ve=document.getElementById('verdict');
+  if(st.mode==='collision') ve.textContent='Watch the gold × : however violent the collision — bouncy or sticky — the centre of mass sails on in a perfectly straight line at constant speed. Internal forces come in equal-and-opposite pairs, so they can never move the COM.';
+  else ve.textContent='The body blows apart, yet the gold × never flinches — it keeps gliding on the same straight line. The fragments\' momenta cancel in the COM frame: no external force, no change in COM motion. (A bursting firework\'s spark-cloud centre keeps following the shell\'s arc for the same reason.)';
+}
+function bind(sl,nu,key,labId,fmt,re){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats(); if(re)initRun();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('m1','m1N','m1','m1V',v=>(+v).toFixed(1)+' kg',true);
+bind('m2','m2N','m2','m2V',v=>(+v).toFixed(1)+' kg',true);
+bind('e','eN','e','eV',v=>(+v).toFixed(2),true);
+function setMode(m){ st.mode=m;
+  document.getElementById('mCol').classList.toggle('on',m==='collision');
+  document.getElementById('mExp').classList.toggle('on',m==='explosion');
+  document.getElementById('ctlE').style.display = m==='collision'?'block':'none';
+  initRun(); updateStats();
+}
+document.getElementById('mCol').addEventListener('click',()=>setMode('collision'));
+document.getElementById('mExp').addEventListener('click',()=>setMode('explosion'));
+document.getElementById('rerun').addEventListener('click',initRun);
+window.addEventListener('resize',()=>{fit(); initRun();});
+fit(); initRun(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

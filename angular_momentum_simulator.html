@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angular Momentum · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --accent-soft:#3b6ea8; --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 12px;}
+  .ctrl{margin:16px 0}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px}
+  .ctrl .name{font-size:13px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  .ctrl .hint{font-size:11px; color:var(--faint); margin-top:4px}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range].big{height:6px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+  .divider{height:1px; background:var(--glass-line); margin:16px 0}
+  .actions{display:flex; gap:10px}
+  .btn{flex:1; padding:12px; border:none; border-radius:11px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#08111e; background:linear-gradient(135deg,#8fd0ff,#5aa8ee); box-shadow:0 8px 24px -8px rgba(124,196,255,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:12px}
+  .stat.amber::before{background:var(--gold)} .stat.green::before{background:var(--green)} .stat.ember::before{background:var(--ember)}
+  .stat.lock{border-color:rgba(255,210,122,.45); box-shadow:0 0 18px -8px rgba(255,210,122,.5)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08)); border:1px solid rgba(124,196,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="mechanics.html" class="back">← Mechanical</a>
+    <div class="kicker">Rotational Dynamics</div>
+    <h1>Conservation of Angular Momentum</h1>
+  </div>
+  <div class="sub">Pull the spinning weights inward and watch it whirl faster — the figure-skater effect.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Pull the weights in / out</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Arm length r</span><span class="val"><span id="rV">2.4</span> m</span></div>
+      <input id="rad" type="range" class="big" min="0.6" max="3" step="0.05" value="2.4">
+      <div class="hint">This is the live demo — drag it while spinning to change ω at fixed L.</div>
+    </div>
+
+    <p class="group-label" style="margin-top:20px">Setup</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Weight mass</span><span class="val"><span id="mV">4</span> kg</span></div>
+      <input id="mass" type="range" min="1" max="10" step="0.5" value="4">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Initial spin ω₀</span><span class="val"><span id="wV">2.0</span> rad/s</span></div>
+      <input id="w0" type="range" min="0.5" max="4" step="0.1" value="2">
+      <div class="hint">Changing mass or ω₀ re-locks the angular momentum.</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="play">Pause ⏸</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--gold)"></i>Weights on the skater's arms</span>
+      <span><i class="dot" style="background:var(--accent)"></i>Frictionless turntable</span>
+      <span style="margin-left:auto;color:var(--faint)">Watch the bars: I and ω trade off, but L = I×ω stays locked</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat amber lock"><div class="k">Angular momentum L</div><div class="v"><span id="sL">0</span><em>kept const</em></div></div>
+      <div class="stat"><div class="k">Moment of inertia I</div><div class="v"><span id="sI">0</span></div></div>
+      <div class="stat green"><div class="k">Angular velocity ω</div><div class="v"><span id="sW">0</span><em>rad/s</em></div></div>
+      <div class="stat ember"><div class="k">Rotational KE</div><div class="v"><span id="sKE">0</span></div></div>
+    </div>
+
+    <div class="verdict" id="verdict">Drag the weights in or out — I and ω trade off so L = I·ω stays locked.</div>
+
+    <div class="formula">
+      <b>L</b> = I·ω = constant (no torque) &nbsp;|&nbsp; <b>I</b> = I₀ + 2·m·r² &nbsp;|&nbsp; KE = ½·I·ω² = ½·L²/I
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A platform spins freely with two weights held out on arms — like a figure skater, or someone on a
+           rotating stool holding dumbbells. With <b>no outside twisting force (torque)</b>, the spinning
+           system's <b>angular momentum is conserved</b>. Slide the arms in and out and watch the spin rate
+           respond instantly.</p>
+
+        <h4>Angular momentum and inertia</h4>
+        <p>Angular momentum is the rotational equivalent of ordinary momentum:</p>
+        <div class="ex-eq">
+          L = I · ω <span class="lbl">moment of inertia × angular velocity</span>
+        </div>
+        <p>The <b>moment of inertia</b> I measures how hard the mass is to spin, and it depends strongly on how
+           far the mass sits from the axis — each weight contributes <span class="mono">m·r²</span>. Holding the
+           weights far out gives a large I; pulling them in shrinks it dramatically (the radius is squared).</p>
+
+        <h4>Why pulling in speeds you up</h4>
+        <p>Because L can't change, if I goes down then ω must go up to compensate:</p>
+        <div class="ex-eq">
+          I₁·ω₁ = I₂·ω₂ <span class="lbl">smaller I ⇒ larger ω</span>
+        </div>
+        <p>Halve the arm length and each weight's r² drops to a quarter, so I plummets and the platform whirls
+           much faster — exactly how a skater accelerates a spin by drawing arms and legs to the body.</p>
+
+        <h4>Where does the extra energy come from?</h4>
+        <p>Watch the <b>rotational KE</b> climb as you pull in, even though L holds steady — since
+           <span class="mono">KE = ½·L²/I</span>, a smaller I means more energy. That energy isn't free: <b>you
+           do work</b> pulling the weights inward against their tendency to fly outward. Let them back out and
+           that energy is returned. Angular momentum is conserved; kinetic energy is not.</p>
+
+        <h4>Things to try</h4>
+        <p>Spin it up, then pull the arms all the way in and watch ω rocket up while the gold <b>L</b> readout
+           never budges. Use the slow-motion button to follow the fast spin. Then push the weights back out and
+           see the spin slow to its original rate.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const Iplat=0.6;   // platform's own moment of inertia (arb)
+const els={rad:$('rad'),mass:$('mass'),w0:$('w0'),rV:$('rV'),mV:$('mV'),wV:$('wV'),
+  sL:$('sL'),sI:$('sI'),sW:$('sW'),sKE:$('sKE'),play:$('play'),reset:$('reset')};
+let phi=0, L=0, playing=true, raf=null, last=null, drag=false;
+function R(){return +els.rad.value;} function Mw(){return +els.mass.value;}
+function Iof(r){return Iplat + 2*Mw()*r*r;}
+function relock(){ L = Iof(R()) * (+els.w0.value); }   // lock L at current config & chosen spin
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.72);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+let CXp=0,CYp=0,SC=40,revs=0;
+const CONSH=128;
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  const stageH=h-CONSH, cx=w/2, cy=stageH/2;
+  const bg=ctx.createRadialGradient(cx,cy,20,cx,cy,w*0.6); bg.addColorStop(0,'#161d3c'); bg.addColorStop(1,'#0f1430');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+  const r=R(), I=Iof(r), w_=L/I;
+  CXp=cx; CYp=cy;
+  const Rdisk=Math.min(w, stageH)/2 - 30;
+  SC=(Rdisk*0.94)/3;                 // r up to 3 fits the disk
+  const rp=r*SC;
+  drawTurntable(cx,cy,Rdisk,phi,w_);
+  drawSkater(cx,cy,rp,phi,w_);
+  // HUD
+  ctx.fillStyle='rgba(207,232,255,.92)'; ctx.font='13px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('ω = '+w_.toFixed(2)+' rad/s   ·   '+Math.abs(revs).toFixed(1)+' turns', cx, 12);
+  ctx.fillStyle='rgba(154,166,204,.7)'; ctx.font='12px Inter'; ctx.fillText('drag a weight or use the slider to pull the arms in / out', cx, stageH-22);
+  drawCons(w,h,I,w_);
+  meters(I,w_);
+}
+function drawTurntable(cx,cy,Rd,phi,w_){
+  ctx.save(); ctx.translate(cx,cy);
+  const g=ctx.createRadialGradient(-Rd*0.3,-Rd*0.3,Rd*0.1,0,0,Rd);
+  g.addColorStop(0,'rgba(150,200,255,.20)'); g.addColorStop(.7,'rgba(124,196,255,.08)'); g.addColorStop(1,'rgba(124,196,255,.03)');
+  ctx.fillStyle=g; ctx.beginPath();ctx.arc(0,0,Rd,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(124,196,255,.45)'; ctx.lineWidth=2; ctx.beginPath();ctx.arc(0,0,Rd,0,7);ctx.stroke();
+  // rotating rim ticks (a strobe to read the spin)
+  ctx.rotate(phi);
+  for(let k=0;k<24;k++){const a=k/24*2*Math.PI, c=Math.cos(a), s=Math.sin(a);
+    ctx.strokeStyle = k===0?'#ffd27a':'rgba(207,232,255,.45)'; ctx.lineWidth=k===0?3:2;
+    ctx.beginPath();ctx.moveTo(c*(Rd-2),s*(Rd-2));ctx.lineTo(c*(Rd-13),s*(Rd-13));ctx.stroke();}
+  ctx.restore();
+  // fixed pointer (does not rotate) — passing ticks reveal the speed
+  ctx.fillStyle='rgba(255,210,122,.85)';
+  ctx.beginPath();ctx.moveTo(cx,cy-Rd-1);ctx.lineTo(cx-6,cy-Rd-12);ctx.lineTo(cx+6,cy-Rd-12);ctx.closePath();ctx.fill();
+}
+function drawSkater(cx,cy,rp,phi,w_){
+  const mR=10+3*Math.cbrt(Mw()), speed=Math.abs(w_);
+  for(const sgn of [1,-1]){
+    const ang=phi+(sgn<0?Math.PI:0);
+    const wx=cx+Math.cos(ang)*rp, wy=cy+Math.sin(ang)*rp;
+    // motion-blur trail behind the weight along its circular path
+    if(speed>0.8){ const span=Math.min(1.3,speed*0.22)*(w_>=0?1:-1);
+      ctx.strokeStyle='rgba(255,210,122,.16)'; ctx.lineWidth=mR*1.7; ctx.lineCap='round';
+      ctx.beginPath(); if(w_>=0) ctx.arc(cx,cy,rp,ang-span,ang); else ctx.arc(cx,cy,rp,ang,ang-span); ctx.stroke(); }
+    // arm
+    const sx=cx+Math.cos(ang)*16, sy=cy+Math.sin(ang)*16;
+    ctx.strokeStyle='rgba(207,216,245,.9)'; ctx.lineWidth=6; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(wx,wy);ctx.stroke();
+    // weight
+    const g=ctx.createRadialGradient(wx-mR*0.35,wy-mR*0.35,mR*0.1,wx,wy,mR);
+    g.addColorStop(0,'#fff'); g.addColorStop(.4,'#ffd27a'); g.addColorStop(1,'#ff9d4d');
+    ctx.save();ctx.shadowColor='rgba(255,180,90,.7)';ctx.shadowBlur=14;ctx.fillStyle=g;ctx.beginPath();ctx.arc(wx,wy,mR,0,7);ctx.fill();ctx.restore();
+    ctx.fillStyle='rgba(60,30,5,.8)';ctx.font='bold 10px JetBrains Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Mw()+'',wx,wy);
+  }
+  // body (head, top view) at centre with a front-marker so you see it spin
+  const bg=ctx.createRadialGradient(cx-6,cy-6,3,cx,cy,20);
+  bg.addColorStop(0,'#dfeaff'); bg.addColorStop(1,'#5aa8ee');
+  ctx.fillStyle=bg; ctx.beginPath();ctx.arc(cx,cy,18,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#0b1330'; ctx.beginPath();ctx.arc(cx+Math.cos(phi)*10,cy+Math.sin(phi)*10,3.2,0,7);ctx.fill(); // nose
+}
+function drawCons(w,h,I,w_){
+  const x0=18, x1=w-18, y0=h-CONSH+6;
+  ctx.fillStyle='rgba(10,14,30,.6)'; rr(x0-2,y0-2,(x1-x0)+4,CONSH-12,12); ctx.fill();
+  ctx.strokeStyle='rgba(140,160,220,.2)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='rgba(207,232,255,.9)'; ctx.font='600 12px Inter, sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('Conservation of angular momentum', x0+10, y0+8);
+  ctx.fillStyle='rgba(255,210,122,.9)'; ctx.textAlign='right'; ctx.fillText('L = I × ω  is locked — no external torque', x1-10, y0+8);
+  const Imin=Iof(0.6), Imax=Iof(3), wmax=L/Imin;
+  const labW=188, valW=150, barX=x0+labW, barW=(x1-10)-valW-barX, rowH=26, top=y0+30;
+  function bar(row,label,frac,col,val,lock){
+    const y=top+row*rowH;
+    ctx.fillStyle='rgba(154,166,204,.9)'; ctx.font='12px Inter'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(label, x0+10, y+7);
+    ctx.fillStyle='rgba(255,255,255,.06)'; rr(barX,y,barW,14,7); ctx.fill();
+    ctx.fillStyle=col; rr(barX,y, Math.max(4,barW*Math.max(0,Math.min(1,frac))),14,7); ctx.fill();
+    if(lock){ ctx.fillStyle='#ffd27a'; ctx.font='12px Inter'; ctx.textAlign='left'; ctx.fillText('🔒', barX+barW*frac+6, y+7); }
+    ctx.fillStyle='rgba(238,241,251,.95)'; ctx.font='12.5px JetBrains Mono'; ctx.textAlign='right'; ctx.fillText(val, x1-10, y+7);
+  }
+  bar(0,'Moment of inertia  I', I/Imax, '#7cc4ff', I.toFixed(1));
+  bar(1,'Angular velocity  ω', Math.abs(w_)/wmax, '#62d2a2', Math.abs(w_).toFixed(2)+' rad/s');
+  bar(2,'Angular momentum  L', 1.0, '#ffd27a', L.toFixed(1), true);
+}
+function meters(I,w_){
+  els.sL.textContent=L.toFixed(1); els.sI.textContent=I.toFixed(1); els.sW.textContent=w_.toFixed(2);
+  els.sKE.textContent=(0.5*I*w_*w_).toFixed(0);
+  const r=R(), ve=$('verdict');
+  if(r<1.1) ve.textContent='Arms pulled in: I is small, so ω soars to keep L = I·ω constant — and KE = ½L²/I rises, paid for by the skater’s muscular work.';
+  else if(r>2.4) ve.textContent='Arms stretched out: I is large, so ω crawls — same L, slower spin, lower rotational KE.';
+  else ve.textContent='I and ω trade off as you move the weights, but their product L = I·ω never budges — no external torque, no change in L.';
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  if(playing){ const w_=L/Iof(R()); phi+=w_*dt; revs+=w_*dt/(2*Math.PI); }
+  render();
+  raf=requestAnimationFrame(loop);
+}
+
+// ── interaction: drag a weight in/out ──
+function pos(e){const b=cv.getBoundingClientRect(); return [e.clientX-b.left, e.clientY-b.top];}
+cv.addEventListener('pointerdown',e=>{ drag=true; });
+cv.addEventListener('pointermove',e=>{ if(!drag)return; const [px,py]=pos(e);
+  const dist=Math.hypot(px-CXp,py-CYp)/SC; els.rad.value=Math.max(0.6,Math.min(3,dist)).toFixed(2);
+  els.rV.textContent=(+els.rad.value).toFixed(2); });
+cv.addEventListener('pointerup',()=>drag=false);
+
+els.rad.addEventListener('input',()=>{els.rV.textContent=(+els.rad.value).toFixed(2);});   // r change conserves L (no relock)
+els.mass.addEventListener('input',()=>{els.mV.textContent=els.mass.value; relock();});
+els.w0.addEventListener('input',()=>{els.wV.textContent=(+els.w0.value).toFixed(1); relock();});
+els.play.addEventListener('click',()=>{ playing=!playing; els.play.textContent= playing?'Pause ⏸':'Play ▶'; });
+els.reset.addEventListener('click',()=>{ phi=0; revs=0; els.rad.value=2.4; els.rV.textContent='2.40'; relock(); });
+window.addEventListener('resize',render);
+
+relock();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#081512; --bg-1:#0d2020;
+    --glass:rgba(26,44,40,0.55); --glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3; --muted:#9accb6; --faint:#6b9a86;
+    --accent:#62d2a2; --gold:#ffd27a;
+    --r:20px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(98,210,162,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1140px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:17px}
+  .brand .mark{width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 6px 18px -6px rgba(98,210,162,.8); color:#06241a; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:26px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .hero{max-width:1140px; margin:0 auto; padding:40px 28px 26px; text-align:center}
+  .hero .kicker{font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  .hero h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(36px,6vw,58px); line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;}
+  .hero h1 em{font-style:italic; color:var(--accent)}
+  .hero p{max-width:600px; margin:20px auto 0; color:var(--muted); font-size:16.5px; line-height:1.6;}
+  .sec{max-width:1140px; margin:0 auto; padding:30px 28px 60px}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:22px}
+  .sec-head h2{font-family:'Fraunces',serif; font-weight:500; font-size:23px; margin:0}
+  .sec-head span{color:var(--faint); font-size:13px; font-family:'JetBrains Mono',monospace}
+  .sec-head .rule{flex:1; height:1px; background:var(--glass-line)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px}
+  .card{position:relative; display:flex; flex-direction:column; overflow:hidden; opacity:.66;
+    background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+  .card.live{opacity:1; cursor:pointer}
+  .card.live:hover{transform:translateY(-4px); border-color:rgba(98,210,162,.5);
+    box-shadow:0 28px 60px -28px rgba(0,0,0,.9), 0 0 30px -10px rgba(98,210,162,.45);}
+  .badge.live{color:#06241a; background:linear-gradient(135deg,#aef0d2,#62d2a2)}
+  .card .go{display:inline-block; margin-top:12px; font-size:13.5px; font-weight:600; color:var(--accent)}
+  .card .art{height:130px; position:relative; border-bottom:1px solid var(--glass-line); overflow:hidden}
+  .card .art svg{position:absolute; inset:0; width:100%; height:100%}
+  .card .body{padding:16px 20px 20px}
+  .badge{position:absolute; top:13px; right:13px; z-index:2; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; font-weight:600; padding:5px 10px; border-radius:99px;
+    color:var(--muted); background:rgba(255,255,255,.06); border:1px solid var(--glass-line);}
+  .card h3{font-family:'Fraunces',serif; font-weight:500; font-size:20px; margin:0 0 6px}
+  .card p{color:var(--muted); font-size:13px; line-height:1.55; margin:0}
+  .note{max-width:1140px; margin:0 auto 10px; padding:0 28px; color:var(--faint); font-size:13.5px}
+  footer{max-width:1140px; margin:0 auto; padding:20px 28px 50px; color:var(--faint);
+    font-size:13px; border-top:1px solid var(--glass-line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="index.html">← All fields</a></div>
+  </nav>
+  <header class="hero">
+    <div class="kicker">Field · Modern</div>
+    <h1>Modern <em>Physics</em></h1>
+    <p>The physics of the very small and the very fast — quanta of light, the structure of the atom, and
+       Einstein's relativity.</p>
+  </header>
+  <p class="note">Six interactive experiments — all live.</p>
+  <section class="sec">
+    <div class="sec-head"><h2>Experiments</h2><span>6 experiments · all live</span><div class="rule"></div></div>
+    <div class="grid">
+      <a class="card live" href="photoelectric_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#0e2222"/><line x1="30" y1="28" x2="96" y2="58" stroke="#b89bff" stroke-width="2"/><line x1="40" y1="46" x2="96" y2="72" stroke="#b89bff" stroke-width="2" opacity=".7"/><rect x="92" y="34" width="7" height="64" fill="#284a40" stroke="#62d2a2" stroke-width="1"/><rect x="210" y="34" width="7" height="64" fill="#2a4a5a"/><circle cx="130" cy="58" r="3" fill="#9fe9ff"/><circle cx="165" cy="66" r="3" fill="#9fe9ff"/><circle cx="195" cy="52" r="3" fill="#9fe9ff"/><path d="M130 58 l-12 4 M165 66 l-12 3 M195 52 l-12 5" stroke="#7cc4ff" stroke-width="1" opacity=".6"/></svg></div>
+        <div class="body"><h3>Photoelectric Effect</h3><p>Shine light of different colours on a metal and see why only frequency — not brightness — frees electrons.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="bohr_model_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#0e2222"/><circle cx="150" cy="65" r="6" fill="#ffd27a"/><circle cx="150" cy="65" r="24" fill="none" stroke="#62d2a2" stroke-width="1.2" opacity=".6"/><circle cx="150" cy="65" r="40" fill="none" stroke="#7cc4ff" stroke-width="1.2" opacity=".5"/><circle cx="150" cy="65" r="56" fill="none" stroke="#b89bff" stroke-width="1.2" opacity=".4"/><circle cx="174" cy="65" r="3" fill="#62d2a2"/><circle cx="110" cy="65" r="3" fill="#7cc4ff"/><path d="M168 52 q14 -10 28 -20" stroke="#ff8a5b" stroke-width="1.4" stroke-dasharray="3 3"/></svg></div>
+        <div class="body"><h3>Bohr Model of the Atom</h3><p>Watch electrons jump between energy levels and emit photons of specific colours.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="special_relativity_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#0e2222"/><rect x="56" y="46" width="60" height="40" rx="6" fill="none" stroke="#62d2a2" stroke-width="1.6"/><line x1="60" y1="48" x2="112" y2="48" stroke="#bff0d6" stroke-width="2"/><line x1="60" y1="84" x2="112" y2="84" stroke="#bff0d6" stroke-width="2"/><path d="M70 48 l16 36 l16 -36" fill="none" stroke="#ffd27a" stroke-width="1.4"/><rect x="176" y="42" width="38" height="48" rx="5" fill="none" stroke="#7cc4ff" stroke-width="1.6"/><line x1="180" y1="44" x2="210" y2="44" stroke="#bfe1ff" stroke-width="2"/><line x1="180" y1="88" x2="210" y2="88" stroke="#bfe1ff" stroke-width="2"/><line x1="195" y1="44" x2="195" y2="88" stroke="#ffd27a" stroke-width="1.4"/></svg></div>
+        <div class="body"><h3>Special Relativity</h3><p>Speed a clock toward light speed and watch time dilation and length contraction set in.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="quantum_well_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#0e2222"/><line x1="70" y1="18" x2="70" y2="112" stroke="#8cd2b4" stroke-width="2.5"/><line x1="250" y1="18" x2="250" y2="112" stroke="#8cd2b4" stroke-width="2.5"/><line x1="70" y1="100" x2="250" y2="100" stroke="#6b9a86" stroke-width="1"/><path d="M70 100 Q115 40 160 100 Q205 160 250 100" fill="rgba(98,210,162,.2)" stroke="#62d2a2" stroke-width="2"/><line x1="70" y1="40" x2="250" y2="40" stroke="#ffd27a" stroke-width="1.4" opacity=".7"/><line x1="70" y1="62" x2="250" y2="62" stroke="#8cd2b4" stroke-width="1" opacity=".4"/><line x1="70" y1="78" x2="250" y2="78" stroke="#8cd2b4" stroke-width="1" opacity=".4"/></svg></div>
+        <div class="body"><h3>Quantum Well</h3><p>Trap a particle in a box and see the discrete energy levels and standing wavefunctions of quantum mechanics.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="black_hole_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#05060f"/><circle cx="80" cy="30" r="1" fill="#fff"/><circle cx="220" cy="24" r="1.2" fill="#cdd8ff"/><circle cx="260" cy="90" r="1" fill="#fff"/><circle cx="40" cy="100" r="1" fill="#ffe0c0"/><ellipse cx="150" cy="65" rx="78" ry="22" fill="none" stroke="#ff9a4d" stroke-width="6" opacity=".55"/><circle cx="150" cy="65" r="26" fill="#000"/><circle cx="150" cy="65" r="27" fill="none" stroke="#ffe39a" stroke-width="2"/><path d="M72 65 a78 22 0 0 1 156 0" fill="none" stroke="#ffd27a" stroke-width="3" opacity=".8"/></svg></div>
+        <div class="body"><h3>Black Hole &amp; Lensing</h3><p>Bend starlight into an Einstein ring around the event horizon and watch time slow to a halt at the edge.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="radioactive_decay_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#0a1a14"/><g fill="#62d2a2"><circle cx="40" cy="30" r="4"/><circle cx="58" cy="44" r="4"/><circle cx="38" cy="60" r="4"/><circle cx="56" cy="76" r="4"/><circle cx="42" cy="94" r="4"/><circle cx="74" cy="30" r="4"/><circle cx="76" cy="62" r="4"/></g><g fill="rgba(140,155,220,.35)"><circle cx="92" cy="46" r="4"/><circle cx="90" cy="80" r="4"/><circle cx="72" cy="96" r="4"/></g><circle cx="92" cy="28" r="6" fill="#ffd27a"/><path d="M130 24 C170 30 200 60 220 100" fill="none" stroke="#ffd27a" stroke-width="2.4"/><path d="M130 24 l0 80" stroke="#3a6a56" stroke-width="1" stroke-dasharray="3 4"/><line x1="175" y1="42" x2="175" y2="104" stroke="#62d2a2" stroke-width="1.2" stroke-dasharray="3 4"/><text x="175" y="118" font-size="10" fill="#62d2a2" text-anchor="middle" font-family="monospace">T½</text></svg></div>
+        <div class="body"><h3>Radioactive Decay &amp; Half-Life</h3><p>Watch hundreds of random quantum coin-flips add up to the perfectly smooth law N = N₀e^(−λt), halving every T½.</p><span class="go">Open simulator →</span></div></a>
+    </div>
+  </section>
+  <footer><span>Physica · Modern</span><span><a href="index.html">← Back to all fields</a></span></footer>
+</body>
+</html>

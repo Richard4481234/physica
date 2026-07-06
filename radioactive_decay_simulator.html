@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radioactive Decay &amp; Half-Life · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#081512;--bg-1:#0d2020;--glass:rgba(26,44,40,0.55);--glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3;--muted:#9accb6;--faint:#6b9a86;--accent:#62d2a2;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(98,210,162,0.14),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.07),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fe0b8,#62d2a2);box-shadow:0 6px 18px -6px rgba(98,210,162,.8);color:#06241a;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#06140f}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(98,210,162,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eafff4;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eafff4;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(8,20,16,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:2px}
+  .btns button{flex:1;background:rgba(98,210,162,.12);border:1px solid rgba(98,210,162,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  .btns button:hover{background:rgba(98,210,162,.22)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,20,16,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="modern.html">← Modern</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Modern · Experiment</div>
+    <h1>Radioactive Decay &amp; Half-Life</h1>
+    <p>Every atom decays completely at random — yet the population follows a perfectly smooth exponential law.
+       Watch hundreds of individual dice-rolls add up to N = N₀e^(−λt), halving like clockwork.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#62d2a2"></i>parent nuclei (undecayed)</span><span><i style="background:#8c9bdc"></i>daughter nuclei</span><span><i style="background:#ffd27a"></i>theory N₀e^(−λt) · flash = a decay</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Starting atoms N₀ <span class="val" id="n0V">400 atoms</span></label>
+        <div class="row"><input type="range" id="n0" min="50" max="1000" step="50" value="400"><input type="number" id="n0N" min="50" max="1000" step="50" value="400"></div></div>
+      <div class="ctl"><label>Half-life T½ <span class="val" id="thV">6.0 s</span></label>
+        <div class="row"><input type="range" id="th" min="2" max="20" step="0.5" value="6"><input type="number" id="thN" min="2" max="20" step="0.5" value="6"></div></div>
+      <div class="btns"><button id="restart">⟲ Fresh sample</button><button id="pause">Pause ⏸</button></div>
+      <div class="stats">
+        <div class="s"><span>Decay constant λ = ln2/T½</span><span id="sLam">—</span></div>
+        <div class="s"><span>Parents remaining N</span><span id="sN">—</span></div>
+        <div class="s"><span>Theory N₀e^(−λt)</span><span id="sTh">—</span></div>
+        <div class="s"><span>Elapsed half-lives</span><span id="sHl">—</span></div>
+        <div class="s"><span>Activity A = λN</span><span id="sA">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Each atom decays at random — yet the population is perfectly predictable.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A sample of radioactive nuclei (green). Each one carries the same fixed probability of decaying per second —
+      a genuine quantum coin-flip with no memory and no warning. When one decays it flashes gold and turns into a
+      stable daughter (violet). The graph races the jagged, measured population against the smooth exponential
+      prediction.
+
+      <h3>From randomness to law</h3>
+      If each nucleus decays with probability λ per unit time, a population N loses λN atoms per second on
+      average:
+      <div class="eq">dN/dt = −λN&nbsp;&nbsp;⇒&nbsp;&nbsp;N(t) = N₀·e^(−λt)</div>
+      No individual event is predictable — but the average over hundreds of atoms is locked in. The wiggles you
+      see around the gold curve are real statistical noise, of size about √N; watch them matter more and more as
+      the sample shrinks.
+
+      <h3>The half-life</h3>
+      The time for <em>half of whatever remains</em> to decay is the same at every moment — decay has no memory:
+      <div class="eq">T½ = ln 2 / λ ≈ 0.693 / λ</div>
+      After 1 half-life 50% remain; after 2, 25%; after n, (½)ⁿ. The dashed steps on the graph mark exactly this
+      halving staircase. Note what a half-life is <em>not</em>: the sample never dies "on schedule" — it just
+      keeps halving, which is why tiny traces of long-lived isotopes linger essentially forever.
+
+      <h3>Activity: what a Geiger counter hears</h3>
+      A detector doesn't count atoms — it counts decays per second, the <strong>activity</strong>:
+      <div class="eq">A = λN = A₀·e^(−λt)</div>
+      Activity decays with the same half-life as the population, which is what makes radiometric dating work:
+      measure today's activity of carbon-14 (T½ = 5,730 yr) in a bone, compare with a living sample, count the
+      halvings — and you've counted the millennia.
+
+      <h3>Things to try</h3>
+      Run a small sample (N₀ = 50) a few times and notice each run takes a visibly different path — then run 1000
+      and watch the noise almost vanish: √N grows slower than N. Pause at exactly one half-life and check ~50%
+      survive. Let it run to the last few atoms and ask when the final one will decay: the honest answer is that
+      nobody — not even the atom — knows.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={N0:400, thalf:6};
+let atoms=[], t=0, running=true, samples=[];
+function lam(){ return Math.LN2/st.thalf; }
+function alive(){ let c=0; for(const a of atoms) if(!a.d) c++; return c; }
+function reset(){
+  t=0; samples=[]; atoms=[];
+  const n=Math.round(st.N0);
+  const cols=Math.ceil(Math.sqrt(n*1.5)), rows=Math.ceil(n/cols);
+  for(let i=0;i<n;i++) atoms.push({i, col:i%cols, row:(i/cols)|0, d:false, flash:0});
+  atoms.cols=cols; atoms.rows=rows;
+}
+function update(dt){
+  if(!running) return;
+  t+=dt;
+  const p=1-Math.exp(-lam()*dt);
+  for(const a of atoms){
+    if(!a.d && Math.random()<p){ a.d=true; a.flash=0.6; }
+    else if(a.flash>0) a.flash-=dt;
+  }
+  samples.push({t, n:alive()});
+  if(samples.length>8000) samples.shift();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#06140f'; ctx.fillRect(0,0,W,H);
+  drawAtoms(14,14,W*0.42,H-28);
+  drawGraph(W*0.48,20,W-20-W*0.48,H-44);
+  requestAnimationFrame(()=>{});
+}
+function drawAtoms(x,y,wd,ht){
+  const cols=atoms.cols||20, rows=atoms.rows||20;
+  const cw=Math.min(wd/cols, ht/rows);
+  const ox=x+(wd-cw*cols)/2, oy=y+(ht-cw*rows)/2;
+  const r=Math.max(1.6, cw*0.32);
+  for(const a of atoms){
+    const px=ox+(a.col+0.5)*cw, py=oy+(a.row+0.5)*cw;
+    if(!a.d){ ctx.fillStyle='#62d2a2'; }
+    else if(a.flash>0){ ctx.fillStyle='rgba(255,210,122,'+(0.4+a.flash)+')'; }
+    else { ctx.fillStyle='rgba(140,155,220,.22)'; }
+    ctx.beginPath(); ctx.arc(px,py,a.d&&a.flash>0? r*1.7:r,0,7); ctx.fill();
+  }
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillStyle='#62d2a2'; ctx.fillText('parent: '+alive(), x+4, y+10);
+  ctx.fillStyle='rgba(160,170,230,.85)'; ctx.fillText('daughter: '+(atoms.length-alive()), x+120, y+10);
+}
+function drawGraph(x,y,wd,ht){
+  ctx.fillStyle='rgba(8,22,17,.5)'; ctx.fillRect(x,y,wd,ht);
+  const x0=x+42,x1=x+wd-10,y0=y+ht-26,y1=y+14;
+  const Tmax=Math.max(4*st.thalf, t*1.05);
+  const X=tt=>x0+tt/Tmax*(x1-x0), Y=n=>y0-(n/st.N0)*(y0-y1);
+  ctx.strokeStyle='rgba(140,210,180,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('time (s) →',(x0+x1)/2,y0+6);
+  // half-life staircase markers
+  ctx.font='9.5px JetBrains Mono';
+  for(let k=1;k<=4;k++){
+    const tk=k*st.thalf; if(tk>Tmax)break;
+    ctx.strokeStyle='rgba(255,210,122,.35)'; ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(X(tk),y0);ctx.lineTo(X(tk),Y(st.N0/Math.pow(2,k)));ctx.lineTo(x0,Y(st.N0/Math.pow(2,k)));ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,210,122,.8)'; ctx.textAlign='center';
+    ctx.fillText(k+'T½', X(tk), y0+6);
+    ctx.textAlign='right'; ctx.fillText('N₀/'+Math.pow(2,k), x0-4, Y(st.N0/Math.pow(2,k))-4);
+  }
+  // theory curve
+  ctx.strokeStyle='rgba(255,210,122,.75)'; ctx.lineWidth=1.6; ctx.beginPath();
+  for(let i=0;i<=200;i++){ const tt=Tmax*i/200; const px=X(tt),py=Y(st.N0*Math.exp(-lam()*tt)); i?ctx.lineTo(px,py):ctx.moveTo(px,py); }
+  ctx.stroke();
+  // measured staircase
+  ctx.strokeStyle='#62d2a2'; ctx.lineWidth=2; ctx.beginPath(); let s0=false;
+  for(const s of samples){ const px=X(s.t),py=Y(s.n); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true); }
+  if(s0)ctx.stroke();
+  ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#62d2a2'; ctx.fillText('measured N(t)', x0+6, y1+10);
+  ctx.fillStyle='rgba(255,210,122,.85)'; ctx.fillText('N₀e^(−λt)', x0+110, y1+10);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const n=alive(), th=st.N0*Math.exp(-lam()*t);
+  document.getElementById('sLam').textContent=lam().toFixed(3)+' /s';
+  document.getElementById('sN').textContent=n+' of '+atoms.length;
+  document.getElementById('sTh').textContent=th.toFixed(0);
+  document.getElementById('sHl').textContent=(t/st.thalf).toFixed(2);
+  document.getElementById('sA').textContent=(lam()*n).toFixed(1)+' decays/s';
+  const ve=document.getElementById('verdict');
+  const k=t/st.thalf;
+  if(t<0.5) ve.textContent='Each atom decays at random — nobody can say which will go next. Yet the population as a whole is perfectly predictable: watch the green staircase hug the smooth gold curve.';
+  else if(n<=2 && n>0) ve.textContent='Down to the last atoms — and here the statistics break down: the smooth law is only the average of many random coins. When did THIS one decay? Pure chance.';
+  else if(n===0) ve.textContent='All decayed. Every run takes a different path to zero — but re-run it and the first half still vanishes in one half-life, every time.';
+  else ve.textContent='After '+k.toFixed(1)+' half-lives, '+(100*n/atoms.length).toFixed(0)+'% remain (theory: '+(100*Math.pow(0.5,k)).toFixed(0)+'%). Each T½ = '+st.thalf+' s, half of whatever is left decays — it never runs out on schedule, it halves.';
+}
+function bind(sl,nu,key,labId,fmt,re){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats(); if(re)reset();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('n0','n0N','N0','n0V',v=>Math.round(v)+' atoms',true);
+bind('th','thN','thalf','thV',v=>(+v).toFixed(1)+' s',false);
+document.getElementById('restart').addEventListener('click',()=>{reset();});
+document.getElementById('pause').addEventListener('click',e=>{running=!running; e.target.textContent=running?'Pause ⏸':'Resume ▶';});
+window.addEventListener('resize',fit);
+fit(); reset(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(26,44,40,0.85)',color:'#eef8f3',border:'1px solid rgba(140,210,180,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

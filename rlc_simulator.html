@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RLC Circuit &amp; Resonance · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:14px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(184,155,255,.12);border:1px solid rgba(184,155,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(184,155,255,.22)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>RLC Circuit &amp; Resonance</h1>
+    <p>A resistor, inductor and capacitor driven by an AC source. At one special frequency they conspire to let a
+       huge current through — resonance, the same trick that tunes a radio to one station.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#b89bff"></i>source voltage</span><span><i style="background:#67e8a0"></i>current</span><span><i style="background:#ffd27a"></i>resonance peak</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Drive frequency f <span class="val" id="fV">500 Hz</span></label>
+        <div class="row"><input type="range" id="f" min="20" max="2000" step="5" value="500"><input type="number" id="fN" min="20" max="2000" step="5" value="500"></div></div>
+      <div class="ctl"><label>Resistance R <span class="val" id="rV">50 Ω</span></label>
+        <div class="row"><input type="range" id="r" min="5" max="200" step="5" value="50"><input type="number" id="rN" min="5" max="200" step="5" value="50"></div></div>
+      <div class="ctl"><label>Inductance L <span class="val" id="lV">100 mH</span></label>
+        <div class="row"><input type="range" id="l" min="20" max="200" step="5" value="100"><input type="number" id="lN" min="20" max="200" step="5" value="100"></div></div>
+      <div class="ctl"><label>Capacitance C <span class="val" id="cV">1.0 µF</span></label>
+        <div class="row"><input type="range" id="c" min="0.2" max="10" step="0.1" value="1"><input type="number" id="cN" min="0.2" max="10" step="0.1" value="1"></div></div>
+      <div class="btns"><button class="act" id="tune">Tune to resonance</button></div>
+      <div class="stats">
+        <div class="s"><span>Resonant freq f₀</span><span id="sF0">503 Hz</span></div>
+        <div class="s"><span>Impedance Z</span><span id="sZ">— Ω</span></div>
+        <div class="s"><span>Current amplitude</span><span id="sI">—</span></div>
+        <div class="s"><span>Phase (V→I)</span><span id="sPh">—</span></div>
+        <div class="s"><span>Quality factor Q</span><span id="sQ">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Sweep the drive frequency and hunt for the current peak at f₀.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A series circuit of a <strong>resistor R</strong>, <strong>inductor L</strong> and <strong>capacitor C</strong>
+      driven by an alternating voltage. The oscilloscope shows the source voltage (violet) and the resulting
+      current (green); the graph on the right is the <strong>resonance curve</strong> — how big the current gets at
+      each drive frequency. The circuit brightens as the current grows.
+
+      <h3>Reactance and impedance</h3>
+      In AC, the inductor and capacitor don't just resist — they push back with a frequency-dependent
+      <strong>reactance</strong>. The inductor opposes fast changes (X_L = ωL, growing with frequency); the
+      capacitor opposes slow ones (X_C = 1/ωC, shrinking with frequency). They act in opposition, and together with
+      R set the total <strong>impedance</strong>:
+      <div class="eq">Z = √( R² + (X_L − X_C)² ),&nbsp;&nbsp;I = V / Z</div>
+
+      <h3>Resonance</h3>
+      At one special frequency the inductive and capacitive reactances are <strong>equal and cancel</strong>. The
+      circuit then behaves as if only R were present, impedance drops to its minimum, and the current spikes to a
+      maximum:
+      <div class="eq">X_L = X_C&nbsp;→&nbsp;f₀ = 1 / (2π√(LC))</div>
+      Below f₀ the capacitor dominates (current <em>leads</em> the voltage); above f₀ the inductor dominates
+      (current <em>lags</em>). Right at f₀ they're in phase. Watch the green current trace slide into step with the
+      violet voltage exactly at the peak.
+
+      <h3>The quality factor</h3>
+      How sharp that peak is depends on the <strong>quality factor</strong> Q:
+      <div class="eq">Q = (1/R) · √(L/C)</div>
+      A small resistance gives a tall, narrow peak (high Q) — the circuit is very selective, responding to a
+      narrow band of frequencies. That selectivity is exactly what lets a radio pick one station out of the crowd;
+      turning the dial changes C (or L), shifting f₀ to the station you want.
+
+      <h3>Things to try</h3>
+      Sweep the drive frequency and watch the current rise to a peak at f₀, then fall. Press "Tune to resonance" to
+      jump straight there. Lower R to sharpen the peak (raise Q); change L or C and watch f₀ move. Notice the phase
+      between voltage and current flip from leading to lagging as you cross resonance.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=470,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={f:500, R:50, L:100, C:1};   // L in mH, C in µF
+function Lh(){return st.L/1000;} function Cf(){return st.C*1e-6;}
+function f0(){ return 1/(2*Math.PI*Math.sqrt(Lh()*Cf())); }
+function calc(f){ const w=2*Math.PI*f, XL=w*Lh(), XC=1/(w*Cf()), Z=Math.hypot(st.R,XL-XC); return {w,XL,XC,Z,I:1/Z,phase:Math.atan2(XL-XC,st.R)}; }
+function Q(){ return (1/st.R)*Math.sqrt(Lh()/Cf()); }
+const FMAX=2000;
+let t=0;
+function draw(dt){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  const cur=calc(st.f);
+  const Imax=calc(f0()).I;            // for scaling
+  const Irel=cur.I/Imax;              // 0..1 relative to resonance peak
+  // ── left: circuit + oscilloscope ──
+  const lw=W*0.5;
+  drawCircuit(20,24,lw-30,H*0.42, Irel);
+  drawScope(20,H*0.5,lw-30,H*0.44, cur);
+  // ── right: resonance curve ──
+  drawResonance(lw+8,24,W-lw-28,H-48, cur);
+  t+=dt;
+  requestAnimationFrame(()=>{});
+}
+function drawCircuit(x,y,w,h, Irel){
+  const glow=0.15+0.7*Irel;
+  const cxl=x+16,cxr=x+w-16,cyt=y+16,cyb=y+h-16;
+  ctx.strokeStyle='rgba(103,232,162,'+glow+')'; ctx.lineWidth=2+3*Irel; ctx.shadowColor='rgba(103,232,162,'+(glow*0.8)+')'; ctx.shadowBlur=8*Irel;
+  ctx.strokeRect(cxl,cyt,cxr-cxl,cyb-cyt); ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(179,170,204,.85)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  // AC source (left side)
+  ctx.strokeStyle='#b89bff'; ctx.lineWidth=2; ctx.beginPath();ctx.arc(cxl,(cyt+cyb)/2,12,0,7);ctx.stroke();
+  ctx.beginPath(); for(let i=-6;i<=6;i++){const yy=(cyt+cyb)/2+Math.sin(i/6*Math.PI*2)*5; i===-6?ctx.moveTo(cxl-6,yy):ctx.lineTo(cxl+i,yy);} ctx.stroke();
+  ctx.fillStyle='#b89bff'; ctx.fillText('AC ~', cxl, cyb+14);
+  // R (top, zigzag)
+  const rx=x+w*0.5; ctx.strokeStyle='rgba(255,210,122,.9)'; ctx.lineWidth=2; ctx.beginPath();
+  let zx=rx-24; ctx.moveTo(cxl+14,cyt);ctx.lineTo(zx,cyt); for(let i=0;i<6;i++){zx+=8;ctx.lineTo(zx,cyt+(i%2?6:-6));} ctx.lineTo(cxr-14,cyt); ctx.stroke();
+  ctx.fillStyle='#ffd27a'; ctx.fillText('R '+st.R+'Ω', rx, cyt-6);
+  // L (right side, coil of half-loops)
+  const ly=(cyt+cyb)/2; ctx.strokeStyle='#8fd0ff'; ctx.lineWidth=2; ctx.beginPath();
+  ctx.moveTo(cxr,cyt+14);
+  for(let i=0;i<4;i++){ ctx.arc(cxr,cyt+24+i*16,6,-Math.PI/2,Math.PI/2,false); }
+  ctx.lineTo(cxr,cyb-14); ctx.stroke();
+  ctx.fillStyle='#8fd0ff'; ctx.fillText('L '+st.L+'mH', cxr-6, ly);
+  // C (bottom, plates)
+  const cxm=x+w*0.5; ctx.strokeStyle='#ff8a8a'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cxl+14,cyb);ctx.lineTo(cxm-8,cyb);ctx.moveTo(cxm-8,cyb-9);ctx.lineTo(cxm-8,cyb+9);ctx.moveTo(cxm+8,cyb-9);ctx.lineTo(cxm+8,cyb+9);ctx.moveTo(cxm+8,cyb);ctx.lineTo(cxr-14,cyb);ctx.stroke();
+  ctx.fillStyle='#ff8a8a'; ctx.fillText('C '+st.C+'µF', cxm, cyb+16);
+  ctx.textAlign='left';
+}
+function drawScope(x,y,w,h, cur){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,w,h);
+  const midY=y+h/2; ctx.strokeStyle='rgba(170,160,220,.2)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x,midY);ctx.lineTo(x+w,midY);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.6)'; ctx.font='10px JetBrains Mono'; ctx.fillText('voltage & current vs time',x+6,y+12);
+  const A=h*0.36, cyc=3;                // cycles shown
+  // source voltage
+  ctx.strokeStyle='#b89bff'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=200;i++){ const ph=i/200*cyc*2*Math.PI; const yy=midY - A*Math.sin(ph - t*2*Math.PI*st.f*0.002*0 - t*4); if(i===0)ctx.moveTo(x,yy); else ctx.lineTo(x+w*i/200,yy);} ctx.stroke();
+  // current (scaled to peak, phase-shifted)
+  const Imax=calc(f0()).I, Irel=cur.I/Imax;
+  ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=200;i++){ const ph=i/200*cyc*2*Math.PI; const yy=midY - A*Irel*Math.sin(ph - t*4 - cur.phase); if(i===0)ctx.moveTo(x,yy); else ctx.lineTo(x+w*i/200,yy);} ctx.stroke();
+}
+function drawResonance(x,y,w,h, cur){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,w,h);
+  const x0=x+34,x1=x+w-10,y0=y+h-24,y1=y+10;
+  const Imax=calc(f0()).I;
+  const X=f=>x0+f/FMAX*(x1-x0), Y=I=>y0-(I/Imax)*(y0-y1);
+  ctx.strokeStyle='rgba(170,160,220,.3)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('drive frequency (Hz) →',(x0+x1)/2,y0+6);
+  ctx.save();ctx.translate(x0-16,(y0+y1)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('current',0,0);ctx.restore();
+  // curve
+  ctx.strokeStyle='#b89bff'; ctx.lineWidth=2.4; ctx.beginPath();
+  for(let i=0;i<=300;i++){ const f=20+FMAX*i/300; const I=calc(f).I; const px=X(f),py=Y(I); i?ctx.lineTo(px,py):ctx.moveTo(px,py);} ctx.stroke();
+  // f0 marker
+  const F0=f0(); if(F0<=FMAX){ ctx.strokeStyle='rgba(255,210,122,.6)'; ctx.setLineDash([4,4]); ctx.beginPath();ctx.moveTo(X(F0),y0);ctx.lineTo(X(F0),Y(Imax));ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#ffd27a'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('f₀='+F0.toFixed(0), X(F0), Y(Imax)-4); }
+  // current operating point
+  ctx.fillStyle='#67e8a0'; ctx.save();ctx.shadowColor='#67e8a0';ctx.shadowBlur=10; ctx.beginPath();ctx.arc(X(st.f),Y(cur.I),5,0,7);ctx.fill();ctx.restore();
+  ctx.textAlign='left';
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; draw(dt); requestAnimationFrame(loop); }
+function updateStats(){
+  const cur=calc(st.f), F0=f0();
+  document.getElementById('sF0').textContent=F0.toFixed(0)+' Hz';
+  document.getElementById('sZ').textContent=cur.Z.toFixed(0)+' Ω';
+  const Imax=calc(F0).I; document.getElementById('sI').textContent=(cur.I/Imax*100).toFixed(0)+'% of max';
+  const ph=cur.phase*180/Math.PI; document.getElementById('sPh').textContent=ph.toFixed(0)+'° '+(Math.abs(ph)<3?'(in phase)':ph>0?'(lags)':'(leads)');
+  document.getElementById('sQ').textContent=Q().toFixed(2);
+  const ve=document.getElementById('verdict');
+  const near=Math.abs(st.f-F0)/F0;
+  if(near<0.05) ve.textContent='At resonance! X_L = X_C cancel, Z = R, current is maximal and in phase with the source.';
+  else if(st.f<F0) ve.textContent='Below f₀: the capacitor dominates — current leads the voltage and is throttled.';
+  else ve.textContent='Above f₀: the inductor dominates — current lags the voltage and is throttled.';
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('f','fN','f','fV',v=>Math.round(v)+' Hz');
+bind('r','rN','R','rV',v=>Math.round(v)+' Ω');
+bind('l','lN','L','lV',v=>Math.round(v)+' mH');
+bind('c','cN','C','cV',v=>(+v).toFixed(1)+' µF');
+document.getElementById('tune').addEventListener('click',()=>{ const F0=Math.round(f0()); const f=Math.max(20,Math.min(FMAX,F0));
+  st.f=f; document.getElementById('f').value=f; document.getElementById('fN').value=f; document.getElementById('fV').textContent=f+' Hz'; updateStats(); });
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

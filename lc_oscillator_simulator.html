@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LC Oscillator · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:2px}
+  .btns button{flex:1;background:rgba(184,155,255,.12);border:1px solid rgba(184,155,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  .btns button:hover{background:rgba(184,155,255,.22)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>LC Oscillator</h1>
+    <p>Charge a capacitor, connect it to an inductor, and the energy sloshes back and forth forever — electric
+       field to magnetic field and back — the electromagnetic twin of a mass bouncing on a spring.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#cdb6ff"></i>charge Q / energy in C</span><span><i style="background:#67e8a0"></i>current I / energy in L</span><span><i style="background:#ffd27a"></i>current flow</span><span><i style="background:#ff8a5b"></i>damping R (optional)</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Inductance L <span class="val" id="lV">100 mH</span></label>
+        <div class="row"><input type="range" id="l" min="10" max="500" step="10" value="100"><input type="number" id="lN" min="10" max="500" step="10" value="100"></div></div>
+      <div class="ctl"><label>Capacitance C <span class="val" id="cV">100 µF</span></label>
+        <div class="row"><input type="range" id="c" min="10" max="500" step="10" value="100"><input type="number" id="cN" min="10" max="500" step="10" value="100"></div></div>
+      <div class="ctl"><label>Initial charge Q₀ <span class="val" id="q0V">100 µC</span></label>
+        <div class="row"><input type="range" id="q0" min="20" max="300" step="10" value="100"><input type="number" id="q0N" min="20" max="300" step="10" value="100"></div></div>
+      <div class="ctl"><label>Resistance R (damping) <span class="val" id="rV">0.0 Ω</span></label>
+        <div class="row"><input type="range" id="r" min="0" max="20" step="0.5" value="0"><input type="number" id="rN" min="0" max="20" step="0.5" value="0"></div></div>
+      <div class="btns"><button id="recharge">⚡ Recharge capacitor</button></div>
+      <div class="stats">
+        <div class="s"><span>Frequency f₀ = 1/(2π√LC)</span><span id="sF">—</span></div>
+        <div class="s"><span>Period T</span><span id="sT">—</span></div>
+        <div class="s"><span>Energy in C: Q²/2C</span><span id="sUC">—</span></div>
+        <div class="s"><span>Energy in L: ½LI²</span><span id="sUL">—</span></div>
+        <div class="s"><span>Total energy</span><span id="sU">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Energy sloshes between the capacitor's electric field and the inductor's magnetic field — total stays exactly constant.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A charged capacitor connected straight to an inductor. The capacitor drives a current through the coil; the
+      coil's magnetic field then keeps that current flowing (inductors resist changes in current) until the
+      capacitor is recharged the <em>opposite</em> way — and the whole cycle repeats. The animation is slowed to
+      about one cycle every three seconds; the stats show the true frequency, which for these components is tens
+      of hertz to kilohertz.
+
+      <h3>The oscillation equation</h3>
+      Kirchhoff's voltage law around the loop, with Q the capacitor charge and I = dQ/dt:
+      <div class="eq">L·d²Q/dt² + Q/C = 0&nbsp;&nbsp;⇒&nbsp;&nbsp;ω₀ = 1/√(LC)</div>
+      This is exactly the simple-harmonic-motion equation. The charge swings as Q₀·cos(ω₀t), and the current —
+      a quarter-cycle behind — as I₀·sin(ω₀t): when the plates are full the current is zero, and when the plates
+      are empty the current peaks.
+
+      <h3>The spring analogy, made exact</h3>
+      Every quantity has a mechanical twin — the two systems share one mathematics:
+      <div class="eq">L ↔ m&nbsp;&nbsp;·&nbsp;&nbsp;1/C ↔ k&nbsp;&nbsp;·&nbsp;&nbsp;Q ↔ x&nbsp;&nbsp;·&nbsp;&nbsp;I ↔ v&nbsp;&nbsp;·&nbsp;&nbsp;R ↔ friction</div>
+      The inductor's reluctance to change current is inertia; the capacitor's push against more charge is the
+      spring's stiffness. Energy alternates between Q²/2C (spring potential ½kx²) and ½LI² (kinetic ½mv²):
+      <div class="eq">Q²/2C + ½LI² = constant</div>
+      Watch the two energy bars — one drains exactly as the other fills, twice per cycle.
+
+      <h3>Adding resistance: the damped oscillator</h3>
+      Real circuits have resistance, which burns energy as heat exactly like friction. The swings then decay
+      inside an exponential envelope, with the quality factor Q = (1/R)√(L/C) counting roughly how many cycles the
+      oscillation survives. Set R to zero here for the ideal case — something a mechanical spring can never quite
+      achieve.
+
+      <h3>Why it matters</h3>
+      An LC loop is nature's frequency-picker: it "rings" at exactly f₀ = 1/(2π√LC). Radio tuners, oscillator
+      clocks, filters and wireless charging all start from this circuit — pick L and C, and you've picked a
+      frequency.
+
+      <h3>Things to try</h3>
+      Quadruple L (or C) and watch the frequency halve — f₀ ∝ 1/√(LC). Raise Q₀ and the amplitude grows while the
+      frequency stays put, just like a spring's period ignoring amplitude. Then add a few ohms and watch the decay
+      envelope appear; compare with the damped spring simulator side by side.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+// real units: L mH, C µF, Q0 µC, R Ω. Animation runs the normalized oscillator
+// q'' = −q − q'/Qfac in phase-time θ = ω0·t, displayed at ~1 cycle per 3 s.
+const st={L:100, C:100, Q0:100, R:0};
+let q=1, qd=0, t=0, samples=[];
+const CYC=3.0;                      // display seconds per cycle
+function w0(){ return 1/Math.sqrt(st.L*1e-3*st.C*1e-6); }   // rad/s (real)
+function f0(){ return w0()/(2*Math.PI); }
+function Qfac(){ return st.R>0? Math.sqrt(st.L*1e-3/(st.C*1e-6))/st.R : Infinity; }
+function UC(){ const Q=q*st.Q0*1e-6; return Q*Q/(2*st.C*1e-6); }         // J
+function UL(){ const Q=qd*st.Q0*1e-6; return Q*Q/(2*st.C*1e-6); }        // J (I=Q0 ω0 qd ⇒ ½LI² = qd²Q0²/2C)
+function Inow(){ return st.Q0*1e-6*w0()*qd; }                            // A
+function update(dt){
+  const dth=dt*2*Math.PI/CYC, sub=20, h=dth/sub, qf=Qfac();
+  for(let i=0;i<sub;i++){ const a=-q-(isFinite(qf)?qd/qf:0); qd+=a*h; q+=qd*h; }
+  t+=dt;
+  samples.push({t,q,qd}); if(samples.length>4000)samples.shift();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  drawCircuit(16,16,W*0.40,H-32);
+  drawBars(W*0.415,30,W*0.10,H-72);
+  drawGraph(W*0.545,20,W-20-W*0.545,H-44);
+  requestAnimationFrame(()=>{});
+}
+function drawCircuit(x,y,wd,ht){
+  const L=x+34,R=x+wd-30,T=y+30,B=y+ht-34, cy=(T+B)/2;
+  ctx.strokeStyle='rgba(184,155,255,.6)'; ctx.lineWidth=2.4; ctx.strokeRect(L,T,R-L,B-T);
+  // capacitor on the left limb: break + plates
+  ctx.fillStyle='#0a0918'; ctx.fillRect(L-12,cy-16,24,32);
+  ctx.strokeStyle='#cdb6ff'; ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(L-13,cy-9);ctx.lineTo(L+13,cy-9);ctx.moveTo(L-13,cy+9);ctx.lineTo(L+13,cy+9);ctx.stroke();
+  ctx.lineWidth=2.4; ctx.strokeStyle='rgba(184,155,255,.6)';
+  ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,cy-9);ctx.moveTo(L,cy+9);ctx.lineTo(L,B);ctx.stroke();
+  // plate charges ∝ q (top plate + when q>0)
+  const nq=Math.round(Math.abs(q)*6);
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  for(let i=0;i<nq;i++){
+    const off=(i-(nq-1)/2)*10;
+    ctx.fillStyle=q>0?'rgba(255,138,138,.95)':'rgba(124,196,255,.95)';
+    ctx.fillText(q>0?'+':'−', L+off, cy-14);
+    ctx.fillStyle=q>0?'rgba(124,196,255,.95)':'rgba(255,138,138,.95)';
+    ctx.fillText(q>0?'−':'+', L+off, cy+22);
+  }
+  ctx.fillStyle='#cdb6ff'; ctx.font='11px JetBrains Mono';
+  ctx.fillText('C = '+st.C.toFixed(0)+' µF', L, B+22);
+  // inductor on right limb: coil bumps
+  ctx.fillStyle='#0a0918'; ctx.fillRect(R-10,cy-34,20,68);
+  ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.moveTo(R,cy-34);
+  for(let i=0;i<4;i++){ ctx.arc(R,cy-34+8.5+i*17,8.5,-Math.PI/2,Math.PI/2,false); }
+  ctx.stroke();
+  ctx.strokeStyle='rgba(184,155,255,.6)';
+  ctx.beginPath();ctx.moveTo(R,T);ctx.lineTo(R,cy-34);ctx.moveTo(R,cy+34);ctx.lineTo(R,B);ctx.stroke();
+  ctx.fillStyle='#67e8a0'; ctx.fillText('L = '+st.L.toFixed(0)+' mH', R, B+22);
+  // resistor if any (bottom)
+  if(st.R>0){
+    const rx=(L+R)/2; ctx.strokeStyle='#ff8a5b'; ctx.lineWidth=2;
+    ctx.beginPath(); let zx=rx-22; ctx.moveTo(rx-30,B);ctx.lineTo(zx,B);
+    for(let i=0;i<6;i++){zx+=7.3;ctx.lineTo(zx,B+(i%2?5:-5));} ctx.lineTo(rx+30,B); ctx.stroke();
+    ctx.fillStyle='#ff8a5b'; ctx.fillText('R = '+st.R.toFixed(1)+' Ω', rx, B+22);
+  }
+  // current dots around loop, speed & direction ∝ qd
+  const mag=Math.min(1,Math.abs(qd));
+  if(mag>0.02){
+    const per=2*((R-L)+(B-T));
+    for(let s=0;s<14;s++){
+      let u=((s/14 + t*0.4*qd)%1+1)%1;
+      let d=u*per, px,py;
+      if(d<(R-L)){px=L+d;py=T;}
+      else if(d<(R-L)+(B-T)){px=R;py=T+(d-(R-L));}
+      else if(d<2*(R-L)+(B-T)){px=R-(d-(R-L)-(B-T));py=B;}
+      else {px=L;py=B-(d-2*(R-L)-(B-T));}
+      ctx.fillStyle='rgba(255,210,122,'+(0.25+0.6*mag)+')';
+      ctx.beginPath();ctx.arc(px,py,2.6,0,7);ctx.fill();
+    }
+  }
+  ctx.fillStyle='rgba(239,238,251,.75)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('I = '+(Inow()*1000).toFixed(1)+' mA', x+4, y+10);
+}
+function drawBars(x,y,wd,ht){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,wd,ht);
+  const U0=(st.Q0*1e-6)*(st.Q0*1e-6)/(2*st.C*1e-6);   // initial energy scale
+  const items=[['U_C',UC()/U0,'#cdb6ff'],['U_L',UL()/U0,'#67e8a0']];
+  const bw=wd*0.30;
+  items.forEach((it,i)=>{
+    const bx=x+wd*(0.28+0.44*i)-bw/2, frac=Math.max(0,Math.min(1,it[1]));
+    ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fillRect(bx,y+18,bw,ht-46);
+    ctx.fillStyle=it[2]; ctx.fillRect(bx, y+18+(ht-46)*(1-frac), bw, (ht-46)*frac);
+    ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(239,238,251,.85)'; ctx.fillText(it[0], bx+bw/2, y+12);
+  });
+  ctx.fillStyle='rgba(179,170,204,.6)'; ctx.font='9.5px Inter'; ctx.textAlign='center';
+  ctx.fillText('energy', x+wd/2, y+ht-8);
+}
+function drawGraph(x,y,wd,ht){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,wd,ht);
+  const x0=x+34,x1=x+wd-8,y0=y+ht-24,y1=y+12, ym=(y0+y1)/2;
+  const win=3*CYC;
+  const X=tt=>x1-(t-tt)/win*(x1-x0), Y=vv=>ym-vv*(y0-y1)/2*0.9;
+  ctx.strokeStyle='rgba(170,160,220,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.strokeStyle='rgba(170,160,220,.25)'; ctx.beginPath();ctx.moveTo(x0,ym);ctx.lineTo(x1,ym);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('time →',(x0+x1)/2,y0+6);
+  let s0=false;
+  ctx.strokeStyle='#cdb6ff'; ctx.lineWidth=2; ctx.beginPath();
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=Y(s.q); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+  s0=false; ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2; ctx.beginPath();
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=Y(s.qd); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+  ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#cdb6ff'; ctx.fillText('Q(t)',x0+4,y1+10);
+  ctx.fillStyle='#67e8a0'; ctx.fillText('I(t)',x0+34,y1+10);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const f=f0();
+  document.getElementById('sF').textContent= f>=1000? (f/1000).toFixed(2)+' kHz' : f.toFixed(1)+' Hz';
+  document.getElementById('sT').textContent=(1000/f).toFixed(2)+' ms';
+  document.getElementById('sUC').textContent=(UC()*1e6).toFixed(2)+' µJ';
+  document.getElementById('sUL').textContent=(UL()*1e6).toFixed(2)+' µJ';
+  document.getElementById('sU').textContent=((UC()+UL())*1e6).toFixed(2)+' µJ';
+  const ve=document.getElementById('verdict');
+  if(st.R<=0){
+    ve.textContent = UC()>UL()
+      ? 'Energy is mostly in the capacitor\'s electric field right now — moments later it will all be in the inductor\'s magnetic field. Total stays exactly constant: the EM twin of a mass on a spring.'
+      : 'Energy is mostly in the inductor\'s magnetic field right now — the current peaks just as the capacitor empties, then it recharges the plates the other way. Total stays exactly constant.';
+  } else {
+    ve.textContent='With R = '+st.R.toFixed(1)+' Ω each cycle bleeds energy as heat — the oscillation decays inside an exponential envelope, exactly like the damped spring. (Q-factor ≈ '+Qfac().toFixed(1)+')';
+  }
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('l','lN','L','lV',v=>Math.round(v)+' mH');
+bind('c','cN','C','cV',v=>Math.round(v)+' µF');
+bind('q0','q0N','Q0','q0V',v=>Math.round(v)+' µC');
+bind('r','rN','R','rV',v=>(+v).toFixed(1)+' Ω');
+document.getElementById('recharge').addEventListener('click',()=>{ q=1; qd=0; samples=[]; t=0; });
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

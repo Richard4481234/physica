@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heat Conduction · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --accent-soft:#9c4a2e; --gold:#ffd27a;
+    --cold:#3a5fb0; --hot:#ff6b6b; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:58px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(255,138,91,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--cold),var(--hot)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(255,138,91,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .seg{display:flex; gap:6px; flex-wrap:wrap}
+  .seg button{flex:1 1 auto; min-width:54px; padding:9px 6px; border-radius:10px; border:1px solid var(--glass-line);
+    background:rgba(255,255,255,.03); color:var(--muted); font-size:12px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .seg button:hover{color:var(--ink); border-color:rgba(255,138,91,.45)}
+  .seg button.on{background:linear-gradient(135deg,rgba(255,138,91,.22),rgba(255,138,91,.08)); color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -5px rgba(255,138,91,.55);}
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .chip{padding:8px 11px; border-radius:9px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .chip:hover{color:var(--ink); border-color:rgba(255,138,91,.45)}
+
+  .actions{display:flex; gap:10px; margin-top:6px}
+  .btn{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#2a1206; background:linear-gradient(135deg,#ffb37a,#ff8a5b); box-shadow:0 8px 24px -8px rgba(255,138,91,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .swatch{width:60px; height:11px; border-radius:3px; background:linear-gradient(90deg,#3a5fb0,#ff6b6b,#ffe08a)}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.cold::before{background:var(--cold)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(255,138,91,.25),rgba(255,138,91,.08)); border:1px solid rgba(255,138,91,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .hot{color:var(--hot)} .ex-body .cold{color:#6bb6ff} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,138,91,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="thermal.html" class="back">← Thermal</a>
+    <div class="kicker">Heat Transfer</div>
+    <h1>Heat Conduction</h1>
+  </div>
+  <div class="sub">Hold the ends of a rod at fixed temperatures and watch heat flow from hot to cold.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">End temperatures</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Left end</span>
+        <span class="val"><input id="lNum" class="num" type="number" min="0" max="100" step="5" value="90"><em>°</em></span></div>
+      <input id="left" type="range" min="0" max="100" step="5" value="90">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Right end</span>
+        <span class="val"><input id="rNum" class="num" type="number" min="0" max="100" step="5" value="10"><em>°</em></span></div>
+      <input id="right" type="range" min="0" max="100" step="5" value="10">
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Material</p>
+    <div class="seg" id="mat">
+      <button data-m="copper" class="on">Copper</button>
+      <button data-m="alum">Aluminium</button>
+      <button data-m="iron">Iron</button>
+      <button data-m="glass">Glass</button>
+      <button data-m="wood">Wood</button>
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Start from</p>
+    <div class="chips">
+      <button class="chip" data-p="cold">Cold rod</button>
+      <button class="chip" data-p="spike">Hot spike</button>
+      <button class="chip" data-p="step">Step</button>
+      <button class="chip" data-p="uniform">Uniform</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="pause">Pause ⏸</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="swatch"></i>cold → hot</span>
+      <span style="margin-left:auto;color:var(--faint)">Dashed line = final steady-state gradient</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Centre temp</div><div class="v"><span id="sMid">0</span><em>°</em></div></div>
+      <div class="stat cold"><div class="k">ΔT across rod</div><div class="v"><span id="sDT">0</span><em>°</em></div></div>
+      <div class="stat gold"><div class="k">Heat flux</div><div class="v"><span id="sQ">0</span><em>arb.</em></div></div>
+      <div class="stat green"><div class="k">State</div><div class="v" id="sState" style="font-size:15px">Transient</div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A metal rod has its two ends clamped to heat reservoirs at fixed temperatures — say a
+           <span class="hot">hot</span> left end and a <span class="cold">cold</span> right end. Heat flows
+           through the rod from hot to cold by <b>conduction</b>: fast-jiggling atoms at the hot end jostle their
+           neighbours, passing energy down the line without the material itself moving. The colour shows the
+           temperature at each point, and the graph below plots the temperature profile T(x).</p>
+
+        <h4>Fourier's law</h4>
+        <p>Heat flux — the rate energy flows through a cross-section — is proportional to the
+           <b>temperature gradient</b>: steeper temperature differences drive faster heat flow.</p>
+        <div class="ex-eq">
+          q = −k · dT/dx <span class="lbl">k = thermal conductivity</span>
+        </div>
+        <p>Good conductors like <b>copper</b> have a large k and move heat readily; insulators like
+           <b>wood</b> and <b>glass</b> have a small k and barely conduct. Switch materials and watch how
+           quickly (or slowly) the rod responds.</p>
+
+        <h4>The heat equation</h4>
+        <p>Combining Fourier's law with energy conservation gives the equation the simulation actually solves,
+           the <b>heat (diffusion) equation</b>:</p>
+        <div class="ex-eq">
+          ∂T/∂t = α · ∂²T/∂x² <span class="lbl">α = thermal diffusivity</span>
+        </div>
+        <p>It says each point's temperature drifts toward the average of its neighbours — so bumps smooth out
+           and gradients relax. We integrate it with a simple finite-difference scheme across the rod.</p>
+
+        <h4>Reaching steady state</h4>
+        <p>With the ends held fixed, the rod eventually stops changing: heat flows in the hot end and out the
+           cold end at the same steady rate. In that <b>steady state</b> the temperature profile is a perfectly
+           <b>straight line</b> from one end temperature to the other (the dashed reference line). The flux is
+           then constant everywhere, <span class="mono">q = k·(T_hot − T_cold)/L</span>.</p>
+
+        <h4>Things to try</h4>
+        <p>Start from a <b>Hot spike</b> in the middle of a cool rod and watch the bump spread out and fade —
+           pure diffusion. Compare <b>copper</b> and <b>wood</b> reaching steady state. Change an end
+           temperature mid-run and watch the whole profile re-adjust toward the new straight line.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={left:$('left'),right:$('right'),lNum:$('lNum'),rNum:$('rNum'),
+  sMid:$('sMid'),sDT:$('sDT'),sQ:$('sQ'),sState:$('sState'),pause:$('pause'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+const N=140;
+const MAT={copper:{r:0.45,k:100}, alum:{r:0.40,k:82}, iron:{r:0.28,k:40}, glass:{r:0.12,k:6}, wood:{r:0.06,k:2}};
+let mat='copper';
+let T=new Float64Array(N), buf=new Float64Array(N);
+let playing=true, raf=null, last=null, frame=0;
+
+function TL(){return clampNum(els.lNum);}
+function TR(){return clampNum(els.rNum);}
+
+function setInit(name){
+  const tl=TL(), tr=TR(), lo=Math.min(tl,tr), mid=(tl+tr)/2;
+  for(let i=0;i<N;i++){
+    const x=i/(N-1);
+    if(name==='cold') T[i]=lo;
+    else if(name==='uniform') T[i]=mid;
+    else if(name==='step') T[i]= x<0.5?tl:tr;
+    else if(name==='spike'){ const g=Math.exp(-Math.pow((x-0.5)/0.08,2)); T[i]=lo+ (100-lo)*g; }
+    else T[i]=tr; // default 'ends': interior starts cold-ish
+  }
+  T[0]=tl; T[N-1]=tr;
+}
+
+function stepHeat(){
+  const r=MAT[mat].r, tl=TL(), tr=TR();
+  for(let i=1;i<N-1;i++) buf[i]=T[i]+r*(T[i+1]-2*T[i]+T[i-1]);
+  buf[0]=tl; buf[N-1]=tr;
+  const tmp=T; T=buf; buf=tmp;
+}
+
+// temperature colour map: cold blue -> red -> hot yellow
+function lerp(a,b,t){return a+(b-a)*t;}
+function tcolor(v){ let t=Math.max(0,Math.min(1,v/100)); let r,g,b;
+  if(t<0.5){const u=t/0.5; r=lerp(47,255,u); g=lerp(111,107,u); b=lerp(208,107,u);}
+  else{const u=(t-0.5)/0.5; r=lerp(255,255,u); g=lerp(107,224,u); b=lerp(107,138,u);}
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.6);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+function render(){
+  const d=fit(); const w=d.w,h=d.h;
+  ctx.clearRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+
+  const mL=40, mR=20, x0=mL, x1=w-mR, RW=x1-x0;
+  // ── rod ──
+  const rodY=30, rodH=66;
+  for(let i=0;i<N;i++){
+    const cx=x0+RW*(i/N), cw=RW/N+1;
+    ctx.fillStyle=tcolor(T[i]); ctx.fillRect(cx,rodY,cw,rodH);
+  }
+  // rod sheen + border
+  const sh=ctx.createLinearGradient(0,rodY,0,rodY+rodH);
+  sh.addColorStop(0,'rgba(255,255,255,.18)'); sh.addColorStop(.5,'rgba(255,255,255,0)'); sh.addColorStop(1,'rgba(0,0,0,.22)');
+  ctx.fillStyle=sh; ctx.fillRect(x0,rodY,RW,rodH);
+  ctx.strokeStyle='rgba(255,200,170,.3)'; ctx.lineWidth=1.5; ctx.strokeRect(x0,rodY,RW,rodH);
+  // reservoir clamps
+  ctx.fillStyle='rgba(255,255,255,.06)';
+  ctx.fillRect(x0-10,rodY-6,10,rodH+12); ctx.fillRect(x1,rodY-6,10,rodH+12);
+  ctx.fillStyle='rgba(246,238,240,.92)'; ctx.font='600 12px JetBrains Mono, monospace'; ctx.textBaseline='alphabetic';
+  ctx.textAlign='left'; ctx.fillText(Math.round(TL())+'°', x0, rodY-10);
+  ctx.textAlign='right'; ctx.fillText(Math.round(TR())+'°', x1, rodY-10);
+  // heat-flow arrows (hot -> cold) along the rod
+  const dir = TL()>=TR()?1:-1;
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1.5;
+  for(let a=0;a<6;a++){ const ax=x0+RW*((a+0.5)/6), ay=rodY+rodH/2;
+    ctx.beginPath();ctx.moveTo(ax-9*dir,ay);ctx.lineTo(ax+5*dir,ay);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ax+9*dir,ay);ctx.lineTo(ax+2*dir,ay-4);ctx.lineTo(ax+2*dir,ay+4);ctx.closePath();ctx.fill(); }
+
+  // ── profile plot T(x) ──
+  const pT=rodY+rodH+34, pB=h-26, pH=pB-pT;
+  const Yt=t=>pB-pH*(t/100);
+  // grid
+  ctx.strokeStyle='rgba(140,160,220,.10)'; ctx.fillStyle='rgba(204,166,170,.6)';
+  ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let t=0;t<=100;t+=25){ const y=Yt(t); ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke(); ctx.fillText(t+'°',x0-6,y); }
+  // steady-state line (linear TL->TR)
+  ctx.strokeStyle='rgba(255,210,122,.55)'; ctx.lineWidth=1.5; ctx.setLineDash([5,6]);
+  ctx.beginPath();ctx.moveTo(x0,Yt(TL()));ctx.lineTo(x1,Yt(TR()));ctx.stroke(); ctx.setLineDash([]);
+  // current profile (filled)
+  ctx.beginPath(); ctx.moveTo(x0,pB);
+  for(let i=0;i<N;i++){ const px=x0+RW*(i/(N-1)); ctx.lineTo(px,Yt(T[i])); }
+  ctx.lineTo(x1,pB); ctx.closePath();
+  const fg=ctx.createLinearGradient(0,pT,0,pB); fg.addColorStop(0,'rgba(255,138,91,.28)'); fg.addColorStop(1,'rgba(255,138,91,0)');
+  ctx.fillStyle=fg; ctx.fill();
+  ctx.strokeStyle='#ff8a5b'; ctx.lineWidth=2.4; ctx.beginPath();
+  for(let i=0;i<N;i++){ const px=x0+RW*(i/(N-1)); i===0?ctx.moveTo(px,Yt(T[i])):ctx.lineTo(px,Yt(T[i])); }
+  ctx.stroke();
+  // axis labels
+  ctx.fillStyle='rgba(204,166,170,.8)'; ctx.font='11px Inter, sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('temperature  T(x)', x0+2, pT-2);
+  ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText('position along rod →', x1, pB+20);
+}
+
+function meters(){
+  const mid=T[(N/2)|0], dt=TL()-TR();
+  els.sMid.textContent=Math.round(mid);
+  els.sDT.textContent=Math.round(dt);
+  els.sQ.textContent=(MAT[mat].k*Math.abs(dt)/100).toFixed(1);
+  // steady = current profile close to the linear TL->TR line
+  let dev=0; for(let i=0;i<N;i++){ const lin=TL()+(TR()-TL())*(i/(N-1)); dev+=Math.abs(T[i]-lin); }
+  dev/=N;
+  els.sState.textContent = dev<1.2?'Steady state':'Transient';
+}
+
+function loop(ts){
+  if(playing){ const steps=Math.max(1,Math.round(5*(window.SLOWMO||1))); for(let i=0;i<steps;i++) stepHeat(); }
+  render();
+  if(++frame%3===0) meters();
+  raf=requestAnimationFrame(loop);
+}
+
+// ── controls ──
+function linkSlider(slider,num){slider.addEventListener('input',()=>{num.value=slider.value;});}
+function linkNum(num,slider){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value); if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v));});
+  num.addEventListener('change',()=>{num.value=clampNum(num); slider.value=num.value;});
+}
+linkSlider(els.left,els.lNum); linkSlider(els.right,els.rNum);
+linkNum(els.lNum,els.left); linkNum(els.rNum,els.right);
+
+document.getElementById('mat').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; mat=b.dataset.m;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>setInit(c.dataset.p)));
+els.pause.addEventListener('click',()=>{ playing=!playing; els.pause.textContent= playing?'Pause ⏸':'Play ▶'; });
+els.reset.addEventListener('click',()=>{ setInit('cold'); });
+window.addEventListener('resize',render);
+
+setInit('cold');
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

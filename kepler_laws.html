@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kepler's Three Laws · Mechanica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1000px; margin:0 auto; padding:34px 28px 6px;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500;
+    color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(30px,5vw,42px); margin:4px 0 0; letter-spacing:-.01em;}
+  .intro{max-width:1000px; margin:0 auto; padding:6px 28px 6px; color:var(--muted); font-size:15.5px; line-height:1.65;}
+  .toolbar{max-width:1000px; margin:0 auto; padding:14px 28px 0; display:flex; gap:12px; align-items:center;}
+  .pill{padding:9px 16px; border-radius:11px; border:1px solid var(--glass-line); background:rgba(255,255,255,.04);
+    color:var(--ink); font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer; transition:all .15s ease;}
+  .pill:hover{border-color:rgba(124,196,255,.5)}
+  .toolbar .note{color:var(--faint); font-size:12.5px; margin-left:auto}
+
+  .law{max-width:1000px; margin:22px auto; padding:0 28px; }
+  .card{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    overflow:hidden; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .card .head{display:flex; align-items:center; gap:16px; padding:20px 24px 4px;}
+  .roman{font-family:'Fraunces',serif; font-size:34px; font-weight:600; color:var(--accent);
+    line-height:1; width:54px; flex:none; text-align:center;
+    text-shadow:0 0 22px rgba(124,196,255,.5);}
+  .head h2{font-family:'Fraunces',serif; font-weight:500; font-size:23px; margin:0;}
+  .head .sub{color:var(--faint); font-size:12.5px; margin-top:3px; letter-spacing:.04em; text-transform:uppercase}
+  .card canvas{width:100%; display:block;}
+  .card .cap{padding:8px 24px 22px; color:var(--muted); font-size:14px; line-height:1.6;}
+  .card .cap b{color:var(--ink); font-weight:600} .card .cap .accent{color:var(--accent)}
+  .card .cap .mono{font-family:'JetBrains Mono',monospace; font-size:13px;
+    background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ctrlrow{display:flex; align-items:center; gap:14px; padding:6px 24px 14px;}
+  .ctrlrow label{font-size:13px; color:var(--muted); white-space:nowrap}
+  .ctrlrow .valm{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink); min-width:46px}
+  input[type=range]{-webkit-appearance:none; appearance:none; flex:1; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,#3b6ea8,rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent);
+    box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+  footer{max-width:1000px; margin:0 auto; padding:10px 28px 50px; color:var(--faint); font-size:13px;}
+  .verdict{max-width:1000px; margin:0 auto 26px; padding:0 28px;}
+  .verdict div{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;}
+  details.explainer{max-width:1000px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(8,12,28,.5); padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <a href="mechanics.html" class="back">← Mechanical</a>
+  <div class="kicker">Gravitation · Foundations</div>
+  <h1>Kepler's Three Laws</h1>
+</header>
+<p class="intro">Before Newton explained <em>why</em> planets move as they do, Johannes Kepler discovered
+   three precise rules describing <em>how</em> they move, drawn from decades of observation. Each law below
+   is shown as a live animation.</p>
+<div class="toolbar">
+  <button class="pill" id="toggle">Pause ⏸</button>
+  <span class="note">All three animations share one clock</span>
+</div>
+
+<!-- LAW I -->
+<section class="law">
+  <div class="card">
+    <div class="head">
+      <div class="roman">I</div>
+      <div><h2>The Law of Ellipses</h2><div class="sub">The orbit is an ellipse with the Sun at one focus</div></div>
+    </div>
+    <canvas id="cv1"></canvas>
+    <div class="ctrlrow">
+      <label>Eccentricity e</label>
+      <input id="ecc" type="range" min="0" max="0.8" step="0.01" value="0.5">
+      <span class="valm" id="eccV">0.50</span>
+    </div>
+    <div class="cap">
+      Every planet traces an <b>ellipse</b>, not a circle, with the <span class="accent">Sun fixed at one
+      focus</span> (the other focus is empty). An ellipse is the set of points whose two focal distances add
+      to a constant, so as the planet moves <span class="mono">r₁ + r₂ = 2a</span> always holds — watch the two
+      coloured radii change while their sum stays fixed. Drag the slider to stretch the orbit: at
+      <b>e = 0</b> it's a circle; larger <b>e</b> means a more elongated ellipse.
+    </div>
+  </div>
+</section>
+
+<!-- LAW II -->
+<section class="law">
+  <div class="card">
+    <div class="head">
+      <div class="roman">II</div>
+      <div><h2>The Law of Equal Areas</h2><div class="sub">A line to the Sun sweeps equal areas in equal times</div></div>
+    </div>
+    <canvas id="cv2"></canvas>
+    <div class="cap">
+      The orbit is divided into <b>eight wedges of equal area</b>, each swept in <b>one-eighth of the orbital
+      period</b>. Because the areas are equal but their shapes are not, the planet must move <span class="accent">
+      faster when close to the Sun</span> (near perihelion the wedge is short and fat) and <b>slower when far
+      away</b> (near aphelion it is long and thin). This is really conservation of <b>angular momentum</b> in
+      disguise. The glowing wedge marks the slice being swept right now.
+    </div>
+  </div>
+</section>
+
+<!-- LAW III -->
+<section class="law">
+  <div class="card">
+    <div class="head">
+      <div class="roman">III</div>
+      <div><h2>The Harmonic Law</h2><div class="sub">The period squared is proportional to the semi-major axis cubed</div></div>
+    </div>
+    <canvas id="cv3"></canvas>
+    <div class="cap">
+      Planets on <b>larger orbits travel slower and have farther to go</b>, so they take dramatically longer to
+      circle the Sun. Kepler found the exact relationship <span class="mono">T² ∝ a³</span>: the four planets on
+      the left orbit at the correct relative speeds, and the plot on the right shows their
+      <span class="accent">T² plotted against a³</span> falling exactly on a straight line through the origin —
+      the ratio <span class="mono">T² / a³</span> is the same for every orbit.
+    </div>
+  </div>
+</section>
+
+<div class="verdict"><div id="verdict">One clock, three laws: the orbit's shape, the sweep of its radius, and its period are all fixed by gravity alone.</div></div>
+
+<details class="explainer">
+  <summary>About this experiment <span class="chev">›</span></summary>
+  <div class="exp-body">
+    <h3>What you are looking at</h3>
+    <p>Three animations driven by one shared clock. Each planet's position is computed the proper way — solving
+       <strong>Kepler's equation</strong> numerically each frame, so the speeds you see are physically correct:</p>
+    <div class="eq">M = E − e·sin E &nbsp;→&nbsp; r = a(1 − e·cos E)</div>
+    <h3>The three laws</h3>
+    <p><strong>I — Ellipses.</strong> Each orbit is an ellipse with the Sun at one focus; the two focal radii always
+       satisfy r₁ + r₂ = 2a.</p>
+    <p><strong>II — Equal areas.</strong> The Sun–planet line sweeps equal areas in equal times. This is angular
+       momentum conservation: with gravity pulling along the line to the Sun, there is no torque, so</p>
+    <div class="eq">dA/dt = L / 2m = constant</div>
+    <p><strong>III — Harmonic law.</strong> Newton's gravity makes the period depend only on the semi-major axis:</p>
+    <div class="eq">T² = (4π² / GM) · a³</div>
+    <h3>Why it matters</h3>
+    <p>Kepler distilled these rules from Tycho Brahe's naked-eye data decades before calculus existed. Newton then
+       showed all three follow from a single inverse-square force — the first great unification in physics, and the
+       same mathematics that plans every interplanetary mission today.</p>
+  </div>
+</details>
+
+<footer>Mechanica · Kepler's laws are the observational foundation that Newton's law of gravitation later explained.</footer>
+
+<script>
+const TAU=Math.PI*2;
+function solveE(M,e){M=((M%TAU)+TAU)%TAU; let E=M;
+  for(let i=0;i<60;i++){const d=(E-e*Math.sin(E)-M)/(1-e*Math.cos(E)); E-=d; if(Math.abs(d)<1e-10)break;} return E;}
+function ePos(a,e,M){const E=solveE(M,e); const b=a*Math.sqrt(1-e*e);
+  return {x:a*(Math.cos(E)-e), y:b*Math.sin(E), E, r:a*(1-e*Math.cos(E))};}
+function fit(cv,ctx,aspect){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(w*aspect);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+let STARS=null;
+function buildStars(){ STARS=[]; let s=424242; const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+  for(let i=0;i<90;i++){ const tint=rnd()<0.16?(rnd()<0.5?'190,210,255':'255,225,195'):'255,255,255';
+    STARS.push({x:rnd(),y:rnd(),r:rnd()*1.1+0.3,b:0.2+0.6*rnd(),tw:rnd()*6.283,big:rnd()<0.06,hue:tint}); } }
+function spaceBg(ctx,d,cx,cy){
+  const bg=ctx.createLinearGradient(0,0,0,d.h); bg.addColorStop(0,'#0b1230'); bg.addColorStop(.55,'#0a0f24'); bg.addColorStop(1,'#070a18');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,d.w,d.h);
+  for(const n of [[0.18,0.2,'rgba(70,95,190,0.09)'],[0.84,0.7,'rgba(150,70,125,0.07)']]){
+    const g=ctx.createRadialGradient(n[0]*d.w,n[1]*d.h,0,n[0]*d.w,n[1]*d.h,d.w*0.5); g.addColorStop(0,n[2]); g.addColorStop(1,'transparent'); ctx.fillStyle=g; ctx.fillRect(0,0,d.w,d.h);
+  }
+  if(!STARS)buildStars();
+  const tt=performance.now()/1000;
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  for(const st of STARS){ const tw=0.6+0.4*Math.sin(tt*1.4+st.tw),a=st.b*tw,x=st.x*d.w,y=st.y*d.h;
+    ctx.fillStyle='rgba('+st.hue+','+a.toFixed(3)+')';ctx.beginPath();ctx.arc(x,y,st.r,0,7);ctx.fill();
+    if(st.big){ctx.fillStyle='rgba('+st.hue+','+(a*0.22).toFixed(3)+')';ctx.beginPath();ctx.arc(x,y,st.r*4,0,7);ctx.fill();} }
+  ctx.restore();
+}
+function sun(ctx,x,y,R){
+  const tt=performance.now()/1000;
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  let halo=ctx.createRadialGradient(x,y,R*0.4,x,y,R*4.5);
+  halo.addColorStop(0,'rgba(255,212,135,.42)'); halo.addColorStop(.4,'rgba(255,168,86,.14)'); halo.addColorStop(1,'rgba(255,150,80,0)');
+  ctx.fillStyle=halo; ctx.beginPath();ctx.arc(x,y,R*4.5,0,7);ctx.fill();
+  const pulse=0.85+0.15*Math.sin(tt*1.6); ctx.strokeStyle='rgba(255,210,135,.2)'; ctx.lineCap='round';
+  for(let k=0;k<12;k++){const a=tt*0.05+k*Math.PI/6, r1=R*1.1, r2=R*(2.0+0.5*Math.sin(tt*2.4+k))*pulse;
+    ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*r1,y+Math.sin(a)*r1);ctx.lineTo(x+Math.cos(a)*r2,y+Math.sin(a)*r2);ctx.stroke();}
+  ctx.restore();
+  const g=ctx.createRadialGradient(x-R*0.32,y-R*0.32,R*0.1,x,y,R);
+  g.addColorStop(0,'#fffdf4'); g.addColorStop(.42,'#ffe7a6'); g.addColorStop(.8,'#ffb24d'); g.addColorStop(1,'#ff7a2a');
+  ctx.save();ctx.shadowColor='rgba(255,180,90,.9)';ctx.shadowBlur=24;
+  ctx.fillStyle=g; ctx.beginPath();ctx.arc(x,y,R,0,7);ctx.fill();ctx.restore();
+}
+function planet(ctx,x,y,R,col,glow){
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  const halo=ctx.createRadialGradient(x,y,R*0.4,x,y,R*2.4); halo.addColorStop(0,glow+'.4)'); halo.addColorStop(1,glow+'0)');
+  ctx.fillStyle=halo;ctx.beginPath();ctx.arc(x,y,R*2.4,0,7);ctx.fill();ctx.restore();
+  const g=ctx.createRadialGradient(x-R*0.4,y-R*0.4,R*0.1,x,y,R);
+  g.addColorStop(0,'#ffffff'); g.addColorStop(.4,col); g.addColorStop(1,glow+'.92)');
+  ctx.save();ctx.shadowColor=glow+'.6)';ctx.shadowBlur=12;ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,R,0,7);ctx.fill();ctx.restore();
+  const sh=ctx.createRadialGradient(x+R*0.5,y+R*0.5,R*0.2,x,y,R*1.05); sh.addColorStop(0,'rgba(5,8,20,0)'); sh.addColorStop(1,'rgba(5,8,20,.4)');
+  ctx.fillStyle=sh;ctx.beginPath();ctx.arc(x,y,R,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,R-0.5,0,7);ctx.stroke();
+}
+
+const C1={cv:document.getElementById('cv1'),ctx:document.getElementById('cv1').getContext('2d')};
+const C2={cv:document.getElementById('cv2'),ctx:document.getElementById('cv2').getContext('2d')};
+const C3={cv:document.getElementById('cv3'),ctx:document.getElementById('cv3').getContext('2d')};
+const eccEl=document.getElementById('ecc'), eccV=document.getElementById('eccV');
+let ecc1=0.5;
+eccEl.addEventListener('input',()=>{ecc1=+eccEl.value; eccV.textContent=ecc1.toFixed(2); verdictText(); if(!running)drawAll();});
+function verdictText(){
+  const e=+eccEl.value, ratio=(1+e)/(1-e);
+  document.getElementById('verdict').textContent = e<0.02
+    ? 'At e ≈ 0 the ellipse is a circle, both foci merge at the Sun, and the planet moves at constant speed — all three laws still hold, just without drama.'
+    : `At e = ${e.toFixed(2)} the planet moves ${ratio.toFixed(1)}× faster at perihelion than aphelion — equal areas demand it, and T² ∝ a³ fixes the lap time regardless of shape.`;
+}
+verdictText();
+
+const P=7; // seconds per orbit for laws I & II
+
+// ── LAW I ──
+function law1(t){
+  const {cv,ctx}=C1; const d=fit(cv,ctx,0.5);
+  const cx=d.w/2, cy=d.h/2; spaceBg(ctx,d,cx,cy);
+  const e=ecc1, a=1, b=a*Math.sqrt(1-e*e), c=a*e, margin=54;
+  const scale=Math.min((d.w/2-margin)/a, (d.h/2-margin)/b);
+  const SX=wx=>cx+(wx+c)*scale, SY=wy=>cy-wy*scale;
+  // ellipse outline + faint fill
+  ctx.beginPath();
+  for(let E=0;E<=TAU+0.01;E+=Math.PI/120){const X=SX(a*(Math.cos(E)-e)),Y=SY(b*Math.sin(E)); E===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y);}
+  ctx.closePath();
+  ctx.fillStyle='rgba(124,196,255,.05)'; ctx.fill();
+  ctx.strokeStyle='rgba(124,196,255,.4)'; ctx.lineWidth=1.6; ctx.stroke();
+  // major axis + center + foci
+  ctx.strokeStyle='rgba(140,160,220,.25)'; ctx.lineWidth=1; ctx.setLineDash([4,5]);
+  ctx.beginPath();ctx.moveTo(SX(-a),SY(0));ctx.lineTo(SX(a),SY(0));ctx.stroke(); ctx.setLineDash([]);
+  const F1x=SX(0),F1y=SY(0), F2x=SX(-2*c),F2y=SY(0);
+  ctx.fillStyle='rgba(154,166,204,.6)'; ctx.beginPath();ctx.arc(SX(-c),SY(0),2.5,0,7);ctx.fill(); // center
+  // empty focus
+  ctx.strokeStyle='rgba(154,166,204,.6)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(F2x,F2y,4,0,7);ctx.stroke();
+  ctx.fillStyle='rgba(154,166,204,.7)'; ctx.font='11px JetBrains Mono, monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('focus', F2x, F2y+8);
+  // planet
+  const M=TAU*t/P, p=ePos(a,e,M);
+  const PX=SX(p.x), PY=SY(p.y);
+  // focal radii
+  ctx.strokeStyle='rgba(124,196,255,.9)'; ctx.lineWidth=2.4;
+  ctx.beginPath();ctx.moveTo(F1x,F1y);ctx.lineTo(PX,PY);ctx.stroke();
+  ctx.strokeStyle='rgba(255,138,91,.9)'; ctx.lineWidth=2.4;
+  ctx.beginPath();ctx.moveTo(F2x,F2y);ctx.lineTo(PX,PY);ctx.stroke();
+  // labels r1,r2
+  ctx.font='600 12px JetBrains Mono, monospace'; ctx.textBaseline='middle'; ctx.textAlign='center';
+  ctx.fillStyle='#7cc4ff'; ctx.fillText('r₁',(F1x+PX)/2,(F1y+PY)/2-10);
+  ctx.fillStyle='#ff8a5b'; ctx.fillText('r₂',(F2x+PX)/2,(F2y+PY)/2-10);
+  sun(ctx,F1x,F1y,11+8*e*0+9);
+  planet(ctx,PX,PY,7,'#cfe8ff','rgba(124,196,255,');
+  // constant-sum banner with live numbers
+  const r1w=p.r, r2w=2*a-p.r;
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font='600 13px JetBrains Mono, monospace';
+  ctx.fillStyle='#7cc4ff'; ctx.fillText('r₁ '+r1w.toFixed(2), 16, 14);
+  ctx.fillStyle='rgba(238,241,251,.9)'; ctx.fillText('  +  ', 16+58, 14);
+  ctx.fillStyle='#ff8a5b'; ctx.fillText('r₂ '+r2w.toFixed(2), 16+92, 14);
+  ctx.fillStyle='rgba(238,241,251,.95)'; ctx.fillText('  =  '+(r1w+r2w).toFixed(2)+' = 2a', 16+150, 14);
+  ctx.fillStyle='rgba(154,166,204,.78)'; ctx.font='11px Inter, sans-serif';
+  ctx.fillText('the sum never changes · Sun at one focus · e = '+e.toFixed(2), 16, 34);
+}
+
+// ── LAW II ──
+const PALL=['#5aa8ee','#7cc4ff','#9bd0f5','#bfe0d2','#ffd9a3','#ffc187','#ff9d6b','#ff8a5b'];
+function law2(t){
+  const {cv,ctx}=C2; const d=fit(cv,ctx,0.5);
+  const cx=d.w/2, cy=d.h/2; spaceBg(ctx,d,cx,cy);
+  const e=0.55, a=1, b=a*Math.sqrt(1-e*e), c=a*e, margin=46;
+  const scale=Math.min((d.w/2-margin)/a, (d.h/2-margin)/b);
+  const SX=wx=>cx+(wx+c)*scale, SY=wy=>cy-wy*scale;
+  const N=8;
+  const Eb=[]; for(let k=0;k<=N;k++){ let E=solveE(TAU*k/N,e); if(k>0 && E<=Eb[k-1]) E+=TAU; Eb.push(E); }
+  const Mnow=TAU*((t/P)%1), cur=Math.floor(Mnow/TAU*N)%N;
+  // wedges
+  for(let k=0;k<N;k++){
+    ctx.beginPath(); ctx.moveTo(SX(0),SY(0));
+    const e0=Eb[k], e1=Eb[k+1];
+    for(let s=0;s<=24;s++){const E=e0+(e1-e0)*s/24; ctx.lineTo(SX(a*(Math.cos(E)-e)),SY(b*Math.sin(E)));}
+    ctx.closePath();
+    ctx.globalAlpha=(k===cur)?0.55:0.26; ctx.fillStyle=PALL[k]; ctx.fill();
+    ctx.globalAlpha=1; ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=1; ctx.stroke();
+    if(k===cur){ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=1.6; ctx.stroke();}
+  }
+  // ellipse outline
+  ctx.strokeStyle='rgba(124,196,255,.3)'; ctx.lineWidth=1.4;
+  ctx.beginPath();
+  for(let E=0;E<=TAU+0.01;E+=Math.PI/120){const X=SX(a*(Math.cos(E)-e)),Y=SY(b*Math.sin(E)); E===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y);}
+  ctx.stroke();
+  // planet
+  const p=ePos(a,e,Mnow); const PX=SX(p.x),PY=SY(p.y);
+  ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(SX(0),SY(0));ctx.lineTo(PX,PY);ctx.stroke();
+  // velocity vector (longer where the planet moves faster — near the Sun)
+  const vmag=Math.sqrt(Math.max(0,2/p.r-1));
+  const p2=ePos(a,e,Mnow+0.012); let dvx=p2.x-p.x, dvy=p2.y-p.y; const dl=Math.hypot(dvx,dvy)||1; dvx/=dl; dvy/=dl;
+  const vlen=16+vmag*26, vx2=PX+dvx*vlen, vy2=PY-dvy*vlen;
+  ctx.strokeStyle='rgba(98,210,162,.95)'; ctx.lineWidth=2.4; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(PX,PY);ctx.lineTo(vx2,vy2);ctx.stroke();
+  const aa=Math.atan2(vy2-PY,vx2-PX);
+  ctx.fillStyle='rgba(98,210,162,.95)';ctx.beginPath();ctx.moveTo(vx2,vy2);
+  ctx.lineTo(vx2-9*Math.cos(aa-0.4),vy2-9*Math.sin(aa-0.4));ctx.lineTo(vx2-9*Math.cos(aa+0.4),vy2-9*Math.sin(aa+0.4));ctx.closePath();ctx.fill();
+  sun(ctx,SX(0),SY(0),10);
+  planet(ctx,PX,PY,7,'#cfe8ff','rgba(124,196,255,');
+  ctx.fillStyle='rgba(238,241,251,.92)'; ctx.font='600 13px JetBrains Mono, monospace';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('8 equal areas · swept in 8 equal times', 16, 14);
+  ctx.fillStyle='rgba(154,166,204,.78)'; ctx.font='11px Inter, sans-serif';
+  ctx.fillText('fast near the Sun (long v), slow far away — conserving angular momentum', 16, 34);
+}
+
+// ── LAW III ──
+const ORB=[{a:0.45,col:'#62d2a2',glow:'rgba(98,210,162,'},
+           {a:0.7, col:'#7cc4ff',glow:'rgba(124,196,255,'},
+           {a:1.0, col:'#ffd27a',glow:'rgba(255,210,122,'},
+           {a:1.3, col:'#ff8a5b',glow:'rgba(255,138,91,'}];
+const P3=6; // period for a=1
+function law3(t){
+  const {cv,ctx}=C3; const d=fit(cv,ctx,0.5);
+  spaceBg(ctx,d,0,d.h/2);
+  const splitX=d.w*0.56;
+  // left: orbits
+  const lcx=splitX/2, lcy=d.h/2;
+  const amax=ORB[ORB.length-1].a, scale=(Math.min(splitX,d.h)/2-26)/amax;
+  for(const o of ORB){
+    ctx.strokeStyle='rgba(140,160,220,.18)'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(lcx,lcy,o.a*scale,0,7);ctx.stroke();
+  }
+  sun(ctx,lcx,lcy,9);
+  for(const o of ORB){
+    const T=P3*Math.pow(o.a,1.5), ang=TAU*t/T;
+    const x=lcx+Math.cos(ang)*o.a*scale, y=lcy+Math.sin(ang)*o.a*scale;
+    planet(ctx,x,y,5.5,o.col,o.glow);
+    ctx.fillStyle='rgba(230,238,251,.78)'; ctx.font='9px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('a='+o.a.toFixed(2), x, y-8);
+  }
+  // divider
+  ctx.strokeStyle='rgba(140,160,220,.12)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(splitX,18);ctx.lineTo(splitX,d.h-18);ctx.stroke();
+
+  // right: T^2 vs a^3 plot
+  const px0=splitX+50, py0=d.h-40, pw=d.w-px0-22, ph=d.h-70;
+  const pts=ORB.map(o=>({x:Math.pow(o.a,3), y:Math.pow(P3*Math.pow(o.a,1.5),2), col:o.col, glow:o.glow, a:o.a}));
+  const maxX=Math.max(...pts.map(p=>p.x))*1.12, maxY=Math.max(...pts.map(p=>p.y))*1.12;
+  const MX=v=>px0+v/maxX*pw, MY=v=>py0-v/maxY*ph;
+  // axes
+  ctx.strokeStyle='rgba(154,166,204,.4)'; ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(px0,py0-ph);ctx.lineTo(px0,py0);ctx.lineTo(px0+pw,py0);ctx.stroke();
+  ctx.fillStyle='rgba(154,166,204,.8)'; ctx.font='11px Inter, sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('a³  →', px0+pw/2, py0+8);
+  ctx.save();ctx.translate(px0-16,py0-ph/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('T²  →',0,0);ctx.restore();
+  // proportional line through origin (to farthest point)
+  const last=pts[pts.length-1];
+  ctx.strokeStyle='rgba(124,196,255,.45)'; ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
+  ctx.beginPath();ctx.moveTo(MX(0),MY(0));ctx.lineTo(MX(last.x),MY(last.y));ctx.stroke(); ctx.setLineDash([]);
+  // points
+  for(const p of pts){
+    ctx.fillStyle=p.col; ctx.save();ctx.shadowColor=p.glow+'.8)';ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(MX(p.x),MY(p.y),4.5,0,7);ctx.fill();ctx.restore();
+    ctx.fillStyle='rgba(230,238,251,.8)'; ctx.font='9.5px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('a='+p.a.toFixed(2), MX(p.x)+8, MY(p.y));
+  }
+  ctx.fillStyle='rgba(238,241,251,.92)'; ctx.font='600 13px JetBrains Mono, monospace';
+  ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('T² ∝ a³', splitX+50, 14);
+  ctx.fillStyle='rgba(154,166,204,.78)'; ctx.font='11px Inter, sans-serif';
+  ctx.fillText('T² / a³ = '+(P3*P3).toFixed(0)+' — the same for every orbit', splitX+50, 33);
+}
+
+// ── shared clock ──
+let running=true, t0=null, tAcc=0, lastTs=null, raf=null;
+function drawAll(){ law1(tAcc); law2(tAcc); law3(tAcc); }
+function frame(ts){
+  if(lastTs==null)lastTs=ts;
+  let dt=(ts-lastTs)/1000; lastTs=ts; if(dt>0.05)dt=0.05;
+  if(running) tAcc+=dt*(window.SLOWMO||1);
+  drawAll();
+  raf=requestAnimationFrame(frame);
+}
+document.getElementById('toggle').addEventListener('click',e=>{
+  running=!running; e.target.textContent=running?'Pause ⏸':'Play ▶';
+});
+window.addEventListener('resize',drawAll);
+raf=requestAnimationFrame(frame);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

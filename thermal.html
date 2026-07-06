@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thermal · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --gold:#ffd27a;
+    --r:20px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,210,122,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1140px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:17px}
+  .brand .mark{width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#ffb37a,#ff8a5b); box-shadow:0 6px 18px -6px rgba(255,138,91,.8); color:#2a1206; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:26px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .hero{max-width:1140px; margin:0 auto; padding:40px 28px 26px; text-align:center}
+  .hero .kicker{font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  .hero h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(36px,6vw,58px); line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;}
+  .hero h1 em{font-style:italic; color:var(--accent)}
+  .hero p{max-width:600px; margin:20px auto 0; color:var(--muted); font-size:16.5px; line-height:1.6;}
+  .sec{max-width:1140px; margin:0 auto; padding:30px 28px 60px}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:22px}
+  .sec-head h2{font-family:'Fraunces',serif; font-weight:500; font-size:23px; margin:0}
+  .sec-head span{color:var(--faint); font-size:13px; font-family:'JetBrains Mono',monospace}
+  .sec-head .rule{flex:1; height:1px; background:var(--glass-line)}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px}
+  .card{position:relative; display:flex; flex-direction:column; overflow:hidden; opacity:.66;
+    background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+  .card.live{opacity:1; cursor:pointer}
+  .card.live:hover{transform:translateY(-4px); border-color:rgba(255,138,91,.5);
+    box-shadow:0 28px 60px -28px rgba(0,0,0,.9), 0 0 30px -10px rgba(255,138,91,.45);}
+  .badge.live{color:#2a1206; background:linear-gradient(135deg,#ffd9a3,#ff8a5b)}
+  .badge.concept{color:#2a1d06; background:linear-gradient(135deg,#ffe0a3,#ffc46b)}
+  .card .go{display:inline-block; margin-top:12px; font-size:13.5px; font-weight:600; color:var(--accent)}
+  .card .art{height:130px; position:relative; border-bottom:1px solid var(--glass-line); overflow:hidden}
+  .card .art svg{position:absolute; inset:0; width:100%; height:100%}
+  .card .body{padding:16px 20px 20px}
+  .badge{position:absolute; top:13px; right:13px; z-index:2; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; font-weight:600; padding:5px 10px; border-radius:99px;
+    color:var(--muted); background:rgba(255,255,255,.06); border:1px solid var(--glass-line);}
+  .card h3{font-family:'Fraunces',serif; font-weight:500; font-size:20px; margin:0 0 6px}
+  .card p{color:var(--muted); font-size:13px; line-height:1.55; margin:0}
+  .note{max-width:1140px; margin:0 auto 10px; padding:0 28px; color:var(--faint); font-size:13.5px}
+  footer{max-width:1140px; margin:0 auto; padding:20px 28px 50px; color:var(--faint);
+    font-size:13px; border-top:1px solid var(--glass-line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="index.html">← All fields</a></div>
+  </nav>
+  <header class="hero">
+    <div class="kicker">Field · Thermal</div>
+    <h1>Thermal <em>Physics</em></h1>
+    <p>Heat, temperature, and the collective behaviour of countless particles — from the kinetic theory
+       of gases to engines and entropy. Every experiment in this field is live.</p>
+  </header>
+  <p class="note">All experiments in this field are live — click any card to explore.</p>
+  <section class="sec">
+    <div class="sec-head"><h2>Experiments</h2><span>9 experiments + overview</span><div class="rule"></div></div>
+    <div class="grid">
+      <a class="card live" href="kinetic_theory_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><rect x="50" y="24" width="200" height="84" rx="6" fill="none" stroke="#ff8a5b" stroke-width="1.5" opacity=".5"/><circle cx="95" cy="55" r="6" fill="#5a9bff"/><circle cx="150" cy="84" r="6" fill="#ff8a5b"/><circle cx="200" cy="46" r="6" fill="#ff6b6b"/><circle cx="170" cy="62" r="6" fill="#ffb37a"/><circle cx="120" cy="92" r="6" fill="#7cc4ff"/><path d="M95 55 l18 12 M200 46 l-22 -8" stroke="#ff8a5b" stroke-width="1" opacity=".4"/></svg></div>
+        <div class="body"><h3>Kinetic Theory of Gases</h3><p>Watch molecules collide and see temperature, pressure and the Maxwell–Boltzmann distribution emerge.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="heat_conduction_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><rect x="40" y="48" width="220" height="30" rx="5" fill="url(#tg)"/><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff6b6b"/><stop offset=".5" stop-color="#c98fb0"/><stop offset="1" stop-color="#3a5fb0"/></linearGradient></defs><path d="M40 100 L150 90 L260 100" fill="none" stroke="#ffd27a" stroke-width="1.6"/><text x="40" y="40" font-size="11" fill="#ff9b8a" font-family="monospace">hot</text><text x="236" y="40" font-size="11" fill="#9bd0f5" font-family="monospace">cold</text></svg></div>
+        <div class="body"><h3>Heat Conduction</h3><p>Hold a rod's ends at fixed temperatures and watch heat flow from hot to cold toward a steady gradient.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="carnot_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><path d="M70 100 L70 50 Q120 20 180 40 Q230 56 230 100 Z" fill="rgba(255,138,91,.16)" stroke="#ffd27a" stroke-width="1.8"/><circle cx="180" cy="40" r="3.5" fill="#fff"/><text x="150" y="120" font-size="11" fill="#cca6aa" text-anchor="middle" font-family="monospace">P–V cycle · work = area</text></svg></div>
+        <div class="body"><h3>Heat Engine &amp; Carnot Cycle</h3><p>Drive a gas around the four-stroke Carnot cycle and meet the ultimate limit on efficiency, η = 1 − T_C/T_H.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="entropy_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><line x1="150" y1="20" x2="150" y2="110" stroke="#9a7670" stroke-width="1" stroke-dasharray="3 4"/><circle cx="100" cy="50" r="5" fill="#ff7a59"/><circle cx="115" cy="80" r="5" fill="#ff7a59"/><circle cx="90" cy="70" r="5" fill="#ff7a59"/><circle cx="128" cy="58" r="5" fill="#ff7a59"/><circle cx="200" cy="55" r="5" fill="#7cc4ff"/><circle cx="215" cy="85" r="5" fill="#7cc4ff"/><circle cx="190" cy="75" r="5" fill="#7cc4ff"/><circle cx="172" cy="62" r="5" fill="#7cc4ff"/></svg></div>
+        <div class="body"><h3>Entropy &amp; Diffusion</h3><p>Lift the partition between two gases and watch them mix irreversibly as entropy climbs.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="first_law_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><rect x="60" y="40" width="60" height="70" rx="4" fill="none" stroke="#ff8a5b" stroke-width="1.6"/><rect x="60" y="70" width="60" height="40" fill="rgba(255,107,107,.3)"/><rect x="58" y="64" width="64" height="7" fill="#e6d2dc"/><path d="M20 90 h34" stroke="#ff6b6b" stroke-width="2.5"/><path d="M54 90 l-6 -3 v6 z" fill="#ff6b6b"/><path d="M126 70 h34" stroke="#ffd27a" stroke-width="2.5"/><path d="M160 70 l-6 -3 v6 z" fill="#ffd27a"/><text x="210" y="66" font-size="15" fill="#8fe7c2" font-family="monospace">ΔU=Q−W</text></svg></div>
+        <div class="body"><h3>First Law of Thermodynamics</h3><p>Add heat and move the piston, and watch energy balance the books: ΔU = Q − W, with a live P–V trace.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="heat_transfer_modes.html"><span class="badge concept">Overview</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><rect x="20" y="56" width="70" height="18" rx="3" fill="url(#cg)"/><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#5a9bff"/></linearGradient></defs><path d="M118 96 q12 -22 24 0 q12 -22 24 0" fill="none" stroke="#ffd27a" stroke-width="1.6"/><circle cx="200" cy="40" r="10" fill="#ffb347"/><path d="M212 40 h40 M212 50 h40 M212 60 h40" stroke="#ffd27a" stroke-width="1.4" opacity=".7"/><circle cx="150" cy="40" r="2.5" fill="#cfe8ff"/><circle cx="160" cy="32" r="2" fill="#cfe8ff"/></svg></div>
+        <div class="body"><h3>The 4 Modes of Heat Transfer</h3><p>One animation each for conduction, convection, radiation and evaporation — see how heat actually moves.</p><span class="go">Open overview →</span></div></a>
+      <a class="card live" href="maxwell_boltzmann_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><g fill="#ff8a5b" opacity=".6"><rect x="60" y="96" width="14" height="20"/><rect x="78" y="70" width="14" height="46"/><rect x="96" y="54" width="14" height="62"/><rect x="114" y="64" width="14" height="52"/><rect x="132" y="82" width="14" height="34"/><rect x="150" y="98" width="14" height="18"/><rect x="168" y="106" width="14" height="10"/></g><path d="M60 116 Q100 44 128 60 Q170 84 250 112" fill="none" stroke="#ffd27a" stroke-width="2.4"/></svg></div>
+        <div class="body"><h3>Maxwell–Boltzmann Distribution</h3><p>Watch colliding molecules thermalise into the classic bell curve of speeds — and heat the gas to slide it faster and wider.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="gas_laws_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><rect x="40" y="40" width="120" height="60" rx="4" fill="none" stroke="#ff8a5b" stroke-width="1.6"/><rect x="40" y="40" width="70" height="60" fill="rgba(255,138,91,.14)"/><rect x="110" y="34" width="10" height="72" fill="#c8a48c"/><g fill="#ffb083"><circle cx="60" cy="60" r="3"/><circle cx="85" cy="80" r="3"/><circle cx="95" cy="52" r="3"/><circle cx="72" cy="90" r="3"/></g><path d="M190 100 Q210 45 260 42" fill="none" stroke="#ffd27a" stroke-width="2.2"/><circle cx="222" cy="62" r="4" fill="#ff8a5b"/></svg></div>
+        <div class="body"><h3>The Gas Laws</h3><p>Squeeze, heat, or add gas in a piston and watch PV = NkT play out as Boyle's, Charles's and Gay-Lussac's laws.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="blackbody_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><circle cx="52" cy="66" r="24" fill="#ffd27a"/><circle cx="52" cy="66" r="34" fill="#ffd27a" opacity=".25"/><path d="M100 112 Q150 20 190 60 Q230 96 280 108" fill="none" stroke="#ff8a5b" stroke-width="2.4"/><rect x="150" y="30" width="46" height="82" fill="rgba(124,196,255,.12)"/></svg></div>
+        <div class="body"><h3>Blackbody Radiation</h3><p>Slide the temperature and morph the Planck curve — Wien's peak shift and the T⁴ brightness surge, from ember to blue star.</p><span class="go">Open simulator →</span></div></a>
+      <a class="card live" href="phase_change_simulator.html"><span class="badge live">Live</span>
+        <div class="art"><svg viewBox="0 0 300 130" preserveAspectRatio="xMidYMid slice"><rect width="300" height="130" fill="#251627"/><path d="M30 104 L70 104 L70 74 L120 74 L120 40 L160 40 L160 24 L270 24" fill="none" stroke="#ffd27a" stroke-width="2.4"/><line x1="70" y1="74" x2="120" y2="74" stroke="#7cc4ff" stroke-width="4"/><line x1="160" y1="40" x2="160" y2="40" stroke="#7cc4ff" stroke-width="4"/><line x1="120" y1="40" x2="160" y2="40" stroke="#7cc4ff" stroke-width="4"/><text x="86" y="70" font-size="9" fill="#7cc4ff" font-family="monospace">melt</text><text x="128" y="36" font-size="9" fill="#7cc4ff" font-family="monospace">boil</text></svg></div>
+        <div class="body"><h3>Phase Changes &amp; Latent Heat</h3><p>Heat ice to steam and watch the temperature stall on two plateaus — the latent heat of fusion and vaporisation.</p><span class="go">Open simulator →</span></div></a>
+    </div>
+  </section>
+  <footer><span>Physica · Thermal — built for curiosity.</span><span><a href="index.html">← Back to all fields</a></span></footer>
+</body>
+</html>

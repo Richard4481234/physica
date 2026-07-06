@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coulomb's Law &amp; Field Lines · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0d0c1c; --bg-1:#151430;
+    --glass:rgba(34,30,58,0.55); --glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb; --muted:#b3aacc; --faint:#7a76a0;
+    --accent:#b89bff; --accent-soft:#5a4a9a;
+    --pos:#ff6b6b; --neg:#7cc4ff; --gold:#ffd27a; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(184,155,255,0.12), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+
+  .seg{display:flex; gap:8px}
+  .seg button{flex:1; padding:12px 6px; border-radius:11px; border:1px solid var(--glass-line);
+    background:rgba(255,255,255,.03); color:var(--muted); font-size:13.5px; font-weight:600; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .seg button .s{display:block; font-family:'JetBrains Mono',monospace; font-size:17px; margin-bottom:2px}
+  .seg button.onp{background:linear-gradient(135deg,rgba(255,107,107,.25),rgba(255,107,107,.08)); color:#ffd9d9; border-color:var(--pos); box-shadow:0 0 16px -5px rgba(255,107,107,.6);}
+  .seg button.onn{background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08)); color:#dcefff; border-color:var(--neg); box-shadow:0 0 16px -5px rgba(124,196,255,.6);}
+
+  .ctrl{margin:18px 0}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(184,155,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(184,155,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .toggles{display:flex; flex-direction:column; gap:10px; margin-top:6px}
+  .tg{display:flex; align-items:center; justify-content:space-between; font-size:13.5px; color:var(--muted); cursor:pointer; user-select:none}
+  .tg .sw{width:38px; height:22px; border-radius:99px; background:rgba(255,255,255,.08); border:1px solid var(--glass-line); position:relative; transition:background .15s ease;}
+  .tg .sw::after{content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--muted); transition:all .15s ease;}
+  .tg.on .sw{background:linear-gradient(135deg,rgba(184,155,255,.5),rgba(124,196,255,.4)); border-color:var(--accent)}
+  .tg.on .sw::after{left:18px; background:#fff}
+
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .chip{padding:8px 11px; border-radius:9px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .chip:hover{color:var(--ink); border-color:rgba(184,155,255,.45)}
+
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+  .btn{width:100%; padding:12px; border:none; border-radius:11px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600;
+    background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line); transition:all .15s ease;}
+  .btn:hover{color:var(--ink); border-color:rgba(255,107,107,.5)}
+
+  .stage{position:relative}
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line);
+    box-shadow:0 22px 60px -34px rgba(0,0,0,.9); cursor:crosshair; touch-action:none;}
+  .zoom{position:absolute; right:14px; bottom:14px; display:flex; flex-direction:column; gap:6px;}
+  .zoom button{width:38px; height:38px; border-radius:10px; border:1px solid var(--glass-line);
+    background:rgba(20,18,40,.72); color:var(--ink); font-size:19px; font-weight:600; cursor:pointer;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:all .15s ease; line-height:1;}
+  .zoom button:hover{border-color:var(--accent); color:var(--accent)}
+  .zoom button:active{transform:translateY(1px)}
+  .zoom .zlvl{height:auto; font-size:10px; font-family:'JetBrains Mono',monospace; color:var(--faint);
+    background:none; border:none; cursor:default; padding:2px 0 0;}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.pos::before{background:var(--pos)} .stat.neg::before{background:var(--neg)} .stat.gold::before{background:var(--gold)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:21px; margin-top:4px;}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(184,155,255,.25),rgba(184,155,255,.08)); border:1px solid rgba(184,155,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .pos{color:var(--pos)} .ex-body .neg{color:var(--neg)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(184,155,255,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="electromagnetism.html" class="back">← Electromagnetism</a>
+    <div class="kicker">Electrostatics</div>
+    <h1>Coulomb's Law &amp; Field Lines</h1>
+  </div>
+  <div class="sub">Place charges, then watch the electric field lines and the forces they exert on each other.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Charge to place</p>
+    <div class="seg" id="polarity">
+      <button data-s="1" class="onp"><span class="s">+</span>Proton</button>
+      <button data-s="-1"><span class="s">−</span>Electron</button>
+    </div>
+
+    <div class="ctrl">
+      <div class="row"><span class="name">Charge magnitude</span><span class="val"><span id="magV">1</span> e</span></div>
+      <input id="mag" type="range" min="1" max="5" step="1" value="1">
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Show</p>
+    <div class="toggles">
+      <div class="tg on" id="tgLines"><span>Field lines</span><span class="sw"></span></div>
+      <div class="tg" id="tgGrid"><span>Field vectors (grid)</span><span class="sw"></span></div>
+      <div class="tg on" id="tgForce"><span>Forces on charges</span><span class="sw"></span></div>
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Presets</p>
+    <div class="chips">
+      <button class="chip" data-p="dipole">Dipole (+ −)</button>
+      <button class="chip" data-p="likepos">Two + charges</button>
+      <button class="chip" data-p="likeneg">Two − charges</button>
+      <button class="chip" data-p="quad">Quadrupole</button>
+      <button class="chip" data-p="capacitor">Capacitor (+ / −)</button>
+      <button class="chip" data-p="plates">Parallel + plates</button>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn" id="clear">Clear all</button>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      Click empty space to place a charge · drag a charge to move it · double-click a charge to remove it.</p>
+  </aside>
+
+  <main>
+    <div class="stage">
+      <canvas id="cv"></canvas>
+      <div class="zoom">
+        <button id="zin" title="Zoom in">+</button>
+        <button id="zout" title="Zoom out">−</button>
+        <button id="zreset" title="Reset view">⟲</button>
+        <span class="zlvl" id="zlvl">100%</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--pos)"></i>Positive (+)</span>
+      <span><i class="dot" style="background:var(--neg)"></i>Negative (−)</span>
+      <span><i class="dot" style="background:var(--accent)"></i>Field lines (+ → −)</span>
+      <span><i class="dot" style="background:var(--gold)"></i>Net force</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat pos"><div class="k">Protons (+)</div><div class="v" id="sPos">0</div></div>
+      <div class="stat neg"><div class="k">Electrons (−)</div><div class="v" id="sNeg">0</div></div>
+      <div class="stat"><div class="k">Net charge</div><div class="v"><span id="sNet">0</span> e</div></div>
+      <div class="stat gold"><div class="k">Total charges</div><div class="v" id="sTot">0</div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>This is an <b>electrostatics</b> sandbox. You drop point charges — <span class="pos">protons (+)</span>
+           and <span class="neg">electrons (−)</span> — onto the field and the simulation draws the
+           <b>electric field</b> they create together, plus the <span class="gold">net force</span> each charge
+           feels from all the others. Click to add charges, drag them around, and watch the whole picture update.</p>
+
+        <h4>Coulomb's law</h4>
+        <p>Any two charges exert a force on each other along the line joining them. Like charges repel, opposite
+           charges attract, and the strength falls off as the square of the distance:</p>
+        <div class="ex-eq">
+          F = k · q₁ · q₂ / r² <span class="lbl">k ≈ 8.99 × 10⁹ N·m²/C²</span>
+        </div>
+        <p>When several charges are present, the force on any one of them is just the <b>vector sum</b> of the
+           forces from every other charge — the principle of <b>superposition</b>. The gold arrows show that net
+           force; a longer arrow means a stronger pull or push.</p>
+
+        <h4>The electric field</h4>
+        <p>Rather than track forces between every pair, we describe the <b>field</b> each charge sets up in the
+           space around it. The field at a point is the force a tiny <span class="pos">positive</span> test charge
+           would feel there, and fields add by superposition too:</p>
+        <div class="ex-eq">
+          E = k · Σ qᵢ · r̂ᵢ / rᵢ² <span class="lbl">sum over all charges</span>
+        </div>
+
+        <h4>Reading the field lines</h4>
+        <ul>
+          <li>Lines <b>start on positive</b> charges and <b>end on negative</b> charges (or run off to infinity).</li>
+          <li>The arrow on a line shows the direction a <span class="pos">+</span> charge would be pushed.</li>
+          <li><b>Density matters:</b> where lines bunch together the field is strong; where they spread out it's weak.
+            More lines sprout from a bigger charge — try raising the magnitude.</li>
+          <li>Field lines <b>never cross</b>, because the field points one definite way at each point.</li>
+        </ul>
+
+        <h4>Things to try</h4>
+        <p>Load the <b>Dipole</b> preset to see the classic + / − pattern. Place two <b>like</b> charges and notice
+           the field pushed into the empty midpoint between them. Build a row of <b>+</b> charges to approximate a
+           charged plate and see the field become uniform between them.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+let charges=[];               // {x,y,q}  (q in elementary units, sign = polarity)
+let placeSign=1, placeMag=1;
+let show={lines:true, grid:false, force:true};
+let drag={i:-1, moved:false};
+let zoom=1;   // view zoom about the canvas centre
+
+const KGRID=34, STEP=5, MAXSTEP=520;
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.62);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function radius(c){return 12+3*(Math.abs(c.q)-1);}
+
+// ── field ──
+function fieldAt(x,y,skip){
+  let ex=0,ey=0;
+  for(let i=0;i<charges.length;i++){ if(i===skip)continue;
+    const c=charges[i], dx=x-c.x, dy=y-c.y, r2=dx*dx+dy*dy;
+    if(r2<1e-6)continue; const inv=c.q/(r2*Math.sqrt(r2)); ex+=dx*inv; ey+=dy*inv; }
+  return [ex,ey];
+}
+
+// ── rendering ──
+let CW=0,CH=0;
+// world <-> screen mapping (zoom about canvas centre)
+function w2s(x,y){return [CW/2+(x-CW/2)*zoom, CH/2+(y-CH/2)*zoom];}
+function s2w(x,y){return [CW/2+(x-CW/2)/zoom, CH/2+(y-CH/2)/zoom];}
+function render(){
+  const d=fit(); CW=d.w; CH=d.h;
+  // backdrop
+  const bg=ctx.createLinearGradient(0,0,0,d.h);
+  bg.addColorStop(0,'#141233'); bg.addColorStop(1,'#191a3c');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,d.w,d.h);
+  if(show.grid) drawGrid(d);
+  if(show.lines) drawLines(d);
+  if(show.force) drawForces();
+  drawCharges();
+  if(charges.length===0) hint(d);
+  stats();
+}
+function hint(d){
+  ctx.fillStyle='rgba(179,170,204,.5)'; ctx.font='15px Inter, sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('Click anywhere to place a charge', d.w/2, d.h/2);
+}
+function drawGrid(d){
+  for(let x=KGRID/2;x<d.w;x+=KGRID)for(let y=KGRID/2;y<d.h;y+=KGRID){
+    const [wx,wy]=s2w(x,y);
+    const [ex,ey]=fieldAt(wx,wy,-1); const m=Math.hypot(ex,ey); if(m<1e-9)continue;
+    const a=Math.min(1, Math.pow(m,0.18)*0.5);
+    const L=11, ux=ex/m, uy=ey/m;
+    ctx.strokeStyle='rgba(184,155,255,'+(0.10+0.35*a).toFixed(3)+')'; ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(x-ux*L,y-uy*L);ctx.lineTo(x+ux*L,y+uy*L);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x+ux*L,y+uy*L);
+    ctx.lineTo(x+ux*L-(ux*4+uy*3),y+uy*L-(uy*4-ux*3));
+    ctx.lineTo(x+ux*L-(ux*4-uy*3),y+uy*L-(uy*4+ux*3));ctx.closePath();
+    ctx.fillStyle='rgba(184,155,255,'+(0.10+0.35*a).toFixed(3)+')';ctx.fill();
+  }
+}
+function drawLines(d){
+  ctx.lineWidth=1.5;
+  // visible world bounds (so lines extend to the edge of the zoomed-out view)
+  const [bx0,by0]=s2w(-40,-40), [bx1,by1]=s2w(d.w+40,d.h+40);
+  const stepW=STEP/zoom;
+  for(let ci=0;ci<charges.length;ci++){
+    // even seed count + a small per-charge phase keeps seeds off any symmetry
+    // axis, so lines near a field null veer away instead of dying into it
+    const c=charges[ci], n=Math.max(6,Math.min(40,Math.round(7*Math.abs(c.q)/2)*2)), dir=Math.sign(c.q);
+    const r0=(radius(c)+7)/zoom, phase=0.018+ci*0.013;
+    for(let k=0;k<n;k++){
+      const ang=(k+0.5)/n*Math.PI*2+phase;
+      let x=c.x+r0*Math.cos(ang), y=c.y+r0*Math.sin(ang);   // world coords
+      const wp=[[x,y]];
+      for(let s=0;s<MAXSTEP;s++){
+        const [ex,ey]=fieldAt(x,y,-1); const m=Math.hypot(ex,ey); if(m<1e-12)break;
+        x+=dir*ex/m*stepW; y+=dir*ey/m*stepW; wp.push([x,y]);
+        if(x<bx0||x>bx1||y<by0||y>by1)break;
+        let hit=false;
+        for(let j=0;j<charges.length;j++){const o=charges[j]; if(Math.hypot(x-o.x,y-o.y)<(radius(o)+5)/zoom){hit=true;break;}}
+        if(hit)break;
+      }
+      ctx.strokeStyle='rgba(186,170,235,0.5)';
+      ctx.beginPath();
+      for(let p=0;p<wp.length;p++){ const [sx,sy]=w2s(wp[p][0],wp[p][1]); p===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy); }
+      ctx.stroke();
+      // arrowheads along the line, pointing along E (+ to -)
+      for(let p=18;p<wp.length-1;p+=26){
+        const [ex,ey]=fieldAt(wp[p][0],wp[p][1],-1); const m=Math.hypot(ex,ey); if(m<1e-9)continue;
+        const ux=ex/m, uy=ey/m, [px,py]=w2s(wp[p][0],wp[p][1]);
+        ctx.fillStyle='rgba(205,190,255,0.85)';
+        ctx.beginPath();ctx.moveTo(px+ux*6,py+uy*6);
+        ctx.lineTo(px-ux*4+uy*4,py-uy*4-ux*4);
+        ctx.lineTo(px-ux*4-uy*4,py-uy*4+ux*4);ctx.closePath();ctx.fill();
+      }
+    }
+  }
+}
+function drawForces(){
+  // compute net force on each charge, scale relative to the strongest
+  const F=charges.map((c,i)=>{const [ex,ey]=fieldAt(c.x,c.y,i); return [c.q*ex,c.q*ey];});
+  let maxF=0; for(const f of F){const m=Math.hypot(f[0],f[1]); if(m>maxF)maxF=m;}
+  if(maxF<1e-12)return;
+  for(let i=0;i<charges.length;i++){
+    const c=charges[i], fx=F[i][0], fy=F[i][1], m=Math.hypot(fx,fy); if(m<1e-12)continue;
+    const ux=fx/m, uy=fy/m, len=18+52*(m/maxF), r=radius(c);
+    const [sx,sy]=w2s(c.x,c.y);
+    const x0=sx+ux*(r+2), y0=sy+uy*(r+2), x1=sx+ux*(r+len), y1=sy+uy*(r+len);
+    ctx.strokeStyle='rgba(255,210,122,.95)'; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x1,y1);
+    ctx.lineTo(x1-ux*11+uy*6,y1-uy*11-ux*6);
+    ctx.lineTo(x1-ux*11-uy*6,y1-uy*11+ux*6);ctx.closePath();
+    ctx.fillStyle='rgba(255,210,122,.95)';ctx.fill();
+  }
+}
+function signBar(cx,cy,w,h){
+  const rr=Math.min(w,h)/2;
+  ctx.beginPath();
+  ctx.moveTo(cx-w/2+rr,cy-h/2);
+  ctx.arcTo(cx+w/2,cy-h/2,cx+w/2,cy+h/2,rr);
+  ctx.arcTo(cx+w/2,cy+h/2,cx-w/2,cy+h/2,rr);
+  ctx.arcTo(cx-w/2,cy+h/2,cx-w/2,cy-h/2,rr);
+  ctx.arcTo(cx-w/2,cy-h/2,cx+w/2,cy-h/2,rr);
+  ctx.closePath(); ctx.fill();
+}
+function drawCharges(){
+  for(const c of charges){
+    const r=radius(c), col=c.q>0?'#ff6b6b':'#7cc4ff', glow=c.q>0?'rgba(255,107,107,':'rgba(124,196,255,';
+    const [cxs,cys]=w2s(c.x,c.y);     // fixed screen size so charges stay clickable at any zoom
+    const halo=ctx.createRadialGradient(cxs,cys,1,cxs,cys,r*2.2);
+    halo.addColorStop(0,glow+'.4)'); halo.addColorStop(1,glow+'0)');
+    ctx.fillStyle=halo; ctx.beginPath();ctx.arc(cxs,cys,r*2.2,0,7);ctx.fill();
+    const g=ctx.createRadialGradient(cxs,cys,r*0.15,cxs,cys,r);
+    g.addColorStop(0,col); g.addColorStop(1,glow+'.92)');
+    ctx.save();ctx.shadowColor=glow+'.7)';ctx.shadowBlur=16;
+    ctx.fillStyle=g; ctx.beginPath();ctx.arc(cxs,cys,r,0,7);ctx.fill();ctx.restore();
+    // sign drawn as geometric bars, perfectly centred on the ball
+    ctx.save(); ctx.fillStyle='#fff'; ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=2;
+    const th=Math.max(3,r*0.26), L=r*1.05;
+    signBar(cxs,cys,L,th);              // horizontal bar (for + and −)
+    if(c.q>0) signBar(cxs,cys,th,L);    // vertical bar (only for +)
+    ctx.restore();
+    if(Math.abs(c.q)>1){ctx.font='600 10px JetBrains Mono, monospace'; ctx.fillStyle='rgba(255,255,255,.85)';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(Math.abs(c.q)+'e', cxs, cys+r+9);}
+  }
+}
+function stats(){
+  let p=0,n=0,net=0;
+  for(const c of charges){ if(c.q>0)p++; else n++; net+=c.q; }
+  $('sPos').textContent=p; $('sNeg').textContent=n;
+  $('sNet').textContent=(net>0?'+':'')+net; $('sTot').textContent=charges.length;
+}
+
+// ── interaction ──
+function pos(e){const r=cv.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top];}
+function hitCharge(sx,sy){ for(let i=charges.length-1;i>=0;i--){ const [x,y]=w2s(charges[i].x,charges[i].y);
+  if(Math.hypot(sx-x,sy-y)<=radius(charges[i])+4)return i; } return -1; }
+cv.addEventListener('pointerdown',e=>{
+  const [sx,sy]=pos(e); const i=hitCharge(sx,sy);
+  if(i>=0){ drag={i, moved:false}; }
+  else { const [wx,wy]=s2w(sx,sy); charges.push({x:wx,y:wy,q:placeSign*placeMag}); drag={i:charges.length-1, moved:false}; render(); }
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove',e=>{
+  if(drag.i<0)return; const [sx,sy]=pos(e); const [wx,wy]=s2w(sx,sy); charges[drag.i].x=wx; charges[drag.i].y=wy; drag.moved=true; render();
+});
+cv.addEventListener('pointerup',e=>{ drag={i:-1,moved:false}; });
+cv.addEventListener('dblclick',e=>{
+  const [sx,sy]=pos(e); const i=hitCharge(sx,sy); if(i>=0){ charges.splice(i,1); render(); }
+});
+
+// zoom controls
+function setZoom(z){ zoom=Math.max(0.3,Math.min(4,z)); $('zlvl').textContent=Math.round(zoom*100)+'%'; render(); }
+$('zin').addEventListener('click',()=>setZoom(zoom*1.25));
+$('zout').addEventListener('click',()=>setZoom(zoom/1.25));
+$('zreset').addEventListener('click',()=>setZoom(1));
+cv.addEventListener('wheel',e=>{ e.preventDefault(); setZoom(zoom*(e.deltaY<0?1.1:0.9)); },{passive:false});
+
+// polarity / magnitude
+document.getElementById('polarity').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; placeSign=+b.dataset.s;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('onp','onn'));
+  b.classList.add(placeSign>0?'onp':'onn');
+});
+$('mag').addEventListener('input',()=>{ placeMag=+$('mag').value; $('magV').textContent=placeMag; });
+
+// toggles
+function bindTg(id,key){const el=$(id); el.addEventListener('click',()=>{show[key]=!show[key]; el.classList.toggle('on',show[key]); render();});}
+bindTg('tgLines','lines'); bindTg('tgGrid','grid'); bindTg('tgForce','force');
+
+// presets
+function preset(name){
+  const w=cv.clientWidth||800, h=Math.round((cv.clientWidth||800)*0.62), cx=w/2, cy=h/2;
+  charges=[]; zoom=1; $('zlvl').textContent='100%';
+  if(name==='dipole'){ charges=[{x:cx-90,y:cy,q:1},{x:cx+90,y:cy,q:-1}]; }
+  else if(name==='likepos'){ charges=[{x:cx-90,y:cy,q:1},{x:cx+90,y:cy,q:1}]; }
+  else if(name==='likeneg'){ charges=[{x:cx-90,y:cy,q:-1},{x:cx+90,y:cy,q:-1}]; }
+  else if(name==='quad'){ charges=[{x:cx-80,y:cy-70,q:1},{x:cx+80,y:cy-70,q:-1},{x:cx-80,y:cy+70,q:-1},{x:cx+80,y:cy+70,q:1}]; }
+  else if(name==='capacitor'){ for(let i=-2;i<=2;i++){ charges.push({x:cx+i*58,y:cy-72,q:1}); charges.push({x:cx+i*58,y:cy+72,q:-1}); } }
+  else if(name==='plates'){ for(let i=-2;i<=2;i++){ charges.push({x:cx+i*58,y:cy-72,q:1}); charges.push({x:cx+i*58,y:cy+72,q:1}); } }
+  render();
+}
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>preset(c.dataset.p)));
+$('clear').addEventListener('click',()=>{charges=[]; render();});
+window.addEventListener('resize',render);
+
+preset('dipole');
+</script>
+</body>
+</html>

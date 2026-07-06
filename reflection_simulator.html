@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflection of Light · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#080f1c; --bg-1:#0e1a30;
+    --glass:rgba(24,38,62,0.55); --glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb; --muted:#9ab2cc; --faint:#6b86a0;
+    --accent:#7cc4ff; --accent-soft:#3b6ea8; --ray:#ffffff; --refl:#ffd27a; --norm:#62d2a2; --violet:#b89bff;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.13), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 12px;}
+  .seg{display:flex; gap:6px}
+  .seg button{flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .seg button.on{background:linear-gradient(135deg,rgba(124,196,255,.2),rgba(124,196,255,.06)); color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -5px rgba(124,196,255,.5);}
+  .ctrl{margin:16px 0}
+  .ctrl.hide{display:none}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px}
+  .ctrl .name{font-size:13px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+  .hint{font-size:11px; color:var(--faint); margin-top:6px; line-height:1.5}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9); cursor:crosshair; touch-action:none;}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:12px}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--refl)} .stat.green::before{background:var(--norm)} .stat.violet::before{background:var(--violet)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08)); border:1px solid rgba(124,196,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{margin:0; font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--refl)} .ex-body .green{color:var(--norm)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="optics.html" class="back">← Optical</a>
+    <div class="kicker">Geometric Optics</div>
+    <h1>Reflection of Light</h1>
+  </div>
+  <div class="sub">Bounce light off a mirror — the angle in equals the angle out, every time.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Mirror</p>
+    <div class="seg" id="type">
+      <button data-t="flat" class="on">Flat</button>
+      <button data-t="concave">Concave</button>
+      <button data-t="convex">Convex</button>
+    </div>
+
+    <div class="ctrl" id="cAng">
+      <div class="row"><span class="name">Angle of incidence</span><span class="val"><span id="aV">45</span>°</span></div>
+      <input id="ang" type="range" min="0" max="85" step="1" value="45">
+      <div class="hint">…or drag the light source on the canvas.</div>
+    </div>
+    <div class="ctrl hide" id="cRad">
+      <div class="row"><span class="name">Radius of curvature R</span><span class="val"><span id="rV">4.0</span></span></div>
+      <input id="rad" type="range" min="2.5" max="8" step="0.1" value="4">
+      <div class="hint">Focal length f = R / 2 (marked on the axis).</div>
+    </div>
+    <div class="ctrl" id="cRays">
+      <div class="row"><span class="name">Beam rays</span><span class="val"><span id="nV">7</span></span></div>
+      <input id="nrays" type="range" min="3" max="13" step="2" value="7">
+    </div>
+
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      <b>Flat</b> shows the law of reflection with the normal and the two equal angles.
+      <b>Concave</b> and <b>convex</b> send in a parallel beam so you can find the focal point.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--ray)"></i>Incident ray</span>
+      <span><i class="dot" style="background:var(--refl)"></i>Reflected ray</span>
+      <span><i class="dot" style="background:var(--norm)"></i>Normal</span>
+      <span style="margin-left:auto;color:var(--faint)">light → mirror → reflected</span>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="verdict" id="verdict">The angle in always equals the angle out — measured from the normal.</div>
+
+    <div class="formula" id="formula"><b>law of reflection</b>: θ_incidence = θ_reflection, measured from the normal</div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A beam of light strikes a mirror and bounces off. At the point it hits, we draw the
+           <b class="green">normal</b> — an imaginary line perpendicular to the surface. The whole of reflection
+           is captured by comparing the incoming and outgoing rays to that normal.</p>
+
+        <h4>The law of reflection</h4>
+        <p>For any mirror, flat or curved, light obeys one simple rule:</p>
+        <div class="ex-eq">
+          θ_incidence = θ_reflection <span class="lbl">both measured from the normal</span>
+        </div>
+        <p>The incident ray, the reflected ray, and the normal all lie in the same plane, and the angle the
+           light comes in at equals the angle it leaves at. Drag the source on the <b>Flat</b> mirror and watch
+           the two angles stay locked together.</p>
+
+        <h4>Curved mirrors</h4>
+        <p>A curved mirror is just a flat mirror at every tiny point — the normal there points along the radius,
+           from the surface to the mirror's <b>centre of curvature</b>. Apply the same law at each point and
+           something useful happens to a <b>parallel beam</b> (like light from a distant object):</p>
+        <ul>
+          <li>A <b>concave</b> mirror bends all the rays <b>inward to a single focal point</b>, a distance
+            <span class="mono">f = R/2</span> in front of it — this is how reflecting telescopes and satellite
+            dishes gather light.</li>
+          <li>A <b>convex</b> mirror spreads the rays <b>outward</b>, so they appear to come from a virtual focus
+            <span class="mono">f = R/2</span> behind it — giving the wide field of view of a car's wing mirror.</li>
+        </ul>
+
+        <h4>Things to try</h4>
+        <p>On the flat mirror, slide the angle to graze along the surface (near 90°) and to hit head-on (0°).
+           Switch to <b>concave</b> and change R — the focal point moves to exactly half the radius. Compare with
+           <b>convex</b>, where the focus sits behind the mirror (dashed).</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+let type='flat', phase=0, raf=null, last=null, drag=false;
+const els={ang:$('ang'),rad:$('rad'),nrays:$('nrays'),aV:$('aV'),rV:$('rV'),nV:$('nV')};
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.62);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function ray(x0,y0,x1,y1,col,wd,dash){ ctx.strokeStyle=col; ctx.lineWidth=wd||2; ctx.setLineDash(dash||[]);
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke(); ctx.setLineDash([]); }
+function arrowHead(x,y,ang,col){ ctx.fillStyle=col; ctx.beginPath();ctx.moveTo(x,y);
+  ctx.lineTo(x-9*Math.cos(ang-0.4),y-9*Math.sin(ang-0.4));ctx.lineTo(x-9*Math.cos(ang+0.4),y-9*Math.sin(ang+0.4));ctx.closePath();ctx.fill(); }
+function photons(x0,y0,x1,y1,col,off){ const L=Math.hypot(x1-x0,y1-y0), n=Math.max(2,Math.floor(L/40)), ux=(x1-x0)/L, uy=(y1-y0)/L;
+  ctx.fillStyle=col; for(let k=0;k<n;k++){ let t=((phase*0.5+off+k/n)%1); const px=x0+ (x1-x0)*t, py=y0+(y1-y0)*t; ctx.beginPath();ctx.arc(px,py,2.2,0,7);ctx.fill(); } }
+
+let CXm=0, CYm=0, SC=40, srcAng=45;
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#0a1426'; ctx.fillRect(0,0,w,h);
+  // faint stars
+  ctx.fillStyle='rgba(160,190,235,.25)'; for(let i=0;i<40;i++){ctx.fillRect((i*71.3+9)%w,(i*53.1+i*i*7)%h,1.2,1.2);}
+  if(type==='flat') drawFlat(w,h); else drawCurved(w,h, type==='concave'?1:-1);
+}
+
+function mirrorBar(x0,y0,x1,y1){ // draws reflective bar with hatching on the back
+  ctx.strokeStyle='rgba(180,225,255,.9)'; ctx.lineWidth=4; ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=dy/L,ny=-dx/L; // normal (one side)
+  ctx.strokeStyle='rgba(140,180,220,.4)'; ctx.lineWidth=1.4;
+  for(let s=6;s<L-2;s+=10){ const bx=x0+ux*s, by=y0+uy*s; ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx-nx*10+ux*8,by-ny*10+uy*8);ctx.stroke(); }
+}
+
+function drawFlat(w,h){
+  const my=h*0.64, P={x:w/2, y:my}; CXm=P.x; CYm=P.y;
+  mirrorBar(40,my,w-40,my);
+  // axis/normal
+  const NL=Math.min(my-20, 150);
+  ray(P.x,P.y,P.x,P.y-NL,'#62d2a2',1.6,[5,5]);
+  ray(P.x,P.y,P.x,P.y+26,'#62d2a2',1.6,[5,5]);
+  ctx.fillStyle='rgba(98,210,162,.85)'; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('normal', P.x+6, P.y-NL+8);
+  const th=srcAng*Math.PI/180, Lr=Math.min(my-14, w*0.42);
+  // incident from upper-left, reflected to upper-right
+  const Sx=P.x - Math.sin(th)*Lr, Sy=P.y - Math.cos(th)*Lr;
+  const Rx=P.x + Math.sin(th)*Lr, Ry=P.y - Math.cos(th)*Lr;
+  ray(Sx,Sy,P.x,P.y,'#ffffff',2.4); photons(Sx,Sy,P.x,P.y,'#ffffff',0);
+  ray(P.x,P.y,Rx,Ry,'#ffd27a',2.4); photons(P.x,P.y,Rx,Ry,'#ffd27a',0.5);
+  // arrow heads mid
+  arrowHead((Sx+P.x)/2+Math.sin(th)*0,(Sy+P.y)/2,Math.atan2(P.y-Sy,P.x-Sx),'#ffffff');
+  arrowHead((P.x+Rx)/2,(P.y+Ry)/2,Math.atan2(Ry-P.y,Rx-P.x),'#ffd27a');
+  // angle arcs
+  const ar=40;
+  ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=1.6;
+  ctx.beginPath();ctx.arc(P.x,P.y,ar,-Math.PI/2-th,-Math.PI/2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,210,122,.8)';
+  ctx.beginPath();ctx.arc(P.x,P.y,ar,-Math.PI/2,-Math.PI/2+th);ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='600 12px JetBrains Mono, monospace';
+  ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText('θᵢ='+srcAng+'°', P.x-ar*0.5-2, P.y-ar*0.5);
+  ctx.fillStyle='#ffd27a'; ctx.textAlign='left'; ctx.fillText('θᵣ='+srcAng+'°', P.x+ar*0.5+2, P.y-ar*0.5);
+  // light source handle
+  ctx.fillStyle='#fff'; ctx.save();ctx.shadowColor='#fff';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(Sx,Sy,6,0,7);ctx.fill();ctx.restore();
+  ctx.fillStyle='rgba(154,178,204,.8)'; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('source', Sx, Sy-9);
+  setStats([['θ incidence',srcAng+'°',''],['θ reflection',srcAng+'°','gold'],['Equal?','yes ✓','green'],['Mirror','flat','']]);
+  $('verdict').textContent=`Flat mirror: the ray leaves at exactly ${srcAng}° — the same angle it arrived at. θᵢ = θᵣ, always, whatever the angle.`;
+  $('formula').innerHTML='<b>law of reflection</b>: θ_incidence = θ_reflection, measured from the normal';
+}
+
+function drawCurved(w,h,sgn){   // sgn=+1 concave, -1 convex
+  const axisY=h/2, R=(+els.rad.value), scale=(w*0.5)/8; SC=scale;
+  const Rpx=R*scale; const Vx=w*0.66;            // mirror vertex
+  const Cx = Vx - sgn*Rpx;                        // centre of curvature
+  const Ap=0.62;                                  // aperture half-angle
+  // draw mirror arc
+  ctx.strokeStyle='rgba(180,225,255,.9)'; ctx.lineWidth=4; ctx.beginPath();
+  for(let i=0;i<=60;i++){ const a=-Ap+2*Ap*(i/60); const hx=Cx+sgn*Rpx*Math.cos(a), hy=axisY+Rpx*Math.sin(a); i===0?ctx.moveTo(hx,hy):ctx.lineTo(hx,hy);} ctx.stroke();
+  // hatching behind
+  ctx.strokeStyle='rgba(140,180,220,.35)'; ctx.lineWidth=1.3;
+  for(let i=0;i<=20;i++){ const a=-Ap+2*Ap*(i/20); const hx=Cx+sgn*Rpx*Math.cos(a), hy=axisY+Rpx*Math.sin(a);
+    ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx+sgn*9*Math.cos(a),hy+9*Math.sin(a));ctx.stroke(); }
+  // optical axis
+  ray(40,axisY,w-30,axisY,'rgba(140,180,220,.3)',1,[5,6]);
+  // focal point f=R/2
+  const Fx = Vx - sgn*Rpx/2;
+  ctx.fillStyle=sgn>0?'#ffd27a':'#b89bff'; ctx.save();ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(Fx,axisY,5,0,7);ctx.fill();ctx.restore();
+  ctx.fillStyle=sgn>0?'#ffd27a':'#b89bff'; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(sgn>0?'F (focus)':'F (virtual)', Fx, axisY+8);
+  // parallel rays
+  const N=(+els.nrays.value), maxY=Rpx*Math.sin(Ap)*0.92;
+  for(let k=0;k<N;k++){
+    const y = (N===1)?axisY : axisY - maxY + 2*maxY*(k/(N-1));
+    const dy=(y-axisY)/Rpx; if(Math.abs(dy)>=1) continue;
+    // hit point on arc at this height
+    const a=Math.asin(dy); const hx=Cx+sgn*Rpx*Math.cos(a), hy=axisY+Rpx*Math.sin(a);
+    // incident (from left to hit)
+    ray(40,y,hx,hy,'#ffffff',1.8); photons(40,y,hx,hy,'#ffffff',k*0.1);
+    // normal direction = from hit toward C (unit)
+    let nx=Cx-hx, ny=axisY-hy; const nl=Math.hypot(nx,ny); nx/=nl; ny/=nl;
+    // reflect incident dir (1,0) about normal
+    const dinx=1,diny=0; const dot=dinx*nx+diny*ny; let rx=dinx-2*dot*nx, ry=diny-2*dot*ny;
+    const rl=Math.hypot(rx,ry); rx/=rl; ry/=rl;
+    if(sgn>0){ // concave: reflected converges — draw to beyond focus
+      const ex=hx+rx*Rpx*1.1, ey=hy+ry*Rpx*1.1; ray(hx,hy,ex,ey,'#ffd27a',1.8); photons(hx,hy,ex,ey,'#ffd27a',k*0.1+0.4);
+    } else { // convex: reflected diverges; draw forward + dashed back to virtual focus
+      const ex=hx+rx*Rpx*1.0, ey=hy+ry*Rpx*1.0; ray(hx,hy,ex,ey,'#ffd27a',1.8); photons(hx,hy,ex,ey,'#ffd27a',k*0.1+0.4);
+      ray(hx,hy,hx-rx*(Vx-Fx+10),hy-ry*(Vx-Fx+10),'rgba(184,155,255,.4)',1.2,[4,5]);
+    }
+  }
+  const f=(R/2);
+  setStats([['Mirror', sgn>0?'concave':'convex',''],['Radius R',R.toFixed(1),''],['Focal length f',f.toFixed(2),'gold'],['Focus', sgn>0?'real, front':'virtual, behind', sgn>0?'green':'violet']]);
+  $('verdict').textContent = sgn>0
+    ? `Concave mirror: every parallel ray obeys θᵢ = θᵣ on its own patch of curve, and they all converge at a real focus f = R/2 = ${f.toFixed(2)} in front of the mirror.`
+    : `Convex mirror: each ray still obeys θᵢ = θᵣ locally, but they spread apart — tracing them backwards meets at a virtual focus f = R/2 = ${f.toFixed(2)} behind the mirror.`;
+  $('formula').innerHTML='<b>each point obeys</b> θᵢ=θᵣ about the local normal &nbsp;|&nbsp; <b>f = R / 2</b>';
+}
+
+function setStats(rows){
+  const m={'':'', 'gold':'gold','green':'green','violet':'violet'};
+  $('stats').innerHTML=rows.map(([k,v,c])=>`<div class="stat ${m[c]||''}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+}
+
+function loop(ts){ if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1); phase+=dt; render(); raf=requestAnimationFrame(loop); }
+
+// controls
+document.getElementById('type').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return; type=b.dataset.t;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+  $('cAng').classList.toggle('hide', type!=='flat'); $('cRad').classList.toggle('hide', type==='flat'); $('cRays').classList.toggle('hide', type==='flat'); });
+els.ang.addEventListener('input',()=>{srcAng=+els.ang.value; els.aV.textContent=srcAng;});
+els.rad.addEventListener('input',()=>{els.rV.textContent=(+els.rad.value).toFixed(1);});
+els.nrays.addEventListener('input',()=>{els.nV.textContent=els.nrays.value;});
+// drag the source on flat mirror to set angle
+function pos(e){const b=cv.getBoundingClientRect(); return [e.clientX-b.left, e.clientY-b.top];}
+cv.addEventListener('pointerdown',e=>{ if(type!=='flat')return; drag=true; });
+cv.addEventListener('pointermove',e=>{ if(!drag||type!=='flat')return; const [px,py]=pos(e);
+  const dx=px-CXm, dy=CYm-py; if(dy<=2) return; let a=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+  a=Math.max(0,Math.min(85,a)); srcAng=Math.round(a); els.ang.value=srcAng; els.aV.textContent=srcAng; });
+cv.addEventListener('pointerup',()=>drag=false);
+window.addEventListener('resize',render);
+
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

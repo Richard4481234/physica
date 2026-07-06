@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Hole · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#081512; --bg-1:#0d2020;
+    --glass:rgba(26,44,40,0.55); --glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3; --muted:#9accb6; --faint:#6b9a86;
+    --accent:#62d2a2; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(98,210,162,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 6px 18px -6px rgba(98,210,162,.8); color:#06241a; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#01030a}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(98,210,162,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:80px; background:rgba(6,18,14,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:60px; background:rgba(6,18,14,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(98,210,162,.2); border-color:rgba(98,210,162,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(98,210,162,.12); border:1px solid rgba(98,210,162,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(98,210,162,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(6,18,14,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="modern.html">← Modern</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Modern · Experiment</div>
+    <h1>Black Hole &amp; Gravitational Lensing</h1>
+    <p>Gravity so strong that not even light escapes. Around it, spacetime is bent enough to warp the stars
+       behind into a glowing ring and to make time itself crawl to a halt at the edge.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <div class="leg">
+        <span><i style="background:#000;border:1px solid #555"></i>shadow (event horizon)</span>
+        <span><i style="background:#ffe39a"></i>photon ring</span>
+        <span><i style="background:#ff9a4d"></i>accretion disk</span>
+        <span><i style="background:#7cc4ff"></i>lensed starfield</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Mass <span class="val" id="mV">10 M☉</span></label>
+        <div class="row"><input type="range" id="m" min="0" max="6" step="0.01" value="1">
+          <input type="number" id="mN" min="1" max="1000000" step="1" value="10"></div>
+      </div>
+      <div class="ctl">
+        <label>Hovering clock distance <span class="val" id="rV">3.0 r_s</span></label>
+        <div class="row"><input type="range" id="r" min="1.02" max="12" step="0.02" value="3">
+          <input type="number" id="rN" min="1.02" max="12" step="0.1" value="3"></div>
+      </div>
+      <div class="ctl">
+        <label>Show</label>
+        <div class="seg"><button id="tDisk" class="on">Accretion disk</button><button id="tGrid">Grid</button><button id="tRings" class="on">Orbit markers</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Mass</span><span id="sM">10 M☉</span></div>
+        <div class="s"><span>Schwarzschild radius r_s</span><span id="sRs">29.5 km</span></div>
+        <div class="s"><span>Photon sphere (1.5 r_s)</span><span id="sPh">44.3 km</span></div>
+        <div class="s"><span>ISCO (3 r_s)</span><span id="sIs">88.5 km</span></div>
+        <div class="s"><span>Clock rate at r</span><span id="sTd">0.816×</span></div>
+        <div class="s"><span>Redshift 1+z</span><span id="sZ">1.225</span></div>
+      </div>
+      <div class="verdict" id="verdict">A clock hovering at 3 r_s ticks at 82% of a distant clock's rate.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A <strong>black hole</strong> sits in front of a field of distant stars. You cannot see the object itself —
+      it emits no light — only its effects: a circular <strong>shadow</strong>, a brilliant <strong>photon
+      ring</strong>, a swirling <strong>accretion disk</strong> of superheated gas, and the starlight behind it
+      smeared into arcs by the bending of space. (The image is a schematic, not a full ray-traced solution, but it
+      captures the real geometry.)
+
+      <h3>The event horizon</h3>
+      Pack enough mass into a small enough region and the escape velocity at its surface reaches the speed of
+      light. The boundary from which nothing — not even light — can return is the <strong>event horizon</strong>, a
+      sphere of radius given by the Schwarzschild formula:
+      <div class="eq">r_s = 2 G M / c²  ≈  2.95 km × (M / M☉)</div>
+      A black hole the mass of our Sun would be just ~3 km across; the supermassive one at the centre of our galaxy
+      is millions of times heavier. Outside the horizon, light that strays close enough is forced into orbit at the
+      <strong>photon sphere</strong> (1.5 r_s), and gas can only orbit stably down to the <strong>innermost stable
+      circular orbit</strong> (3 r_s) before spiralling in.
+
+      <h3>Gravitational lensing</h3>
+      Mass curves spacetime, and light follows that curvature. Rays from stars directly behind the black hole are
+      bent around it and reach your eye from the side, so a single star can appear smeared into a ring — an
+      <strong>Einstein ring</strong>. This simulation warps the background using the lens equation
+      β = θ − θ_E²/θ, which is why the starfield streaks and doubles near the edge. The same lensing lifts the far
+      side of the accretion disk up and over the top, the now-famous halo shape.
+
+      <h3>Time slows near the edge</h3>
+      Gravity also dilates time. A clock hovering at radius r runs slow compared with a distant observer by
+      <div class="eq">dτ/dt = √(1 − r_s/r)&nbsp;&nbsp;&nbsp;&nbsp;1 + z = 1/√(1 − r_s/r)</div>
+      Move the hovering clock inward and watch its rate fall toward zero at the horizon — to a faraway observer an
+      infalling object appears to freeze and fade to red as its light is stretched (redshifted) without limit.
+
+      <h3>Things to try</h3>
+      Increase the <strong>mass</strong> and watch the shadow and lensing ring grow. Slide the
+      <strong>hovering clock</strong> from far away down toward 1 r_s and watch its tick rate collapse and its
+      redshift soar. Toggle the <strong>grid</strong> to see spacetime distortion directly, and the orbit markers to
+      locate the photon sphere and ISCO. Real images of this geometry were captured by the Event Horizon Telescope
+      (M87* in 2019, Sagittarius A* in 2022).
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=540,dpr=1;
+const sky=document.createElement('canvas'), skyx=sky.getContext('2d');
+const lens=document.createElement('canvas'), lensx=lens.getContext('2d');
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.60);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  sky.width=W; sky.height=H; lens.width=W; lens.height=H;
+}
+const st={logM:1, r:3, disk:true, grid:false, rings:true};
+const massM=()=>Math.pow(10,st.logM);   // solar masses
+let cx,cy,shadowR,thetaE,diskIn,diskOut;
+function geo(){
+  cx=W*0.5; cy=H*0.5;
+  shadowR = 24 + 9*st.logM;             // apparent shadow radius (schematic, grows with mass)
+  thetaE  = shadowR*1.28;               // Einstein radius for the lens warp
+  diskIn  = shadowR*1.5;                // ISCO-ish inner edge
+  diskOut = shadowR*3.4;
+}
+
+function buildSky(){
+  geo();
+  skyx.fillStyle='#01030a'; skyx.fillRect(0,0,W,H);
+  // faint nebula
+  for(const [nx,ny,nc] of [[0.2,0.3,'rgba(80,60,160,0.18)'],[0.8,0.7,'rgba(40,90,140,0.16)'],[0.6,0.2,'rgba(120,50,90,0.12)']]){
+    const g=skyx.createRadialGradient(nx*W,ny*H,0,nx*W,ny*H,W*0.5);
+    g.addColorStop(0,nc); g.addColorStop(1,'transparent'); skyx.fillStyle=g; skyx.fillRect(0,0,W,H);
+  }
+  // stars
+  let seed=12345; const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  const N=Math.round(W*H/900);
+  for(let i=0;i<N;i++){
+    const x=rnd()*W, y=rnd()*H, b=rnd();
+    const s=b*b*1.8+0.3, a=0.4+0.6*b;
+    const tint = rnd()<0.2 ? (rnd()<0.5?'200,210,255':'255,220,190') : '255,255,255';
+    skyx.fillStyle=`rgba(${tint},${a})`; skyx.beginPath(); skyx.arc(x,y,s,0,7); skyx.fill();
+  }
+  // optional grid
+  if(st.grid){
+    skyx.strokeStyle='rgba(98,210,162,0.28)'; skyx.lineWidth=1;
+    const step=Math.round(W/22);
+    for(let x=0;x<=W;x+=step){ skyx.beginPath(); skyx.moveTo(x,0); skyx.lineTo(x,H); skyx.stroke(); }
+    for(let y=0;y<=H;y+=step){ skyx.beginPath(); skyx.moveTo(0,y); skyx.lineTo(W,y); skyx.stroke(); }
+  }
+  buildLens();
+}
+function buildLens(){
+  geo();
+  const src=skyx.getImageData(0,0,W,H).data;
+  const out=lensx.createImageData(W,H), d=out.data;
+  const tE2=thetaE*thetaE;
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      const dx=x-cx, dy=y-cy, rr=Math.sqrt(dx*dx+dy*dy)||0.0001;
+      if(rr<shadowR){ d[i]=0; d[i+1]=0; d[i+2]=2; d[i+3]=255; continue; }
+      // point-mass lens equation: source radius
+      let sr=rr - tE2/rr;
+      let sx=cx+dx*(sr/rr), sy=cy+dy*(sr/rr);
+      sx=sx<0?0:(sx>W-1?W-1:sx); sy=sy<0?0:(sy>H-1?H-1:sy);
+      const j=((sy|0)*W+(sx|0))*4;
+      // brighten near the ring (magnification) a touch
+      const mag = rr<thetaE*1.6 ? 1.0 + 0.8*Math.max(0,1-Math.abs(rr-thetaE)/(thetaE*0.6)) : 1;
+      d[i]=Math.min(255,src[j]*mag); d[i+1]=Math.min(255,src[j+1]*mag); d[i+2]=Math.min(255,src[j+2]*mag); d[i+3]=255;
+    }
+  }
+  lensx.putImageData(out,0,0);
+}
+
+let tAnim=0;
+function drawDisk(){
+  const tilt=0.34;
+  ctx.save(); ctx.translate(cx,cy);
+  // back half (above), drawn first so shadow can overlap
+  ctx.save(); ctx.scale(1,tilt);
+  // annulus via gradient ring
+  const grad=ctx.createRadialGradient(0,0,diskIn,0,0,diskOut);
+  grad.addColorStop(0,'rgba(255,150,60,0)');
+  grad.addColorStop(0.04,'rgba(255,240,200,0.95)');
+  grad.addColorStop(0.18,'rgba(255,170,70,0.9)');
+  grad.addColorStop(0.55,'rgba(255,110,40,0.5)');
+  grad.addColorStop(1,'rgba(150,40,20,0)');
+  ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(0,0,diskOut,0,7); ctx.fill();
+  // punch the inner hole
+  ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(0,0,diskIn,0,7); ctx.fill();
+  ctx.globalCompositeOperation='source-over';
+  ctx.restore();
+  // Doppler beaming: left side (approaching) brighter
+  ctx.save(); ctx.scale(1,tilt); ctx.globalCompositeOperation='lighter';
+  const dg=ctx.createLinearGradient(-diskOut,0,diskOut,0);
+  dg.addColorStop(0,'rgba(255,250,230,0.5)'); dg.addColorStop(0.5,'rgba(255,200,140,0.0)'); dg.addColorStop(1,'rgba(120,40,20,0)');
+  ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(0,0,diskOut,0,7); ctx.fill();
+  ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(0,0,diskIn,0,7); ctx.fill();
+  ctx.globalCompositeOperation='source-over'; ctx.restore();
+  // rotating shimmer streaks
+  ctx.save(); ctx.scale(1,tilt); ctx.globalCompositeOperation='lighter';
+  for(let k=0;k<18;k++){ const a=tAnim*0.6 + k*Math.PI*2/18; const rr=diskIn+(diskOut-diskIn)*(0.2+0.6*((k*7)%18)/18);
+    const x=Math.cos(a)*rr, y=Math.sin(a)*rr; ctx.fillStyle='rgba(255,210,150,0.05)'; ctx.beginPath(); ctx.arc(x,y,diskOut*0.10,0,7); ctx.fill(); }
+  ctx.restore();
+  ctx.restore();
+}
+function drawLensedTopArc(){
+  // the far side of the disk bent up over the top (and bottom) — thin bright arcs
+  ctx.save(); ctx.translate(cx,cy); ctx.globalCompositeOperation='lighter';
+  for(const sgn of [-1,1]){
+    ctx.beginPath();
+    ctx.ellipse(0, sgn*shadowR*0.02, diskIn*1.02, diskIn*0.62, 0, sgn>0?0:Math.PI, sgn>0?Math.PI:Math.PI*2);
+    ctx.lineWidth=4; const gg=ctx.createLinearGradient(-diskIn,0,diskIn,0);
+    gg.addColorStop(0,'rgba(255,245,220,0.8)'); gg.addColorStop(0.5,'rgba(255,180,90,0.5)'); gg.addColorStop(1,'rgba(255,140,60,0.2)');
+    ctx.strokeStyle=gg; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H); geo();
+  // lensed background
+  ctx.drawImage(lens,0,0,W,H);
+
+  if(st.disk){
+    drawDisk();
+    drawLensedTopArc();
+  }
+
+  // shadow (crisp black)
+  ctx.beginPath(); ctx.arc(cx,cy,shadowR,0,7); ctx.fillStyle='#000'; ctx.fill();
+  // photon ring (bright thin glow at shadow edge)
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  for(let k=0;k<3;k++){ ctx.beginPath(); ctx.arc(cx,cy,shadowR+1+k*1.5,0,7); ctx.strokeStyle=`rgba(255,225,150,${0.5-k*0.14})`; ctx.lineWidth=3-k; ctx.stroke(); }
+  ctx.restore();
+  // soft outer photon glow
+  const pg=ctx.createRadialGradient(cx,cy,shadowR,cx,cy,shadowR*1.5);
+  pg.addColorStop(0,'rgba(255,210,140,0.28)'); pg.addColorStop(1,'transparent');
+  ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy,shadowR*1.5,0,7); ctx.fill();
+
+  // orbit markers
+  if(st.rings){
+    ctx.setLineDash([4,6]); ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(255,225,150,.5)'; ring(shadowR/2.598*1.5,'photon 1.5 r_s'); // photon sphere relative to r_s
+    ctx.strokeStyle='rgba(124,196,255,.5)'; ring(shadowR/2.598*3,'ISCO 3 r_s');
+    ctx.strokeStyle='rgba(140,210,180,.6)'; ring(shadowR/2.598,'horizon r_s');
+    ctx.setLineDash([]);
+  }
+
+  // hovering clock marker at distance r (in r_s) along upper-right
+  const rsPx=shadowR/2.598;             // apparent r_s in px
+  const clockR=rsPx*st.r;
+  const ang=-Math.PI*0.32, hx=cx+Math.cos(ang)*clockR, hy=cy+Math.sin(ang)*clockR;
+  const rate=Math.sqrt(Math.max(0,1-1/st.r));
+  ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+  ctx.beginPath(); ctx.arc(cx,cy,clockR,0,7); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#eafff5'; ctx.beginPath(); ctx.arc(hx,hy,5,0,7); ctx.fill();
+  // little clock hand spinning at the dilated rate
+  ctx.strokeStyle='#06241a'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(hx,hy);
+  ctx.lineTo(hx+Math.cos(tAnim*rate*2)*4, hy+Math.sin(tAnim*rate*2)*4); ctx.stroke();
+  ctx.fillStyle='rgba(234,255,245,.85)'; ctx.font='11px JetBrains Mono'; ctx.fillText('clock '+rate.toFixed(2)+'×', hx+9, hy-7);
+
+  requestAnimationFrame(()=>{});
+}
+function ring(rPx,label){
+  ctx.beginPath(); ctx.arc(cx,cy,rPx,0,7); ctx.stroke();
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; tAnim+=dt; draw(); requestAnimationFrame(loop); }
+
+function fmtRs(km){ return km<1e6 ? km.toLocaleString(undefined,{maximumFractionDigits:0})+' km' : (km/1.496e8).toFixed(2)+' AU'; }
+function updateStats(){
+  const M=massM(), rs=2.95*M; // km
+  document.getElementById('mV').textContent = M<1000? M.toFixed(0)+' M☉' : M.toExponential(1)+' M☉';
+  document.getElementById('sM').textContent = M<1000? M.toFixed(0)+' M☉' : M.toExponential(1)+' M☉';
+  document.getElementById('sRs').textContent=fmtRs(rs);
+  document.getElementById('sPh').textContent=fmtRs(1.5*rs);
+  document.getElementById('sIs').textContent=fmtRs(3*rs);
+  const rate=Math.sqrt(Math.max(0,1-1/st.r));
+  document.getElementById('sTd').textContent=rate.toFixed(3)+'×';
+  document.getElementById('sZ').textContent=(rate>0?(1/rate).toFixed(3):'∞');
+  document.getElementById('rV').textContent=st.r.toFixed(2)+' r_s';
+  document.getElementById('verdict').textContent = st.r<1.05
+    ? `Right at the horizon (${st.r.toFixed(2)} r_s) the clock nearly freezes and its light is redshifted toward infinity.`
+    : `A clock hovering at ${st.r.toFixed(2)} r_s ticks at ${(rate*100).toFixed(0)}% of a distant clock's rate.`;
+}
+
+// mass control: slider is log10(M), number is M
+(function(){
+  const s=document.getElementById('m'), n=document.getElementById('mN');
+  function fromLog(v){ st.logM=Math.max(0,Math.min(6,v)); s.value=st.logM; n.value=Math.round(massM()); updateStats(); buildSky(); }
+  function fromM(v){ v=Math.max(1,Math.min(1e6,v)); st.logM=Math.log10(v); s.value=st.logM; n.value=Math.round(v); updateStats(); buildSky(); }
+  s.addEventListener('input',()=>fromLog(parseFloat(s.value)));
+  n.addEventListener('change',()=>fromM(parseFloat(n.value)));
+})();
+(function(){
+  const s=document.getElementById('r'), n=document.getElementById('rN');
+  function set(v){ v=Math.max(1.02,Math.min(12,v)); if(isNaN(v))return; st.r=v; s.value=v; n.value=v; updateStats(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+})();
+function tog(id,key,rebuild){const b=document.getElementById(id); b.addEventListener('click',()=>{st[key]=!st[key]; b.classList.toggle('on',st[key]); if(rebuild)buildSky();});}
+tog('tDisk','disk',false); tog('tGrid','grid',true); tog('tRings','rings',false);
+
+document.getElementById('reset').addEventListener('click',()=>{
+  st.logM=1; st.r=3; st.disk=true; st.grid=false; st.rings=true;
+  document.getElementById('m').value=1; document.getElementById('mN').value=10;
+  document.getElementById('r').value=3; document.getElementById('rN').value=3;
+  document.getElementById('tDisk').classList.add('on'); document.getElementById('tGrid').classList.remove('on'); document.getElementById('tRings').classList.add('on');
+  updateStats(); buildSky();
+});
+
+window.addEventListener('resize',()=>{fit(); buildSky();});
+fit(); updateStats(); buildSky(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(26,44,40,0.85)',color:'#eef8f3',border:'1px solid rgba(140,210,180,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

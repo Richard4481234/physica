@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heat Engine &amp; Carnot Cycle · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --accent-soft:#9c4a2e; --gold:#ffd27a;
+    --hot:#ff6b6b; --cold:#5a9bff; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:62px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(255,138,91,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(255,138,91,.15)); outline:none; cursor:pointer;}
+  input[type=range].hot{background:linear-gradient(90deg,#9c2e2e,rgba(255,107,107,.2))}
+  input[type=range].cold{background:linear-gradient(90deg,#2e5a9c,rgba(90,155,255,.2))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(255,138,91,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range].hot::-webkit-slider-thumb{border-color:var(--hot)} input[type=range].cold::-webkit-slider-thumb{border-color:var(--cold)}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .seg{display:flex; gap:8px}
+  .seg button{flex:1; padding:10px 6px; border-radius:10px; border:1px solid var(--glass-line);
+    background:rgba(255,255,255,.03); color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit; line-height:1.3;}
+  .seg button .g{display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--faint); margin-top:3px}
+  .seg button.on{background:linear-gradient(135deg,rgba(255,138,91,.22),rgba(255,138,91,.08)); color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -5px rgba(255,138,91,.55);}
+  .seg button.on .g{color:var(--accent)}
+
+  .actions{display:flex; gap:10px; margin-top:6px}
+  .btn{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#2a1206; background:linear-gradient(135deg,#ffb37a,#ff8a5b); box-shadow:0 8px 24px -8px rgba(255,138,91,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  #pv{margin-top:14px}
+  .caption{margin:8px 4px 0; font-size:12px; color:var(--faint)}
+  .legend{display:flex; gap:18px; margin-top:12px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.hot::before{background:var(--hot)} .stat.cold::before{background:var(--cold)} .stat.gold::before{background:var(--gold)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(255,138,91,.25),rgba(255,138,91,.08)); border:1px solid rgba(255,138,91,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .hot{color:var(--hot)} .ex-body .cold{color:var(--cold)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,138,91,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ol{margin:0 0 12px; padding-left:18px} .ex-body ol li{margin-bottom:7px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body ul li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body ul li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="thermal.html" class="back">← Thermal</a>
+    <div class="kicker">Thermodynamic Cycles</div>
+    <h1>Heat Engine &amp; Carnot Cycle</h1>
+  </div>
+  <div class="sub">Turn a temperature difference into work — and meet the ultimate limit on efficiency.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Reservoirs</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Hot T_H</span>
+        <span class="val"><input id="thNum" class="num" type="number" min="320" max="900" step="10" value="600"><em>K</em></span></div>
+      <input id="th" type="range" class="hot" min="320" max="900" step="10" value="600">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Cold T_C</span>
+        <span class="val"><input id="tcNum" class="num" type="number" min="100" max="500" step="10" value="300"><em>K</em></span></div>
+      <input id="tc" type="range" class="cold" min="100" max="500" step="10" value="300">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Expansion ratio</span>
+        <span class="val"><span id="erV">2.5</span><em>×</em></span></div>
+      <input id="er" type="range" min="1.5" max="5" step="0.1" value="2.5">
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Working gas</p>
+    <div class="seg" id="gas">
+      <button data-g="mono" class="on">Monatomic<span class="g">γ = 5/3</span></button>
+      <button data-g="di">Diatomic<span class="g">γ = 7/5</span></button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="pause">Pause ⏸</button>
+      <button class="btn ghost" id="reset">Restart</button>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="eng"></canvas>
+    <canvas id="pv"></canvas>
+    <div class="caption">The piston (top) drives the working gas around the four-stage Carnot cycle traced on the P–V diagram (bottom). The shaded area is the net work per cycle.</div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--hot)"></i>Isothermal @ T_H (absorb Q_H)</span>
+      <span><i class="dot" style="background:var(--cold)"></i>Isothermal @ T_C (reject Q_C)</span>
+      <span><i class="dot" style="background:#c9a0e0"></i>Adiabatic (no heat)</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat gold"><div class="k">Efficiency</div><div class="v"><span id="sEff">0</span><em>%</em></div></div>
+      <div class="stat hot"><div class="k">Heat in Q_H</div><div class="v" id="sQh">0</div></div>
+      <div class="stat"><div class="k">Work out W</div><div class="v" id="sW">0</div></div>
+      <div class="stat cold"><div class="k">Heat out Q_C</div><div class="v" id="sQc">0</div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A <b>heat engine</b> takes in heat from a <span class="hot">hot reservoir</span>, converts part of it
+           into useful <b>work</b>, and dumps the rest into a <span class="cold">cold reservoir</span>. The
+           <b>Carnot cycle</b> is the idealised, reversible version that achieves the highest efficiency any
+           engine can. The gas in the cylinder is taken around a four-stage loop, drawn on the pressure–volume
+           diagram below.</p>
+
+        <h4>The four strokes</h4>
+        <ol>
+          <li><b class="hot">Isothermal expansion</b> at T_H — touching the hot reservoir, the gas expands and
+            absorbs heat <span class="mono">Q_H</span>, doing work.</li>
+          <li><b>Adiabatic expansion</b> — insulated, the gas keeps expanding and cools from T_H down to T_C.</li>
+          <li><b class="cold">Isothermal compression</b> at T_C — touching the cold reservoir, the gas is
+            compressed and rejects heat <span class="mono">Q_C</span>.</li>
+          <li><b>Adiabatic compression</b> — insulated, the gas is compressed and warms from T_C back to T_H,
+            closing the loop.</li>
+        </ol>
+
+        <h4>Work and the first law</h4>
+        <p>Over one full cycle the gas returns to its starting state, so its internal energy is unchanged. By
+           energy conservation, the <b>net work</b> equals the net heat:</p>
+        <div class="ex-eq">
+          W = Q_H − Q_C <span class="lbl">net work per cycle</span>
+        </div>
+        <p>On the P–V diagram, that work is exactly the <b>enclosed area</b> of the loop — the shaded region.
+           A bigger temperature gap or expansion ratio encloses more area and produces more work.</p>
+
+        <h4>Carnot efficiency</h4>
+        <p>Efficiency is the fraction of the absorbed heat turned into work. For the Carnot cycle it depends
+           <b>only on the two reservoir temperatures</b>:</p>
+        <div class="ex-eq">
+          η = W / Q_H = 1 − T_C / T_H <span class="lbl">the Carnot limit</span>
+        </div>
+        <p>This is the famous result of the <b>second law</b>: no engine working between two temperatures can
+           beat it. You can only reach 100% efficiency with an unreachable cold reservoir at absolute zero.</p>
+
+        <h4>Things to try</h4>
+        <p>Widen the gap between <span class="hot">T_H</span> and <span class="cold">T_C</span> and watch
+           efficiency and the enclosed work-area grow. Bring them together and the loop collapses — no
+           temperature difference, no work. Compare a <b>monatomic</b> and <b>diatomic</b> gas: the adiabatic
+           curves change shape, but the efficiency stays exactly 1 − T_C/T_H.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const eng=document.getElementById('eng'), ex=eng.getContext('2d');
+const pv=document.getElementById('pv'), px=pv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={th:$('th'),tc:$('tc'),er:$('er'),thNum:$('thNum'),tcNum:$('tcNum'),erV:$('erV'),
+  sEff:$('sEff'),sQh:$('sQh'),sW:$('sW'),sQc:$('sQc'),pause:$('pause'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+let gas='mono', phase=0, playing=true, raf=null, last=null, frame=0;
+
+function P(){
+  const Th=clampNum(els.thNum); let Tc=clampNum(els.tcNum); if(Tc>Th-20)Tc=Th-20;
+  const er=clampNum(els.er), gamma=gas==='mono'?5/3:7/5;
+  const V1=1, V2=er, factor=Math.pow(Th/Tc,1/(gamma-1));
+  const V3=V2*factor, V4=V1*factor;
+  return {Th,Tc,er,gamma,V1,V2,V3,V4};
+}
+// state along the cycle for progress ph in [0,4)
+function stateAt(ph,p){
+  const st=Math.floor(ph)%4, u=ph-Math.floor(ph); let V,T;
+  if(st===0){ V=p.V1+(p.V2-p.V1)*u; T=p.Th; }
+  else if(st===1){ V=p.V2+(p.V3-p.V2)*u; T=p.Th*Math.pow(p.V2/V,p.gamma-1); }
+  else if(st===2){ V=p.V3+(p.V4-p.V3)*u; T=p.Tc; }
+  else { V=p.V4+(p.V1-p.V4)*u; T=p.Tc*Math.pow(p.V4/V,p.gamma-1); }
+  return {V,T,P:T/V,stage:st};
+}
+function energies(p){ const L=Math.log(p.er); return {Qh:p.Th*L, Qc:p.Tc*L, W:(p.Th-p.Tc)*L, eff:1-p.Tc/p.Th}; }
+
+function cmap(t){ t=Math.max(0,Math.min(1,t)); let r,g,b;
+  if(t<0.5){const u=t/0.5; r=90+(255-90)*u; g=155+(107-155)*u; b=255+(107-255)*u;}
+  else{const u=(t-0.5)/0.5; r=255; g=107+(224-107)*u; b=107+(138-107)*u;}
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+
+function fit(c,cx,aspect){const dpr=window.devicePixelRatio||1; const w=c.clientWidth, h=Math.round(c.clientWidth*aspect);
+  c.width=w*dpr; c.height=h*dpr; c.style.height=h+'px'; cx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+const STG=['Isothermal expansion @ T_H','Adiabatic expansion','Isothermal compression @ T_C','Adiabatic compression'];
+const STGC=['#ff6b6b','#c9a0e0','#5a9bff','#c9a0e0'];
+
+function drawEngine(p,s){
+  const d=fit(eng,ex,0.34), w=d.w,h=d.h;
+  ex.clearRect(0,0,w,h);
+  const bg=ex.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  ex.fillStyle=bg; ex.fillRect(0,0,w,h);
+  // cylinder
+  const cx0=70, cx1=w-120, cyl=h*0.5, ch=h*0.5;
+  const cy=cyl-ch/2;
+  // gas width is proportional to volume (V3 = max), so it's never zero
+  const pistonX=cx0+(cx1-cx0)*(s.V/p.V3);
+  const gw=pistonX-cx0;
+  // gas fill colored by temperature (between Tc..Th)
+  const tnorm=(s.T-p.Tc)/Math.max(1,(p.Th-p.Tc));
+  ex.fillStyle=cmap(0.15+0.8*tnorm);
+  ex.fillRect(cx0,cy,gw,ch);
+  // gas particles hint
+  if(gw>16){ ex.fillStyle='rgba(255,255,255,.35)';
+    for(let i=0;i<26;i++){const gx=cx0+6+((i*53.3)%Math.max(2,gw-10)), gy=cy+6+((i*37.7+i*i*11)%(ch-12)); ex.fillRect(gx,gy,2,2);} }
+  // cylinder walls
+  ex.strokeStyle='rgba(255,200,170,.35)'; ex.lineWidth=2;
+  ex.beginPath();ex.moveTo(cx0,cy);ex.lineTo(cx0,cy+ch);ex.moveTo(cx0,cy);ex.lineTo(cx1+24,cy);ex.moveTo(cx0,cy+ch);ex.lineTo(cx1+24,cy+ch);ex.stroke();
+  // piston
+  ex.fillStyle='rgba(230,210,220,.9)'; ex.fillRect(pistonX,cy-4,9,ch+8);
+  ex.strokeStyle='rgba(255,255,255,.25)'; ex.strokeRect(pistonX,cy-4,9,ch+8);
+  ex.fillRect(pistonX+9,cyl-4,cx1+24-(pistonX+9),8); // rod
+  // reservoir badge
+  const contact = s.stage===0?'hot':s.stage===2?'cold':'ins';
+  const bx=cx1+34, bw=70, by=cy, bh=ch;
+  if(contact==='hot'){ ex.fillStyle='rgba(255,107,107,.22)'; ex.strokeStyle='rgba(255,107,107,.8)'; }
+  else if(contact==='cold'){ ex.fillStyle='rgba(90,155,255,.22)'; ex.strokeStyle='rgba(90,155,255,.8)'; }
+  else { ex.fillStyle='rgba(160,160,170,.12)'; ex.strokeStyle='rgba(180,180,190,.5)'; }
+  ex.lineWidth=1.5; roundR(ex,bx,by,bw,bh,8); ex.fill(); ex.stroke();
+  ex.fillStyle='rgba(246,238,240,.92)'; ex.font='600 11px Inter, sans-serif'; ex.textAlign='center'; ex.textBaseline='middle';
+  ex.fillText(contact==='hot'?'HOT':contact==='cold'?'COLD':'insulated', bx+bw/2, by+bh/2-7);
+  ex.font='10px JetBrains Mono, monospace'; ex.fillStyle='rgba(204,166,170,.9)';
+  ex.fillText(contact==='hot'?Math.round(p.Th)+'K':contact==='cold'?Math.round(p.Tc)+'K':'Q=0', bx+bw/2, by+bh/2+9);
+  // stage label
+  ex.textAlign='left'; ex.textBaseline='top'; ex.font='600 12px Inter, sans-serif'; ex.fillStyle=STGC[s.stage];
+  ex.fillText('▶ '+STG[s.stage], 16, 12);
+}
+function roundR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+function loopPts(p){
+  const pts=[]; const seg=60;
+  for(let s=0;s<4;s++){ for(let k=0;k<=seg;k++){ const ph=s+k/seg; const st=stateAt(ph,p); pts.push([st.V,st.P,s]); } }
+  return pts;
+}
+function drawPV(p,s){
+  const d=fit(pv,px,0.62), w=d.w,h=d.h;
+  px.clearRect(0,0,w,h);
+  const bg=px.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1f1422'); bg.addColorStop(1,'#281a24');
+  px.fillStyle=bg; px.fillRect(0,0,w,h);
+  const mL=52, mR=20, mT=18, mB=40, x0=mL, x1=w-mR, y0=h-mB, y1=mT;
+  const pts=loopPts(p);
+  let vmax=0,pmax=0; for(const q of pts){ if(q[0]>vmax)vmax=q[0]; if(q[1]>pmax)pmax=q[1]; }
+  vmax*=1.06; pmax*=1.08; const vmin=p.V1*0.9;
+  const X=v=>x0+(x1-x0)*((v-vmin)/(vmax-vmin)), Y=pp=>y0-(y0-y1)*(pp/pmax);
+  // grid + axes
+  px.strokeStyle='rgba(140,160,220,.10)'; px.lineWidth=1;
+  px.beginPath();px.moveTo(x0,y0);px.lineTo(x1,y0);px.moveTo(x0,y0);px.lineTo(x0,y1);px.stroke();
+  px.fillStyle='rgba(204,166,170,.8)'; px.font='11px Inter, sans-serif';
+  px.textAlign='center'; px.textBaseline='top'; px.fillText('Volume  V →', (x0+x1)/2, y0+18);
+  px.save(); px.translate(16,(y0+y1)/2); px.rotate(-Math.PI/2); px.textAlign='center'; px.textBaseline='bottom'; px.fillText('Pressure  P →',0,0); px.restore();
+  // shaded enclosed area
+  px.beginPath(); for(let i=0;i<pts.length;i++){const X0=X(pts[i][0]),Y0=Y(pts[i][1]); i===0?px.moveTo(X0,Y0):px.lineTo(X0,Y0);} px.closePath();
+  px.fillStyle='rgba(255,138,91,.16)'; px.fill();
+  // loop segments colored by stage
+  for(let i=1;i<pts.length;i++){ px.strokeStyle=STGC[pts[i][2]]; px.globalAlpha=.95; px.lineWidth=2.4;
+    px.beginPath();px.moveTo(X(pts[i-1][0]),Y(pts[i-1][1]));px.lineTo(X(pts[i][0]),Y(pts[i][1]));px.stroke(); }
+  px.globalAlpha=1;
+  // state points A B C D
+  const corners=[stateAt(0,p),stateAt(1,p),stateAt(2,p),stateAt(3,p)], lab=['A','B','C','D'];
+  px.font='600 12px JetBrains Mono, monospace';
+  for(let i=0;i<4;i++){ const c=corners[i], cx=X(c.V), cy=Y(c.P);
+    px.fillStyle='rgba(255,255,255,.85)'; px.beginPath();px.arc(cx,cy,3.5,0,7);px.fill();
+    px.fillStyle='rgba(246,238,240,.9)'; px.textAlign='left'; px.textBaseline='bottom'; px.fillText(lab[i],cx+6,cy-4); }
+  // current point
+  const cx=X(s.V), cy=Y(s.P);
+  px.save(); px.shadowColor='rgba(255,210,122,.9)'; px.shadowBlur=12;
+  px.fillStyle='#ffd27a'; px.beginPath();px.arc(cx,cy,6,0,7);px.fill(); px.restore();
+  // work label inside
+  const e=energies(p);
+  px.fillStyle='rgba(255,200,170,.85)'; px.font='600 12px Inter, sans-serif'; px.textAlign='center'; px.textBaseline='middle';
+  px.fillText('W = '+e.W.toFixed(0)+'  (enclosed area)', (x0+x1)/2, (y0+y1)/2+10);
+}
+
+function meters(p){
+  const e=energies(p);
+  els.sEff.textContent=(e.eff*100).toFixed(1);
+  els.sQh.textContent=e.Qh.toFixed(0);
+  els.sW.textContent=e.W.toFixed(0);
+  els.sQc.textContent=e.Qc.toFixed(0);
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  if(playing){ phase=(phase+dt*0.72)%4; }
+  const p=P(), s=stateAt(phase,p);
+  drawEngine(p,s); drawPV(p,s);
+  if(++frame%4===0) meters(p);
+  raf=requestAnimationFrame(loop);
+}
+
+// ── controls ──
+function linkSlider(slider,num){slider.addEventListener('input',()=>{num.value=slider.value;});}
+function linkNum(num,slider){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value); if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v));});
+  num.addEventListener('change',()=>{num.value=clampNum(num); slider.value=num.value;});
+}
+linkSlider(els.th,els.thNum); linkSlider(els.tc,els.tcNum);
+linkNum(els.thNum,els.th); linkNum(els.tcNum,els.tc);
+els.er.addEventListener('input',()=>{ els.erV.textContent=(+els.er.value).toFixed(1); });
+
+document.getElementById('gas').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; gas=b.dataset.g;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+});
+els.pause.addEventListener('click',()=>{ playing=!playing; els.pause.textContent= playing?'Pause ⏸':'Play ▶'; });
+els.reset.addEventListener('click',()=>{ phase=0; });
+window.addEventListener('resize',()=>{ const p=P(),s=stateAt(phase,p); drawEngine(p,s); drawPV(p,s); });
+
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

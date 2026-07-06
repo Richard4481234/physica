@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polarization &amp; Malus's Law · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#080f1c; --bg-1:#0e1a30;
+    --glass:rgba(24,38,62,0.55); --glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb; --muted:#9ab2cc; --faint:#6b86a0;
+    --accent:#7cc4ff; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.10), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff); box-shadow:0 6px 18px -6px rgba(124,196,255,.8); color:#08111e; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#0a1424}
+  #graph{margin-top:12px}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:14px}
+  .ctl.hide{display:none}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eaf4ff; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eaf4ff; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:64px; background:rgba(8,16,28,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:40px; background:rgba(8,16,28,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2); border-color:rgba(124,196,255,.5); color:var(--ink)}
+  .pre{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .pre button{flex:1; min-width:70px; background:rgba(8,16,28,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:11.5px; padding:7px 5px; border-radius:8px; cursor:pointer}
+  .pre button:hover{border-color:rgba(124,196,255,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(124,196,255,.12); border:1px solid rgba(124,196,255,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(8,16,28,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="optics.html">← Optical</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Optical · Experiment</div>
+    <h1>Polarization &amp; Malus's Law</h1>
+    <p>Light's electric field can point in any transverse direction. A polarizer lets through only one
+       direction — so chaining filters at different angles dims, blocks, or surprisingly revives the beam.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <canvas id="graph"></canvas>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Source light</label>
+        <div class="seg"><button id="srcU" class="on">Unpolarized</button><button id="srcP">Polarized</button></div>
+      </div>
+      <div class="ctl hide" id="srcAngWrap">
+        <label>Source angle <span class="val" id="saV">0°</span></label>
+        <div class="row"><input type="range" id="sa" min="0" max="180" step="1" value="0"><input type="number" id="saN" min="0" max="180" step="1" value="0"></div>
+      </div>
+      <div class="ctl">
+        <label>Number of polarizers</label>
+        <div class="seg"><button data-n="1">1</button><button data-n="2" class="on">2</button><button data-n="3">3</button></div>
+      </div>
+      <div class="ctl" id="p1w">
+        <label>Polarizer 1 angle <span class="val" id="a1V">0°</span></label>
+        <div class="row"><input type="range" id="a1" min="0" max="180" step="1" value="0"><input type="number" id="a1N" min="0" max="180" step="1" value="0"></div>
+      </div>
+      <div class="ctl" id="p2w">
+        <label>Polarizer 2 angle <span class="val" id="a2V">90°</span></label>
+        <div class="row"><input type="range" id="a2" min="0" max="180" step="1" value="90"><input type="number" id="a2N" min="0" max="180" step="1" value="90"></div>
+      </div>
+      <div class="ctl hide" id="p3w">
+        <label>Polarizer 3 angle <span class="val" id="a3V">45°</span></label>
+        <div class="row"><input type="range" id="a3" min="0" max="180" step="1" value="45"><input type="number" id="a3N" min="0" max="180" step="1" value="45"></div>
+      </div>
+      <div class="ctl">
+        <label>Presets</label>
+        <div class="pre"><button data-pre="parallel">Parallel</button><button data-pre="crossed">Crossed</button><button data-pre="paradox">3-polarizer</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats" id="statRows"></div>
+      <div class="verdict" id="verdict">—</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A beam of light travels left to right through a row of <strong>polarizing filters</strong>. The little
+      arrows between the filters show the direction the light's <strong>electric field</strong> is oscillating —
+      its <strong>polarization</strong> — and the brightness of the beam shows how much light is getting through.
+      A meter at the right reads the transmitted intensity.
+
+      <h3>Polarization and the first filter</h3>
+      Ordinary light from the Sun or a bulb is <strong>unpolarized</strong>: its electric field jitters in every
+      transverse direction at random (shown as a starburst of arrows). A polarizer only transmits the component of
+      the field along its <strong>transmission axis</strong>, so after the first filter the light is
+      <strong>linearly polarized</strong> along that axis — and exactly <strong>half</strong> the intensity gets
+      through, since on average only half the random field lies along the axis:
+      <div class="eq">I₁ = ½ I₀&nbsp;&nbsp;(unpolarized → first polarizer)</div>
+
+      <h3>Malus's law</h3>
+      Once the light is polarized, a second filter (the "analyzer") set at angle Δθ to the first transmits only the
+      projected component, and intensity goes as the cosine squared:
+      <div class="eq">I = I_in · cos²(Δθ)</div>
+      Line the axes up (Δθ = 0) and all the light passes; cross them at 90° and the cosine is zero — total
+      darkness. Rotate the analyzer and watch the brightness follow the cos² curve plotted below.
+
+      <h3>The three-polarizer surprise</h3>
+      Here is the famous twist. Two crossed polarizers (0° and 90°) block everything. Now slip a
+      <strong>third polarizer at 45° between them</strong> — and light reappears! Each stage only needs cos²(45°) =
+      ½, so the chain transmits ½ · ½ · ½ = <strong>⅛</strong> of the original (12.5%). The middle filter
+      "re-projects" the polarization partway around, letting some survive the final filter. Try the
+      <strong>3-polarizer</strong> preset to see it. This is impossible to explain if you think a polarizer simply
+      "removes" light — it actively redefines the polarization direction.
+
+      <h3>Things to try</h3>
+      Sweep Polarizer 2 from 0° to 90° and watch Malus's law dim the beam to nothing. Set up crossed polarizers,
+      then add the third in the middle and rotate it — transmission peaks when it sits at 45°. Polarizers like
+      these are how LCD screens, polarized sunglasses, and photographers' filters control light.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const gc=document.getElementById('graph'), gx=gc.getContext('2d');
+let W=900,H=420,dpr=1, GW=900,GH=150;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.46);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  GW=gc.clientWidth; GH=Math.round(GW*0.18); gc.width=GW*dpr; gc.height=GH*dpr; gc.style.height=GH+'px'; gx.setTransform(dpr,0,0,dpr,0,0);
+}
+const D=Math.PI/180;
+const st={unpol:true, srcA:0, n:2, a:[0,90,45]};
+
+// compute intensities & polarization angles through the chain
+function compute(){
+  const out=[]; // each: {I, pol(deg or null)}
+  let I = 1, pol = st.unpol? null : st.srcA;
+  out.push({I, pol, label:'source'});
+  for(let i=0;i<st.n;i++){
+    const ax=st.a[i];
+    if(pol===null){ I = 0.5*I; }          // unpolarized -> half
+    else { const d=(pol-ax)*D; I = I*Math.cos(d)*Math.cos(d); }
+    pol = ax;
+    out.push({I, pol, label:'P'+(i+1)});
+  }
+  return out;
+}
+
+let tAnim=0;
+function axisVec(deg){ const a=deg*D; return [Math.sin(a), Math.cos(a)]; } // screen (x,y); 0°=vertical
+
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const res=compute();
+  const cy=H*0.46, R=Math.min(58, H*0.16);
+  // x positions: source, P1..Pn, detector
+  const stops=[]; const nStop=st.n+2;
+  for(let i=0;i<nStop;i++) stops.push(W*0.09 + (W*0.84)*(i/(nStop-1)));
+  const srcX=stops[0], detX=stops[nStop-1];
+
+  // beam segments with brightness ∝ intensity entering that segment
+  for(let s=0;s<nStop-1;s++){
+    const x0=stops[s], x1=stops[s+1];
+    const Iseg=res[s].I;                  // intensity in this segment (after stage s)
+    const pol=res[s].pol;
+    // beam glow band
+    const a=0.06+0.5*Iseg;
+    const grad=ctx.createLinearGradient(0,cy-R,0,cy+R);
+    grad.addColorStop(0,'rgba(124,196,255,0)'); grad.addColorStop(0.5,`rgba(190,225,255,${a})`); grad.addColorStop(1,'rgba(124,196,255,0)');
+    ctx.fillStyle=grad; ctx.fillRect(x0,cy-R*0.7,x1-x0,R*1.4);
+    // polarization arrows in mid of segment
+    const mx=(x0+x1)/2;
+    const osc=0.6+0.4*Math.sin(tAnim*4 - s);
+    if(pol===null){
+      // unpolarized starburst
+      for(let k=0;k<8;k++){ const ang=k*22.5; const v=axisVec(ang); const len=R*0.7*osc;
+        ctx.strokeStyle='rgba(200,225,255,.55)'; ctx.lineWidth=1.6;
+        ctx.beginPath(); ctx.moveTo(mx-v[0]*len, cy-v[1]*len); ctx.lineTo(mx+v[0]*len, cy+v[1]*len); ctx.stroke(); }
+    } else if(Iseg>0.001){
+      const v=axisVec(pol); const len=R*0.78*osc*(0.45+0.55*Math.min(1,Iseg/0.5));
+      ctx.strokeStyle='#ff8a8a'; ctx.lineWidth=2.4;
+      ctx.beginPath(); ctx.moveTo(mx-v[0]*len, cy-v[1]*len); ctx.lineTo(mx+v[0]*len, cy+v[1]*len); ctx.stroke();
+      // arrowheads
+      for(const sgn of [1,-1]){ const hx=mx+v[0]*len*sgn, hy=cy+v[1]*len*sgn;
+        ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx-(v[0]*0.5+v[1]*0.35)*8*sgn, hy-(v[1]*0.5-v[0]*0.35)*8*sgn);
+        ctx.moveTo(hx,hy); ctx.lineTo(hx-(v[0]*0.5-v[1]*0.35)*8*sgn, hy-(v[1]*0.5+v[0]*0.35)*8*sgn); ctx.stroke(); }
+    }
+  }
+
+  // source icon
+  ctx.fillStyle='rgba(255,235,180,.9)'; ctx.beginPath(); ctx.arc(srcX,cy,12,0,7); ctx.fill();
+  ctx.strokeStyle='rgba(255,235,180,.4)'; ctx.lineWidth=1.5;
+  for(let k=0;k<8;k++){ const a=k*45*D; ctx.beginPath(); ctx.moveTo(srcX+Math.cos(a)*14,cy+Math.sin(a)*14); ctx.lineTo(srcX+Math.cos(a)*19,cy+Math.sin(a)*19); ctx.stroke(); }
+  ctx.fillStyle='rgba(154,178,204,.8)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.fillText('light', srcX, cy+R+18); ctx.textAlign='left';
+
+  // polarizers
+  for(let i=0;i<st.n;i++){
+    const x=stops[i+1], ang=st.a[i];
+    drawPolarizer(x,cy,R,ang,'P'+(i+1));
+  }
+
+  // detector
+  const Ifin=res[res.length-1].I;
+  drawDetector(detX,cy,R,Ifin);
+
+  drawGraph(res);
+  requestAnimationFrame(()=>{});
+}
+
+function drawPolarizer(x,cy,R,ang,label){
+  ctx.save(); ctx.translate(x,cy);
+  // disk
+  ctx.beginPath(); ctx.arc(0,0,R,0,7); ctx.fillStyle='rgba(20,34,56,0.75)'; ctx.fill();
+  ctx.strokeStyle='rgba(150,180,210,.7)'; ctx.lineWidth=2; ctx.stroke();
+  // transmission slit lines along axis
+  const v=axisVec(ang), p=[v[1],-v[0]]; // perpendicular for spacing
+  ctx.strokeStyle='rgba(124,196,255,.55)'; ctx.lineWidth=1.4;
+  for(let o=-R+5;o<=R-5;o+=6){
+    const cxp=p[0]*o, cyp=p[1]*o; const half=Math.sqrt(Math.max(0,R*R-o*o));
+    ctx.beginPath(); ctx.moveTo(cxp-v[0]*half, cyp-v[1]*half); ctx.lineTo(cxp+v[0]*half, cyp+v[1]*half); ctx.stroke();
+  }
+  // axis indicator (bold)
+  ctx.strokeStyle='#7cc4ff'; ctx.lineWidth=2.6;
+  ctx.beginPath(); ctx.moveTo(-v[0]*(R+8),-v[1]*(R+8)); ctx.lineTo(v[0]*(R+8),v[1]*(R+8)); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle='rgba(154,178,204,.85)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText(label+' '+Math.round(ang)+'°', x, cy+R+18); ctx.textAlign='left';
+}
+function drawDetector(x,cy,R,I){
+  const b=Math.max(0,Math.min(1,I));
+  ctx.fillStyle=`rgb(${40+b*215|0},${50+b*200|0},${30+b*120|0})`;
+  ctx.fillRect(x-R*0.55,cy-R*0.55,R*1.1,R*1.1);
+  ctx.strokeStyle='rgba(150,180,210,.6)'; ctx.lineWidth=1.5; ctx.strokeRect(x-R*0.55,cy-R*0.55,R*1.1,R*1.1);
+  ctx.fillStyle='rgba(234,244,251,.95)'; ctx.font='bold 13px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText((I*100).toFixed(1)+'%', x, cy-R*0.55-8);
+  ctx.fillStyle='rgba(154,178,204,.85)'; ctx.font='11px Inter'; ctx.fillText('detector', x, cy+R+18); ctx.textAlign='left';
+}
+
+function drawGraph(res){
+  gx.clearRect(0,0,GW,GH);
+  const x0=44,x1=GW-12,y0=GH-20,y1=10;
+  gx.strokeStyle='rgba(140,180,220,.3)'; gx.lineWidth=1;
+  gx.beginPath(); gx.moveTo(x0,y1); gx.lineTo(x0,y0); gx.lineTo(x1,y0); gx.stroke();
+  gx.fillStyle='rgba(154,178,204,.7)'; gx.font='10px JetBrains Mono';
+  gx.save(); gx.translate(12,(y0+y1)/2); gx.rotate(-Math.PI/2); gx.textAlign='center'; gx.fillText('I / I_in',0,0); gx.restore();
+  gx.textAlign='center'; gx.fillText('Δθ between two polarizers  (0°–90°)',(x0+x1)/2,GH-4); gx.textAlign='left';
+  // cos^2 curve
+  gx.strokeStyle='#7cc4ff'; gx.lineWidth=2; gx.beginPath();
+  for(let i=0;i<=90;i++){ const v=Math.cos(i*D)**2; const X=x0+i/90*(x1-x0), Y=y0-v*(y0-y1); i?gx.lineTo(X,Y):gx.moveTo(X,Y); }
+  gx.stroke();
+  // current Δθ between P1 and P2 (if ≥2)
+  if(st.n>=2){
+    let d=Math.abs(((st.a[0]-st.a[1])%180)); if(d>90)d=180-d;
+    const v=Math.cos(d*D)**2; const X=x0+d/90*(x1-x0), Y=y0-v*(y0-y1);
+    gx.fillStyle='#ffd27a'; gx.beginPath(); gx.arc(X,Y,4.5,0,7); gx.fill();
+    gx.fillStyle='rgba(255,210,122,.85)'; gx.font='10px JetBrains Mono'; gx.fillText('Δθ='+Math.round(d)+'°  cos²='+v.toFixed(2), X+6, Y-4);
+  }
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; tAnim+=dt; draw(); requestAnimationFrame(loop); }
+
+function updateStats(){
+  const res=compute(), box=document.getElementById('statRows');
+  let html='';
+  for(let i=1;i<res.length;i++){ html+=`<div class="s"><span>After P${i} (axis ${Math.round(st.a[i-1])}°)</span><span>${(res[i].I*100).toFixed(1)}%</span></div>`; }
+  const fin=res[res.length-1].I;
+  html+=`<div class="s"><span><b>Transmitted</b></span><span>${(fin*100).toFixed(1)}%</span></div>`;
+  box.innerHTML=html;
+  const v=document.getElementById('verdict');
+  if(fin<0.002) v.textContent='The beam is fully blocked — the axes leave no surviving component.';
+  else if(st.n>=3 && fin>0.05) v.textContent=`Light revived! The middle filter re-projects the polarization, so ${(fin*100).toFixed(1)}% gets through crossed outer filters.`;
+  else v.textContent=`${(fin*100).toFixed(1)}% of the original intensity reaches the detector.`;
+}
+
+// ---- controls ----
+function showPolWraps(){
+  document.getElementById('p2w').classList.toggle('hide', st.n<2);
+  document.getElementById('p3w').classList.toggle('hide', st.n<3);
+}
+function setAngle(idx,val){ val=((val%180)+180)%180; st.a[idx]=val;
+  document.getElementById('a'+(idx+1)).value=val; document.getElementById('a'+(idx+1)+'N').value=val;
+  document.getElementById('a'+(idx+1)+'V').textContent=Math.round(val)+'°'; updateStats(); }
+for(let i=0;i<3;i++){
+  const s=document.getElementById('a'+(i+1)), n=document.getElementById('a'+(i+1)+'N');
+  s.addEventListener('input',()=>setAngle(i,parseFloat(s.value)));
+  n.addEventListener('change',()=>setAngle(i,parseFloat(n.value)));
+}
+// source
+document.getElementById('srcU').addEventListener('click',()=>{ st.unpol=true; srcBtns(); document.getElementById('srcAngWrap').classList.add('hide'); updateStats(); });
+document.getElementById('srcP').addEventListener('click',()=>{ st.unpol=false; srcBtns(); document.getElementById('srcAngWrap').classList.remove('hide'); updateStats(); });
+function srcBtns(){ document.getElementById('srcU').classList.toggle('on',st.unpol); document.getElementById('srcP').classList.toggle('on',!st.unpol); }
+{ const s=document.getElementById('sa'), n=document.getElementById('saN');
+  function set(v){ v=((v%180)+180)%180; st.srcA=v; s.value=v; n.value=v; document.getElementById('saV').textContent=Math.round(v)+'°'; updateStats(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value))); }
+// number of polarizers
+document.querySelectorAll('.seg button[data-n]').forEach(btn=>btn.addEventListener('click',()=>{
+  st.n=parseInt(btn.dataset.n); document.querySelectorAll('.seg button[data-n]').forEach(b=>b.classList.toggle('on',b===btn));
+  showPolWraps(); updateStats();
+}));
+// presets
+document.querySelectorAll('.pre button').forEach(btn=>btn.addEventListener('click',()=>{
+  const p=btn.dataset.pre;
+  if(p==='parallel'){ st.n=2; st.a=[0,0,45]; }
+  if(p==='crossed'){ st.n=2; st.a=[0,90,45]; }
+  if(p==='paradox'){ st.n=3; st.a=[0,45,90]; }
+  document.querySelectorAll('.seg button[data-n]').forEach(b=>b.classList.toggle('on',+b.dataset.n===st.n));
+  for(let i=0;i<3;i++){ document.getElementById('a'+(i+1)).value=st.a[i]; document.getElementById('a'+(i+1)+'N').value=st.a[i]; document.getElementById('a'+(i+1)+'V').textContent=Math.round(st.a[i])+'°'; }
+  showPolWraps(); updateStats();
+}));
+document.getElementById('reset').addEventListener('click',()=>{
+  st.unpol=true; st.srcA=0; st.n=2; st.a=[0,90,45]; srcBtns(); document.getElementById('srcAngWrap').classList.add('hide');
+  document.querySelectorAll('.seg button[data-n]').forEach(b=>b.classList.toggle('on',+b.dataset.n===2));
+  for(let i=0;i<3;i++){ document.getElementById('a'+(i+1)).value=st.a[i]; document.getElementById('a'+(i+1)+'N').value=st.a[i]; document.getElementById('a'+(i+1)+'V').textContent=Math.round(st.a[i])+'°'; }
+  showPolWraps(); updateStats();
+});
+
+window.addEventListener('resize',fit);
+fit(); showPolWraps(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

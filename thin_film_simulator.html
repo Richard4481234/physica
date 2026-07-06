@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thin-Film Interference · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.14),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.07),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#9bd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#06203a;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#05080f}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2);border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="optics.html">← Optical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Optical · Experiment</div>
+    <h1>Thin-Film Interference</h1>
+    <p>Light bouncing off the top and bottom of a soap film races itself — and the winner depends on the colour.
+       Tune the thickness and watch wavelengths cancel and reinforce: bubble rainbows and anti-reflective lens
+       coatings, from one equation.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#eef4fb"></i>incident white light</span><span><i style="background:#ffd27a"></i>the two reflected rays that interfere</span><span><i style="background:#7cc4ff"></i>path inside the film</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Film type</label>
+        <div class="seg"><button id="mSoap" class="on">Soap film (air both sides)</button><button id="mCoat">Coating on glass</button></div></div>
+      <div class="ctl"><label>Thickness t <span class="val" id="tV">300 nm</span></label>
+        <div class="row"><input type="range" id="t" min="5" max="900" step="5" value="300"><input type="number" id="tN" min="5" max="900" step="5" value="300"></div></div>
+      <div class="ctl"><label>Film index n <span class="val" id="n2V">1.33</span></label>
+        <div class="row"><input type="range" id="n2" min="1.2" max="1.8" step="0.01" value="1.33"><input type="number" id="n2N" min="1.2" max="1.8" step="0.01" value="1.33"></div></div>
+      <div class="ctl"><label>Incidence angle θ <span class="val" id="angV">15°</span></label>
+        <div class="row"><input type="range" id="ang" min="0" max="60" step="1" value="15"><input type="number" id="angN" min="0" max="60" step="1" value="15"></div></div>
+      <div class="stats">
+        <div class="s"><span>Optical path 2nt·cosθₜ</span><span id="sPath">—</span></div>
+        <div class="s"><span>Brightest visible λ</span><span id="sMax">—</span></div>
+        <div class="s"><span>Cancelled visible λ</span><span id="sMin">—</span></div>
+        <div class="s"><span>Quarter-wave t (550 nm)</span><span id="sQw">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Soap film: colours with 2nt·cosθ = mλ vanish and the in-between ones glow.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      White light strikes a film a few hundred nanometres thick. Part reflects off the top surface; part dives in,
+      reflects off the bottom, and comes back out. Those two gold rays overlap and interfere — the swatch shows
+      the net reflected colour, and the graph shows the reflectance across the whole visible spectrum.
+
+      <h3>The race between two reflections</h3>
+      The inner ray travels an extra optical path of
+      <div class="eq">Δ = 2·n·t·cosθₜ</div>
+      (thickness both ways, at the refracted angle, and slowed by the index n). Whether the two rays reinforce or
+      cancel depends on this Δ against the wavelength — <em>plus</em> one subtlety: reflecting off a
+      <strong>higher</strong>-index medium flips the wave's phase by half a cycle (π); reflecting off a lower one
+      doesn't.
+
+      <h3>Soap film vs lens coating: opposite rules</h3>
+      A <strong>soap film in air</strong> flips only the top reflection, so the two rays start half a cycle apart:
+      <div class="eq">dark (reflection cancelled): 2nt·cosθₜ = mλ&nbsp;&nbsp;·&nbsp;&nbsp;bright: 2nt·cosθₜ = (m−½)λ</div>
+      A <strong>coating on glass</strong> (n_film &lt; n_glass) flips both reflections, so the flips cancel and
+      the rules swap:
+      <div class="eq">bright: 2nt·cosθₜ = mλ&nbsp;&nbsp;·&nbsp;&nbsp;dark: 2nt·cosθₜ = (m−½)λ</div>
+      Same physics, opposite outcomes — the toggle above lets you see both.
+
+      <h3>Two famous consequences</h3>
+      <strong>The black film:</strong> drag the soap film's thickness toward zero and Δ vanishes — but the π flip
+      remains, so every colour cancels and the film reflects nothing. Real bubbles turn black at the top moments
+      before popping. <strong>The anti-reflective coating:</strong> in coating mode, set t = λ/4n. The two
+      reflections then arrive exactly half a wavelength apart and erase each other at that colour — this is the
+      purple-green sheen on camera lenses and glasses, killing reflections where the eye is most sensitive.
+
+      <h3>Why bubbles swirl with colour</h3>
+      A real bubble's wall varies in thickness from place to place (and drains downward under gravity), so each
+      patch cancels a different wavelength and reflects a different colour. Tilting also changes cosθₜ — the same
+      patch shifts colour as you move your head. Oil slicks on wet roads are the same physics on water.
+
+      <h3>Things to try</h3>
+      Slide t slowly from 900 nm down to 5 nm and watch the spectrum's peaks spread apart, simplify, and finally
+      all sink to zero — the black film. Switch to coating mode and dial t to the quarter-wave value shown in the
+      stats: the 550 nm reflectance drops to zero. Then increase the angle and watch every feature slide blueward
+      as cosθₜ shrinks the optical path.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={mode:'soap', t:300, n:1.33, ang:15};
+function wlRGB(wl){
+  let r=0,g=0,b=0;
+  if(wl>=380&&wl<440){r=-(wl-440)/60;b=1;}
+  else if(wl<490){g=(wl-440)/50;b=1;}
+  else if(wl<510){g=1;b=-(wl-510)/20;}
+  else if(wl<580){r=(wl-510)/70;g=1;}
+  else if(wl<645){r=1;g=-(wl-645)/65;}
+  else {r=1;}
+  return [r,g,b];
+}
+function thT(){ return Math.asin(Math.sin(st.ang*Math.PI/180)/st.n); }
+function Rof(lam){
+  const path=2*st.n*st.t*Math.cos(thT());          // optical path difference (nm)
+  const ph=2*Math.PI*path/lam;
+  // soap: one π flip → R ∝ sin²(ph/2); coating on glass: two flips → R ∝ cos²(ph/2)
+  return st.mode==='soap'? Math.pow(Math.sin(ph/2),2) : Math.pow(Math.cos(ph/2),2);
+}
+function filmColor(){
+  let r=0,g=0,b=0,wsum=0;
+  for(let wl=390;wl<=690;wl+=6){
+    const R=Rof(wl), c=wlRGB(wl);
+    r+=c[0]*R; g+=c[1]*R; b+=c[2]*R; wsum+=1;
+  }
+  const k=1.9/wsum;
+  return [Math.min(1,r*k*3),Math.min(1,g*k*3),Math.min(1,b*k*3)];
+}
+let tAnim=0;
+function draw(dt){
+  tAnim+=dt;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#05080f'; ctx.fillRect(0,0,W,H);
+  drawFilm(14,14,W*0.52,H-28);
+  drawSpectrum(W*0.58,26,W-24-W*0.58,H-58);
+  requestAnimationFrame(()=>{});
+}
+function drawFilm(x,y,wd,ht){
+  const cx=x+wd*0.5, filmTop=y+ht*0.42;
+  const thick=Math.max(10, Math.min(58, st.t*0.08));
+  const filmBot=filmTop+thick;
+  // media labels
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillStyle='rgba(154,178,204,.8)';
+  ctx.fillText('air  n = 1.00', x+8, filmTop-52);
+  ctx.fillStyle='rgba(124,196,255,.9)';
+  ctx.fillText((st.mode==='soap'?'soap film':'coating')+'  n = '+st.n.toFixed(2)+' · t = '+st.t.toFixed(0)+' nm', x+8, filmTop+thick/2+4);
+  ctx.fillStyle='rgba(154,178,204,.8)';
+  ctx.fillText(st.mode==='soap'?'air  n = 1.00':'glass  n = 1.50', x+8, filmBot+30);
+  // film slab
+  const fc=filmColor();
+  ctx.fillStyle='rgba(124,196,255,.14)';
+  ctx.fillRect(x+4,filmTop,wd-8,thick);
+  ctx.strokeStyle='rgba(124,196,255,.6)'; ctx.lineWidth=1.4;
+  ctx.strokeRect(x+4,filmTop,wd-8,thick);
+  if(st.mode==='coating'){ ctx.fillStyle='rgba(154,178,204,.10)'; ctx.fillRect(x+4,filmBot,wd-8,y+ht-filmBot-4); }
+  // incident ray + reflected rays
+  const th=st.ang*Math.PI/180, t2=thT();
+  const L=110;
+  const ix=cx-40, iy=filmTop;
+  ctx.lineWidth=2.2;
+  ctx.strokeStyle='rgba(238,244,251,.9)';
+  ray(ix-Math.sin(th)*L, iy-Math.cos(th)*L, ix, iy);
+  ctx.strokeStyle='rgba(255,210,122,.95)';
+  ray(ix, iy, ix+Math.sin(th)*L, iy-Math.cos(th)*L);
+  const bx=ix+Math.tan(t2)*thick;
+  ctx.strokeStyle='rgba(124,196,255,.8)'; ctx.lineWidth=1.8;
+  ray(ix,iy,bx,filmBot);
+  const ex=bx+Math.tan(t2)*thick;
+  ray(bx,filmBot,ex,filmTop);
+  ctx.strokeStyle='rgba(255,210,122,.75)'; ctx.lineWidth=2.2;
+  ray(ex,filmTop, ex+Math.sin(th)*L*0.9, filmTop-Math.cos(th)*L*0.9);
+  // phase-flip badges
+  ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillStyle='#ffd27a'; ctx.fillText('π flip', ix-6, iy-8);
+  if(st.mode==='coating'){ ctx.fillText('π flip', bx+6, filmBot+14); }
+  else { ctx.fillStyle='rgba(154,178,204,.85)'; ctx.fillText('no flip', bx+6, filmBot+14); }
+  // reflected color swatch
+  ctx.fillStyle='rgb('+(fc[0]*255|0)+','+(fc[1]*255|0)+','+(fc[2]*255|0)+')';
+  ctx.beginPath(); ctx.arc(x+wd-52, y+44, 26, 0, 7); ctx.fill();
+  ctx.strokeStyle='rgba(238,244,251,.6)'; ctx.lineWidth=1.6; ctx.stroke();
+  ctx.fillStyle='rgba(154,178,204,.85)'; ctx.font='10.5px JetBrains Mono';
+  ctx.fillText('reflected colour', x+wd-52, y+84);
+  // angle arc
+  ctx.strokeStyle='rgba(238,244,251,.4)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.arc(ix,iy,30,-Math.PI/2,-Math.PI/2+th); ctx.stroke();
+  ctx.fillStyle='rgba(238,244,251,.7)'; ctx.fillText('θ='+st.ang.toFixed(0)+'°', ix+18, iy-34);
+}
+function ray(x0,y0,x1,y1){ ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); }
+function drawSpectrum(x,y,wd,ht){
+  ctx.fillStyle='rgba(10,18,32,.5)'; ctx.fillRect(x,y-8,wd,ht+16);
+  const x0=x+34,x1=x+wd-10,y0=y+ht-24,y1=y+10;
+  const X=wl=>x0+(wl-380)/(700-380)*(x1-x0), Y=R=>y0-R*(y0-y1);
+  for(let wl=380;wl<=700;wl+=2){
+    const c=wlRGB(wl);
+    ctx.fillStyle='rgba('+(c[0]*255|0)+','+(c[1]*255|0)+','+(c[2]*255|0)+',0.12)';
+    ctx.fillRect(X(wl),y1,X(wl+2)-X(wl)+0.5,y0-y1);
+  }
+  ctx.strokeStyle='rgba(140,180,220,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(154,178,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('wavelength (nm) →',(x0+x1)/2,y0+6);
+  ctx.lineWidth=2.4;
+  let prev=null;
+  for(let wl=380;wl<=700;wl+=2){
+    const c=wlRGB(wl), R=Rof(wl);
+    if(prev){ ctx.strokeStyle='rgb('+(c[0]*255|0)+','+(c[1]*255|0)+','+(c[2]*255|0)+')';
+      ctx.beginPath(); ctx.moveTo(prev[0],prev[1]); ctx.lineTo(X(wl),Y(R)); ctx.stroke(); }
+    prev=[X(wl),Y(R)];
+  }
+  ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='rgba(238,244,251,.8)'; ctx.fillText('reflectance R(λ)', x0+6, y1+10);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; draw(dt); requestAnimationFrame(loop); }
+function updateStats(){
+  const path=2*st.n*st.t*Math.cos(thT());
+  document.getElementById('sPath').textContent=path.toFixed(0)+' nm';
+  let best=380,worst=380,bR=-1,wR=2;
+  for(let wl=380;wl<=700;wl++){ const R=Rof(wl); if(R>bR){bR=R;best=wl;} if(R<wR){wR=R;worst=wl;} }
+  document.getElementById('sMax').textContent=bR>0.02? best+' nm':'—';
+  document.getElementById('sMin').textContent=worst+' nm';
+  document.getElementById('sQw').textContent=(550/(4*st.n)).toFixed(0)+' nm';
+  const ve=document.getElementById('verdict');
+  if(st.mode==='soap'){
+    if(st.t<40) ve.textContent='Nearly zero thickness: the π flip at the top surface makes the two reflections cancel for every colour — the film turns BLACK. Real soap bubbles do this just before popping.';
+    else ve.textContent='Soap film: only the top reflection is phase-flipped, so colours with 2nt·cosθ = mλ vanish and the in-between ones glow — right now the film reflects mostly around '+best+' nm. Tilt it and the colours slide.';
+  } else {
+    const qw=550/(4*st.n);
+    if(Math.abs(st.t-qw)<12) ve.textContent='Quarter-wave coating! t ≈ λ/4n makes the two (both-flipped) reflections arrive half a wavelength apart at 550 nm — reflection cancelled where the eye is most sensitive. This is the anti-reflective coating on lenses and glasses.';
+    else ve.textContent='Coating on glass: both reflections flip, so now 2nt·cosθ = mλ is the BRIGHT condition — the opposite of the soap film. Set t = λ/4n ≈ '+qw.toFixed(0)+' nm to null the reflection at 550 nm.';
+  }
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('t','tN','t','tV',v=>Math.round(v)+' nm');
+bind('n2','n2N','n','n2V',v=>(+v).toFixed(2));
+bind('ang','angN','ang','angV',v=>Math.round(v)+'°');
+function setMode(m){
+  st.mode=m;
+  if(m==='coating'){ st.n=1.38; } else { st.n=1.33; }
+  const s=document.getElementById('n2'),nn=document.getElementById('n2N');
+  s.value=st.n; nn.value=st.n; document.getElementById('n2V').textContent=st.n.toFixed(2);
+  document.getElementById('mSoap').classList.toggle('on',m==='soap');
+  document.getElementById('mCoat').classList.toggle('on',m==='coating');
+  updateStats();
+}
+document.getElementById('mSoap').addEventListener('click',()=>setMode('soap'));
+document.getElementById('mCoat').addEventListener('click',()=>setMode('coating'));
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

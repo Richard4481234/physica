@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bernoulli's Principle · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#06141a; --bg-1:#0a1f28;
+    --glass:rgba(20,42,52,0.55); --glass-line:rgba(120,200,220,0.16);
+    --ink:#eef8fb; --muted:#9cc4cf; --faint:#5f8f9c;
+    --accent:#56ccde; --accent-soft:#2a6b78; --gold:#ffd27a; --ember:#ff8a5b; --slow:#3a7fd0; --fast:#ff6b6b;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(86,204,222,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(86,204,222,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(86,204,222,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .swatch{width:30px; height:11px; border-radius:3px; background:linear-gradient(90deg,#3a7fd0,#ff6b6b)}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.fast::before{background:var(--fast)} .stat.gold::before{background:var(--gold)} .stat.slow::before{background:var(--slow)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(86,204,222,.25),rgba(86,204,222,.08)); border:1px solid rgba(86,204,222,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .fast{color:var(--fast)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(86,204,222,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="fluids.html" class="back">← Fluid</a>
+    <div class="kicker">Fluid Dynamics</div>
+    <h1>Bernoulli's Principle</h1>
+  </div>
+  <div class="sub">Squeeze a flow through a narrow throat: it speeds up, and its pressure drops.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Flow</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Flow rate Q</span><span class="val" id="qV">0.70</span></div>
+      <input id="q" type="range" min="0.3" max="1.3" step="0.05" value="0.7">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Throat width</span><span class="val" id="tV">0.35</span></div>
+      <input id="throat" type="range" min="0.18" max="0.85" step="0.01" value="0.35">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Fluid density</span><span class="val" id="rV">1.0</span></div>
+      <input id="rho" type="range" min="0.5" max="2" step="0.1" value="1">
+    </div>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      The tall tubes are pressure gauges. Watch the column drop over the throat, where the fluid runs fastest —
+      that's Bernoulli's principle. Narrow the throat to exaggerate the effect.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="swatch"></i>slow → fast</span>
+      <span style="margin-left:auto;color:var(--faint)">Gauge height shows pressure; lower = lower pressure</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat slow"><div class="k">Wide-section speed</div><div class="v"><span id="sVw">0</span><em>rel</em></div></div>
+      <div class="stat fast"><div class="k">Throat speed</div><div class="v"><span id="sVt">0</span><em>rel</em></div></div>
+      <div class="stat gold"><div class="k">Throat pressure</div><div class="v"><span id="sPt">0</span><em>rel</em></div></div>
+      <div class="stat"><div class="k">Pressure drop</div><div class="v"><span id="sDP">0</span><em>rel</em></div></div>
+    </div>
+
+    <div class="formula">
+      <b>continuity</b> A·v = Q (const) &nbsp;&nbsp;|&nbsp;&nbsp; <b>Bernoulli</b> P + ½·ρ·v² = const
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>Fluid flows left to right through a pipe that pinches into a narrow <b>throat</b> in the middle. The
+           particles are coloured by speed, and the three tall tubes are pressure gauges — the fluid rises higher
+           where the pressure is greater. Notice the gauge over the throat sits <b>lowest</b>, even though the
+           fluid there is moving <b class="fast">fastest</b>.</p>
+
+        <h4>First, continuity</h4>
+        <p>The same amount of fluid has to pass every cross-section each second (it can't pile up). So where the
+           pipe is narrow, the fluid must move faster to keep the flow rate the same:</p>
+        <div class="ex-eq">
+          A · v = Q = constant <span class="lbl">narrow area → high speed</span>
+        </div>
+
+        <h4>Then, Bernoulli</h4>
+        <p>For a steady, frictionless flow, energy is conserved along a streamline. Written as pressures, the sum
+           of static pressure and "dynamic pressure" (½ρv²) is constant:</p>
+        <div class="ex-eq">
+          P + ½·ρ·v² = constant <span class="lbl">fast flow ⇒ low pressure</span>
+        </div>
+        <p>So when the fluid speeds up in the throat, its <b>static pressure must drop</b> to keep the total
+           constant. Faster flow, lower pressure — that's the heart of Bernoulli's principle.</p>
+
+        <h4>Why it matters</h4>
+        <ul>
+          <li>Air rushing faster over the curved top of a <b>wing</b> is at lower pressure than the slower air
+            beneath — the difference is <b>lift</b>.</li>
+          <li>A <b>carburettor</b> or perfume atomiser uses a throat's low pressure to suck fluid in.</li>
+          <li>Two sheets of paper pulled close and blown between them are pushed <i>together</i>, not apart.</li>
+        </ul>
+
+        <h4>Things to try</h4>
+        <p>Tighten the throat and watch the throat gauge plunge while the speed climbs. Raise the flow rate and
+           every gauge responds. Increase the density and the pressure drop deepens (more ½ρv²).</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={q:$('q'),throat:$('throat'),rho:$('rho'),qV:$('qV'),tV:$('tV'),rV:$('rV'),
+  sVw:$('sVw'),sVt:$('sVt'),sPt:$('sPt'),sDP:$('sDP')};
+
+const L=10, Hmax=1.0;
+function P(){ return {Q:+els.q.value, Ht:+els.throat.value, rho:+els.rho.value}; }
+function Hx(u){ const p=P(); return Hmax-(Hmax-p.Ht)*Math.exp(-Math.pow((u-0.5)/0.13,2)); }   // channel height vs u in [0,1]
+function vAt(u){ const p=P(); return p.Q/Hx(u); }
+function Pbase(){ const p=P(); const vmax=p.Q/p.Ht; return 0.5*p.rho*vmax*vmax + 0.45; }   // total head
+function pressAt(u){ const p=P(); const v=vAt(u); return Pbase()-0.5*p.rho*v*v; }
+
+let parts=[];
+function initParts(){ parts=[]; for(let i=0;i<150;i++) parts.push({x:Math.random()*L, fy:(Math.random()-0.5)*0.92}); }
+
+function cmap(t){ t=Math.max(0,Math.min(1,t)); let r,g,b;
+  if(t<0.5){const u=t/0.5; r=58+(124-58)*u; g=127+(196-127)*u; b=208+(180-208)*u;}
+  else{const u=(t-0.5)/0.5; r=124+(255-124)*u; g=196+(107-196)*u; b=180+(107-180)*u;}
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.6);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+let CW,CH,padL,plotW,cy,vsY,KS=4;
+function geo(d){ CW=d.w; CH=d.h; padL=30; plotW=d.w-2*padL; cy=d.h*0.62; vsY=d.h*0.16; }
+const SX=u=>padL+u*plotW, SY=(fy,u)=>cy+fy*Hx(u)*vsY;
+
+function step(dt){ for(const pt of parts){ const u=pt.x/L; pt.x+=vAt(u)*KS*dt; if(pt.x>L){ pt.x-=L; pt.fy=(Math.random()-0.5)*0.92; } } }
+
+function render(){
+  const d=fit(); geo(d); ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle='#08161d'; ctx.fillRect(0,0,CW,CH);
+  const p=P();
+  // pipe body
+  ctx.beginPath(); ctx.moveTo(SX(0), cy-Hx(0)/2*vsY);
+  for(let i=0;i<=120;i++){ const u=i/120; ctx.lineTo(SX(u), cy-Hx(u)/2*vsY); }
+  for(let i=120;i>=0;i--){ const u=i/120; ctx.lineTo(SX(u), cy+Hx(u)/2*vsY); }
+  ctx.closePath();
+  const fg=ctx.createLinearGradient(0,cy-Hmax/2*vsY,0,cy+Hmax/2*vsY);
+  fg.addColorStop(0,'rgba(86,204,222,.12)'); fg.addColorStop(1,'rgba(40,120,150,.18)');
+  ctx.fillStyle=fg; ctx.fill();
+  // pipe walls
+  ctx.strokeStyle='rgba(150,225,240,.55)'; ctx.lineWidth=2.5;
+  ctx.beginPath(); for(let i=0;i<=120;i++){const u=i/120; const X=SX(u),Y=cy-Hx(u)/2*vsY; i===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y);} ctx.stroke();
+  ctx.beginPath(); for(let i=0;i<=120;i++){const u=i/120; const X=SX(u),Y=cy+Hx(u)/2*vsY; i===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y);} ctx.stroke();
+
+  // particles
+  const vmin=p.Q/Hmax, vmax=p.Q/p.Ht;
+  for(const pt of parts){ const u=pt.x/L, v=vAt(u), t=(v-vmin)/Math.max(1e-6,vmax-vmin);
+    ctx.fillStyle=cmap(t); ctx.beginPath(); ctx.arc(SX(u), SY(pt.fy,u), 2.6, 0,7); ctx.fill(); }
+
+  // pressure gauges (manometer tubes) at u = .2,.5,.8
+  [0.2,0.5,0.8].forEach(u=>{
+    const topWall=cy-Hx(u)/2*vsY, gx=SX(u), col=pressAt(u)*70, tubeW=14;
+    // tube
+    ctx.fillStyle='rgba(150,225,240,.12)'; ctx.fillRect(gx-tubeW/2, topWall-150, tubeW, 150);
+    ctx.strokeStyle='rgba(150,225,240,.4)'; ctx.lineWidth=1.5; ctx.strokeRect(gx-tubeW/2, topWall-150, tubeW, 150);
+    // fluid column
+    const ch=Math.max(6,Math.min(148,col));
+    ctx.fillStyle='rgba(86,204,222,.85)'; ctx.fillRect(gx-tubeW/2+1, topWall-ch, tubeW-2, ch);
+    // label
+    ctx.fillStyle='rgba(204,228,233,.85)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('P', gx, topWall-ch-4);
+  });
+
+  // labels
+  ctx.fillStyle='rgba(150,225,240,.7)'; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('wide · slow · high P', SX(0.2), cy+Hx(0.2)/2*vsY+8);
+  ctx.fillStyle='rgba(255,150,120,.85)'; ctx.fillText('throat · fast · low P', SX(0.5), cy+Hx(0.5)/2*vsY+8);
+
+  meters();
+}
+function meters(){
+  const p=P(), vw=p.Q/Hmax, vt=p.Q/p.Ht, Pt=pressAt(0.5), Pw=pressAt(0.2);
+  els.sVw.textContent=vw.toFixed(2); els.sVt.textContent=vt.toFixed(2);
+  els.sPt.textContent=Pt.toFixed(2); els.sDP.textContent=(Pw-Pt).toFixed(2);
+}
+
+function loop(ts){ if(loop.l==null)loop.l=ts; let dt=(ts-loop.l)/1000; loop.l=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  const sub=3; for(let i=0;i<sub;i++) step(dt/sub); render(); requestAnimationFrame(loop); }
+
+els.q.addEventListener('input',()=>els.qV.textContent=(+els.q.value).toFixed(2));
+els.throat.addEventListener('input',()=>els.tV.textContent=(+els.throat.value).toFixed(2));
+els.rho.addEventListener('input',()=>els.rV.textContent=(+els.rho.value).toFixed(1));
+window.addEventListener('resize',render);
+
+initParts();
+requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

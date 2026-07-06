@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lens Ray Diagrams · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#080f1c; --bg-1:#0e1a30;
+    --glass:rgba(24,38,62,0.55); --glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb; --muted:#9ab2cc; --faint:#6b86a0;
+    --accent:#7cc4ff; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.10), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff); box-shadow:0 6px 18px -6px rgba(124,196,255,.8); color:#08111e; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#0a1424; cursor:grab}
+  canvas.drag{cursor:grabbing}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:16px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eaf4ff; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eaf4ff; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:72px; background:rgba(8,16,28,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px}
+  .seg button{flex:1; background:rgba(8,16,28,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2); border-color:rgba(124,196,255,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(124,196,255,.12); border:1px solid rgba(124,196,255,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(8,16,28,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="optics.html">← Optical</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Optical · Experiment</div>
+    <h1>Lens Ray Diagrams</h1>
+    <p>Place an object near a thin lens and trace the three principal rays to locate its image —
+       a real, inverted projection or a magnified, upright virtual image, depending on where the object sits.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <div class="leg">
+        <span><i style="background:#ffd27a"></i>parallel → focus ray</span>
+        <span><i style="background:#62d2a2"></i>ray through centre</span>
+        <span><i style="background:#7cc4ff"></i>focal ray → parallel</span>
+        <span><i style="background:#b89bff"></i>image · dashed = virtual</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Lens type</label>
+        <div class="seg"><button id="tConv" class="on">Converging</button><button id="tDiv">Diverging</button></div>
+      </div>
+      <div class="ctl">
+        <label>Object distance <span class="val" id="doV">30 cm</span></label>
+        <div class="row"><input type="range" id="do" min="3" max="60" step="0.5" value="30">
+          <input type="number" id="doN" min="3" max="60" step="0.5" value="30"></div>
+      </div>
+      <div class="ctl">
+        <label>Focal length |f| <span class="val" id="fV">12 cm</span></label>
+        <div class="row"><input type="range" id="f" min="5" max="28" step="0.5" value="12">
+          <input type="number" id="fN" min="5" max="28" step="0.5" value="12"></div>
+      </div>
+      <div class="ctl">
+        <label>Object height <span class="val" id="hV">8 cm</span></label>
+        <div class="row"><input type="range" id="h" min="3" max="14" step="0.5" value="8">
+          <input type="number" id="hN" min="3" max="14" step="0.5" value="8"></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Focal length f</span><span id="sf">+12.0 cm</span></div>
+        <div class="s"><span>Image distance dᵢ</span><span id="sdi">+20.0 cm</span></div>
+        <div class="s"><span>Magnification m</span><span id="sm">−0.67</span></div>
+        <div class="s"><span>Image height</span><span id="shi">−5.3 cm</span></div>
+      </div>
+      <div class="verdict" id="verdict">Real, inverted, reduced image.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      An <strong>object</strong> (the upright arrow) sits to the left of a thin lens. To find its image we
+      trace three <strong>principal rays</strong> whose paths through the lens we already know. Where the
+      outgoing rays cross is the image. If the real rays cross on the far side, the image is
+      <strong>real</strong> and inverted (it can be projected on a screen); if only the backward extensions
+      cross (shown dashed), the image is <strong>virtual</strong>, upright and on the same side as the object.
+
+      <h3>The three principal rays</h3>
+      <strong>Parallel ray (gold):</strong> enters parallel to the axis and is bent to pass through the far
+      focal point F. <strong>Central ray (green):</strong> passes straight through the centre of the lens
+      undeviated. <strong>Focal ray (blue):</strong> passes through the near focal point F first, then leaves
+      parallel to the axis. For a diverging lens the bent rays spread apart, so we follow their backward
+      extensions to the near focus instead.
+
+      <h3>The thin-lens equation</h3>
+      <div class="eq">1/f = 1/dₒ + 1/dᵢ&nbsp;&nbsp;&nbsp;&nbsp;m = −dᵢ/dₒ</div>
+      A <strong>converging</strong> (convex) lens has f &gt; 0; a <strong>diverging</strong> (concave) lens has
+      f &lt; 0. A positive dᵢ is a real image on the opposite side of the lens; a negative dᵢ is a virtual
+      image on the object's side. The magnification m gives size and orientation — negative is inverted,
+      |m| &gt; 1 is enlarged.
+
+      <h3>Things to try</h3>
+      With a <strong>converging</strong> lens, move the object inward: beyond 2f the image is real, inverted
+      and reduced (a camera); between 2f and f it is real, inverted and enlarged (a projector); and inside the
+      focal point f the image becomes <strong>virtual, upright and magnified</strong> — that is a magnifying
+      glass. A <strong>diverging</strong> lens always produces a virtual, upright, reduced image, which is why
+      such lenses are used to correct short-sightedness. You can also drag the object along the axis directly
+      on the diagram.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=520,dpr=1;
+function fit(){
+  const cssW=cv.clientWidth; dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cssW; H=Math.round(cssW*0.60);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={converging:true, do:30, f:12, ho:8};
+
+let lx, ay, scale;
+function geom(){
+  lx=W*0.50; ay=H*0.52;
+  const fsg=st.converging? st.f : -st.f;
+  const di=fsg*st.do/(st.do-fsg);
+  // object on left, real image on right. Fit both sides.
+  const leftSpan=Math.max(st.do, st.f)*1.15;
+  const rightSpan=Math.max(st.f, isFinite(di)?Math.min(Math.abs(di),70):st.f)*1.15;
+  const scaleL=(lx-40)/Math.max(leftSpan,1);
+  const scaleR=(W-lx-40)/Math.max(rightSpan,1);
+  scale=Math.min(scaleL,scaleR);
+  return {fsg,di};
+}
+function xCrossY(P,Q,X){const t=(X-P[0])/(Q[0]-P[0]); return P[1]+t*(Q[1]-P[1]);}
+function norm(a){const l=Math.hypot(a[0],a[1])||1;return [a[0]/l,a[1]/l];}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const {fsg,di}=geom();
+  const m=-di/st.do, hi=m*st.ho;
+
+  // axis
+  ctx.strokeStyle='rgba(150,180,210,.35)'; ctx.lineWidth=1.2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(0,ay); ctx.lineTo(W,ay); ctx.stroke();
+
+  // focal points: F_far at lx + f (right for converging), F_near at lx - f
+  const F2x=lx+fsg*scale, F1x=lx-fsg*scale;
+  drawLens(st.converging);
+  // focal markers (both sides at |f|)
+  mark(lx+st.f*scale,'F'); mark(lx-st.f*scale,'F');
+  mark(lx+2*st.f*scale,'2F'); mark(lx-2*st.f*scale,'2F');
+
+  const Ox=lx-st.do*scale, Oy=ay-st.ho*scale;
+  const Ix=lx+di*scale, Iy=ay-hi*scale;
+  const real=di>0 && isFinite(di);
+  const O=[Ox,Oy];
+
+  // Ray1 parallel: O->P1(lx,Oy); refract through F2 (far focus)
+  drawLensRay(O,[lx,Oy],[F2x,ay],[Ix,Iy],real,'#ffd27a');
+  // Ray2 central: O-> centre (lx,ay) -> straight on
+  drawLensRay(O,[lx,ay],[lx+1,ay+(ay-Oy)/Math.max(st.do*scale,1)],[Ix,Iy],real,'#62d2a2',true,O);
+  // Ray3 focal: O through F1(near focus) -> P3(lx,y3) -> parallel
+  const yP3=xCrossY(O,[F1x,ay],lx);
+  drawLensRay(O,[lx,yP3],[lx+100,yP3],[Ix,Iy],real,'#7cc4ff');
+
+  // object arrow
+  arrow(Ox,ay,Ox,Oy,'#eaf4ff',3); label('object',Ox,Oy-12,'#eaf4ff');
+  // image arrow
+  if(isFinite(di)&&Math.abs(di)<5000){
+    if(real){ arrow(Ix,ay,Ix,Iy,'#b89bff',3); }
+    else { arrowDash(Ix,ay,Ix,Iy,'#b89bff',2.5); }
+    label('image',Ix,(Iy<ay?Iy-12:Iy+16),'#b89bff');
+  }
+  updateStats(fsg,di,m,hi,real);
+}
+
+function drawLens(conv){
+  const h=H*0.46;
+  ctx.save();
+  ctx.strokeStyle='rgba(190,220,255,.9)'; ctx.fillStyle='rgba(124,196,255,.10)'; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  if(conv){ // biconvex
+    const b=16;
+    ctx.beginPath();
+    ctx.moveTo(lx, ay-h/2);
+    ctx.quadraticCurveTo(lx+b, ay, lx, ay+h/2);
+    ctx.quadraticCurveTo(lx-b, ay, lx, ay-h/2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else { // biconcave
+    const b=13, w=11;
+    ctx.beginPath();
+    ctx.moveTo(lx-w, ay-h/2);
+    ctx.quadraticCurveTo(lx+b-w, ay, lx-w, ay+h/2);
+    ctx.lineTo(lx+w, ay+h/2);
+    ctx.quadraticCurveTo(lx-b+w, ay, lx+w, ay-h/2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  // arrow tips on the lens line to denote type
+  ctx.fillStyle='rgba(190,220,255,.9)';
+  ctx.restore();
+  ctx.fillStyle='rgba(150,180,210,.5)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText(conv?'converging':'diverging', lx, ay-h/2-8); ctx.textAlign='left';
+}
+function mark(x,t){
+  ctx.fillStyle='#9ab2cc'; ctx.beginPath(); ctx.arc(x,ay,3,0,7); ctx.fill();
+  ctx.font='12px JetBrains Mono'; ctx.fillStyle='#9ab2cc'; ctx.textAlign='center';
+  ctx.fillText(t, x, ay+18); ctx.textAlign='left';
+}
+function arrow(x0,y0,x1,y1,col,w){
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0);
+  ctx.beginPath(); ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-9*Math.cos(a-0.4), y1-9*Math.sin(a-0.4));
+  ctx.lineTo(x1-9*Math.cos(a+0.4), y1-9*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fill();
+}
+function arrowDash(x0,y0,x1,y1,col,w){
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w; ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke(); ctx.setLineDash([]);
+  const a=Math.atan2(y1-y0,x1-x0);
+  ctx.beginPath(); ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-9*Math.cos(a-0.4), y1-9*Math.sin(a-0.4));
+  ctx.lineTo(x1-9*Math.cos(a+0.4), y1-9*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fill();
+}
+function label(t,x,y,col){ ctx.fillStyle=col; ctx.font='12px Inter'; ctx.textAlign='center'; ctx.fillText(t,x,y); ctx.textAlign='left'; }
+
+// incident O->lp solid; outgoing along line(lp,thru); real side = right(dx>0); to image
+function drawLensRay(O,lp,thru,img,real,col,chief,chiefO){
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.setLineDash([]); ctx.globalAlpha=.95;
+  // incident
+  ctx.beginPath(); ctx.moveTo(O[0],O[1]); ctx.lineTo(lp[0],lp[1]); ctx.stroke();
+  // outgoing direction toward right
+  let d;
+  if(chief){ d=norm([lp[0]-chiefO[0], lp[1]-chiefO[1]]); } // continue straight
+  else { d=norm([thru[0]-lp[0], thru[1]-lp[1]]); }
+  if(d[0]<0) d=[-d[0],-d[1]];
+  if(real){
+    ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(img[0],img[1]); ctx.stroke();
+    const e=norm([img[0]-lp[0],img[1]-lp[1]]);
+    ctx.beginPath(); ctx.moveTo(img[0],img[1]); ctx.lineTo(img[0]+e[0]*30,img[1]+e[1]*30); ctx.stroke();
+  } else {
+    const far=Math.max(W,H)*1.6;
+    ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(lp[0]+d[0]*far, lp[1]+d[1]*far); ctx.stroke();
+    ctx.setLineDash([5,5]); ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(lp[0],lp[1]); ctx.lineTo(img[0],img[1]); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=.95;
+  }
+  ctx.globalAlpha=1;
+}
+
+function updateStats(fsg,di,m,hi,real){
+  document.getElementById('sf').textContent=(fsg>=0?'+':'')+fsg.toFixed(1)+' cm';
+  if(!isFinite(di)||Math.abs(di)>5000){
+    document.getElementById('sdi').textContent='∞ (at focus)';
+    document.getElementById('sm').textContent='∞';
+    document.getElementById('shi').textContent='—';
+    document.getElementById('verdict').textContent='Object at the focal point — refracted rays are parallel, the image is at infinity.';
+    return;
+  }
+  document.getElementById('sdi').textContent=(di>=0?'+':'')+di.toFixed(1)+' cm';
+  document.getElementById('sm').textContent=(m>=0?'+':'−')+Math.abs(m).toFixed(2);
+  document.getElementById('shi').textContent=(hi>=0?'+':'−')+Math.abs(hi).toFixed(1)+' cm';
+  const orient=m<0?'inverted':'upright';
+  const size=Math.abs(m)>1.02?'enlarged':(Math.abs(m)<0.98?'reduced':'same-size');
+  document.getElementById('verdict').textContent=`${real?'Real':'Virtual'}, ${orient}, ${size} image.`;
+}
+
+// interaction
+let dragging=false;
+cv.addEventListener('pointerdown',e=>{
+  const r=cv.getBoundingClientRect(); const px=e.clientX-r.left;
+  const Ox=lx-st.do*scale;
+  if(Math.abs(px-Ox)<26){ dragging=true; cv.classList.add('drag'); cv.setPointerCapture(e.pointerId); }
+});
+cv.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const r=cv.getBoundingClientRect(); const px=e.clientX-r.left;
+  let v=(lx-px)/scale; v=Math.max(3,Math.min(60,v)); setDo(v);
+});
+cv.addEventListener('pointerup',()=>{dragging=false; cv.classList.remove('drag');});
+function setDo(v){ st.do=v; document.getElementById('do').value=v.toFixed(1); document.getElementById('doN').value=v.toFixed(1);
+  document.getElementById('doV').textContent=v.toFixed(1).replace(/\.0$/,'')+' cm'; draw(); }
+
+function bind(sl,nu,key,suffix,labId){
+  const s=document.getElementById(sl), n=document.getElementById(nu), lab=document.getElementById(labId);
+  function set(v){ v=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),v)); if(isNaN(v))return;
+    st[key]=v; s.value=v; n.value=v; lab.textContent=(v+'').replace(/\.0$/,'')+suffix; draw(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+}
+bind('do','doN','do',' cm','doV');
+bind('f','fN','f',' cm','fV');
+bind('h','hN','ho',' cm','hV');
+
+document.getElementById('tConv').addEventListener('click',()=>{st.converging=true; tog(); draw();});
+document.getElementById('tDiv').addEventListener('click',()=>{st.converging=false; tog(); draw();});
+function tog(){document.getElementById('tConv').classList.toggle('on',st.converging);
+  document.getElementById('tDiv').classList.toggle('on',!st.converging);}
+
+document.getElementById('reset').addEventListener('click',()=>{
+  st.converging=true; st.do=30; st.f=12; st.ho=8; tog();
+  for(const [id,v] of [['do',30],['doN',30],['f',12],['fN',12],['h',8],['hN',8]]) document.getElementById(id).value=v;
+  document.getElementById('doV').textContent='30 cm'; document.getElementById('fV').textContent='12 cm'; document.getElementById('hV').textContent='8 cm';
+  draw();
+});
+
+window.addEventListener('resize',()=>{fit(); draw();});
+fit(); draw();
+</script>
+</body>
+</html>

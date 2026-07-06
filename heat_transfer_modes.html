@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Modes of Heat Transfer · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --gold:#ffd27a; --hot:#ff6b6b; --cold:#5a9bff;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  header{max-width:1080px; margin:0 auto; padding:34px 28px 6px;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(30px,5vw,44px); margin:4px 0 0; letter-spacing:-.01em;}
+  .intro{max-width:1080px; margin:0 auto; padding:8px 28px 0; color:var(--muted); font-size:15.5px; line-height:1.65;}
+  .note{max-width:1080px; margin:10px auto 0; padding:0 28px; color:var(--faint); font-size:13px; line-height:1.6;}
+
+  .grid{max-width:1080px; margin:18px auto 50px; padding:0 28px; display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); overflow:hidden;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .card .head{display:flex; align-items:center; gap:13px; padding:18px 20px 6px;}
+  .card .num{font-family:'Fraunces',serif; font-size:26px; font-weight:600; color:var(--accent); width:36px; text-align:center;}
+  .card .head h2{font-family:'Fraunces',serif; font-weight:500; font-size:21px; margin:0;}
+  .card .head .tag{margin-left:auto; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+    padding:4px 9px; border-radius:99px; color:var(--muted); background:rgba(255,255,255,.06); border:1px solid var(--glass-line);}
+  .card canvas{width:100%; display:block;}
+  .card p{padding:10px 20px 20px; color:var(--muted); font-size:13.5px; line-height:1.6; margin:0;}
+  .card p b{color:var(--ink); font-weight:600}
+  footer{max-width:1080px; margin:0 auto; padding:8px 28px 50px; color:var(--faint); font-size:13px;}
+  .verdict{max-width:1080px; margin:0 auto 26px; padding:0 28px;}
+  .verdict div{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;}
+  details.explainer{max-width:1080px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(18,10,14,.5); padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <a href="thermal.html" class="back">← Thermal</a>
+  <div class="kicker">Heat Transfer · Overview</div>
+  <h1>The Four Modes of Heat Transfer</h1>
+</header>
+<p class="intro">Heat always flows from hot to cold — but it can travel by several different mechanisms. Each
+   panel below animates one of them so you can see how the energy actually moves.</p>
+<p class="note">Conduction, convection and radiation are the three fundamental physical mechanisms.
+   <b>Evaporation</b> — energy carried off as a liquid's fastest molecules escape — is commonly counted as a
+   fourth, especially for how bodies and buildings shed heat.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="head"><span class="num">1</span><h2>Conduction</h2><span class="tag">needs contact</span></div>
+    <canvas id="c1"></canvas>
+    <p><b>Through a solid, atom to atom.</b> Heat the end of a metal bar and its atoms vibrate harder, jostling
+       their neighbours and passing energy along the lattice — without the material itself moving.</p>
+  </div>
+  <div class="card">
+    <div class="head"><span class="num">2</span><h2>Convection</h2><span class="tag">moving fluid</span></div>
+    <canvas id="c2"></canvas>
+    <p><b>Carried by a flowing fluid.</b> Heated from below, warm fluid expands, becomes buoyant and rises;
+       cooler fluid sinks to take its place, setting up circulating <b>convection currents</b>.</p>
+  </div>
+  <div class="card">
+    <div class="head"><span class="num">3</span><h2>Radiation</h2><span class="tag">no medium</span></div>
+    <canvas id="c3"></canvas>
+    <p><b>As electromagnetic waves.</b> Every warm object emits infrared radiation that crosses empty space at
+       the speed of light — no medium required. It's how the Sun's heat reaches the Earth.</p>
+  </div>
+  <div class="card">
+    <div class="head"><span class="num">4</span><h2>Evaporation</h2><span class="tag">latent heat</span></div>
+    <canvas id="c4"></canvas>
+    <p><b>The fastest molecules escape.</b> At a liquid's surface the most energetic molecules break free as
+       vapour, carrying their energy away. What's left behind is cooler — this is <b>evaporative cooling</b>.</p>
+  </div>
+</div>
+
+<div class="verdict"><div>All four routes obey the same rule: heat flows spontaneously from hot to cold, never the reverse — the second law in action. Only the vehicle changes: lattice vibrations, bulk fluid motion, photons, or escaping molecules.</div></div>
+
+<details class="explainer">
+  <summary>About this experiment <span class="chev">›</span></summary>
+  <div class="exp-body">
+    <h3>What you are looking at</h3>
+    <p>Four independent animations, one per transfer mode. The conduction bar actually integrates the 1-D heat
+       equation each frame; the others are faithful cartoons of the physical mechanism.</p>
+    <h3>The governing laws</h3>
+    <p><strong>Conduction</strong> follows Fourier's law — heat current is proportional to the temperature gradient
+       and the material's conductivity k:</p>
+    <div class="eq">q = −k·A·dT/dx</div>
+    <p><strong>Convection</strong> is usually modelled with Newton's law of cooling, where h bundles up the details
+       of the flow:</p>
+    <div class="eq">q = h·A·(T_surface − T_fluid)</div>
+    <p><strong>Radiation</strong> follows the Stefan–Boltzmann law — every body above absolute zero emits, with power
+       rising as the fourth power of temperature:</p>
+    <div class="eq">P = ε·σ·A·T⁴</div>
+    <p><strong>Evaporation</strong> removes the latent heat of vaporisation L with every kilogram of liquid that
+       escapes as vapour:</p>
+    <div class="eq">Q = m·L_v</div>
+    <h3>Why it matters</h3>
+    <p>Real objects almost always lose heat by several modes at once. A hot mug conducts into the table, drives
+       convection in the surrounding air, radiates infrared, and steams off water — engineering a thermos means
+       defeating all four.</p>
+  </div>
+</details>
+
+<footer>Physica · Thermal — three fundamental modes of heat transfer, plus evaporation.</footer>
+
+<script>
+function fit(c,cx,aspect){const dpr=window.devicePixelRatio||1; const w=c.clientWidth, h=Math.round(c.clientWidth*aspect);
+  c.width=w*dpr; c.height=h*dpr; c.style.height=h+'px'; cx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function cmap(t){ t=Math.max(0,Math.min(1,t)); let r,g,b;
+  if(t<0.5){const u=t/0.5; r=90+(255-90)*u; g=155+(107-155)*u; b=255+(107-255)*u;}
+  else{const u=(t-0.5)/0.5; r=255; g=107+(224-107)*u; b=107+(138-107)*u;}
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+function flame(cx,x,y,s,t){
+  cx.save();
+  const g=cx.createRadialGradient(x,y,1,x,y,s*1.4);
+  g.addColorStop(0,'rgba(255,230,150,.95)'); g.addColorStop(.5,'rgba(255,150,70,.8)'); g.addColorStop(1,'rgba(255,90,60,0)');
+  cx.fillStyle=g; const wob=Math.sin(t*9+x)*0.12+1;
+  cx.beginPath(); cx.ellipse(x,y,s*0.7,s*1.2*wob,0,0,7); cx.fill(); cx.restore();
+}
+const C1={c:document.getElementById('c1'),x:document.getElementById('c1').getContext('2d')};
+const C2={c:document.getElementById('c2'),x:document.getElementById('c2').getContext('2d')};
+const C3={c:document.getElementById('c3'),x:document.getElementById('c3').getContext('2d')};
+const C4={c:document.getElementById('c4'),x:document.getElementById('c4').getContext('2d')};
+
+// ── 1. CONDUCTION ── 1D temperature diffusion along a bar of vibrating atoms
+const COLS=22, ROWS=3; let temp=new Float64Array(COLS); for(let i=0;i<COLS;i++)temp[i]=0.06;
+function stepCond(){ const r=0.22, buf=new Float64Array(COLS);
+  for(let i=1;i<COLS-1;i++) buf[i]=temp[i]+r*(temp[i+1]-2*temp[i]+temp[i-1]);
+  buf[0]=1; buf[COLS-1]=0.05; temp=buf; }
+function drawCond(t){
+  const {c,x}=C1, d=fit(c,x,0.6), w=d.w,h=d.h;
+  x.clearRect(0,0,w,h); const bg=x.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  x.fillStyle=bg; x.fillRect(0,0,w,h);
+  const mL=44, mR=24, x0=mL, x1=w-mR, midY=h*0.52, gap=(x1-x0)/(COLS-1), ry=22;
+  // bonds
+  x.strokeStyle='rgba(255,200,170,.18)'; x.lineWidth=1.4;
+  const px=[],py=[];
+  for(let i=0;i<COLS;i++){ const jit=temp[i]*5;
+    px[i]=x0+i*gap+Math.sin(t*12+i*1.7)*jit; }
+  for(let r=0;r<ROWS;r++){ const yy=midY+(r-1)*ry;
+    for(let i=0;i<COLS;i++){ const j= temp[i]*5; py[i]=yy+Math.cos(t*11+i*1.3+r)*j; }
+    x.beginPath(); for(let i=0;i<COLS;i++){ i===0?x.moveTo(px[i],py[i]):x.lineTo(px[i],py[i]); } x.stroke();
+    for(let i=0;i<COLS;i++){ x.fillStyle=cmap(temp[i]); x.beginPath(); x.arc(px[i],py[i],4.5,0,7); x.fill(); }
+  }
+  // flame at the hot (left) end
+  flame(x, x0-6, midY, 20, t);
+  x.fillStyle='rgba(204,166,170,.85)'; x.font='11px Inter, sans-serif'; x.textAlign='left'; x.textBaseline='top';
+  x.fillText('heated end → energy passes atom to atom', mL, h-20);
+}
+
+// ── 2. CONVECTION ── particles advected by a 2-roll flow, heated below / cooled above
+let conv=[]; function initConv(){ conv=[]; for(let i=0;i<120;i++) conv.push({x:Math.random(),y:Math.random(),T:Math.random()*0.4}); }
+function drawConv(t,dt){
+  const {c,x}=C2, d=fit(c,x,0.6), w=d.w,h=d.h;
+  x.clearRect(0,0,w,h); x.fillStyle='#1b1020'; x.fillRect(0,0,w,h);
+  const mx=10, my=8, bx=mx, bw=w-2*mx, by=my, bh=h-2*my-14;
+  // vessel
+  x.strokeStyle='rgba(255,200,170,.3)'; x.lineWidth=2; x.strokeRect(bx,by,bw,bh);
+  for(const p of conv){
+    // stream-function velocity (two rolls), y=0 top .. 1 bottom
+    const u=Math.PI*Math.sin(2*Math.PI*p.x)*Math.cos(Math.PI*p.y);
+    const v=-2*Math.PI*Math.cos(2*Math.PI*p.x)*Math.sin(Math.PI*p.y);
+    p.x+=u*0.13*dt; p.y+=v*0.13*dt;
+    if(p.x<0.001)p.x=0.001; if(p.x>0.999)p.x=0.999;
+    if(p.y<0.001){p.y=0.001;} if(p.y>0.999){p.y=0.999;}
+    if(p.y>0.78) p.T=Math.min(1,p.T+0.9*dt);    // heated near bottom
+    if(p.y<0.22) p.T=Math.max(0,p.T-0.7*dt);    // cooled near top
+    x.fillStyle=cmap(p.T);
+    x.beginPath(); x.arc(bx+p.x*bw, by+p.y*bh, 3.2, 0,7); x.fill();
+  }
+  // flame under the vessel
+  for(let f=0;f<4;f++) flame(x, bx+bw*(0.25+0.16*f), by+bh+8, 14, t+f);
+  x.fillStyle='rgba(204,166,170,.85)'; x.font='11px Inter, sans-serif'; x.textAlign='center'; x.textBaseline='bottom';
+  x.fillText('warm fluid rises · cool fluid sinks', w/2, h-2);
+}
+
+// ── 3. RADIATION ── hot source emits waves + photons across empty space to a target
+let photons=[], rings=[], starsR=[]; let targetWarm=0;
+function initRad(){ photons=[]; rings=[]; targetWarm=0; starsR=[]; for(let i=0;i<40;i++) starsR.push([Math.random(),Math.random(),Math.random()*0.5+0.3]); }
+function drawRad(t,dt){
+  const {c,x}=C3, d=fit(c,x,0.6), w=d.w,h=d.h;
+  x.fillStyle='#080611'; x.fillRect(0,0,w,h);
+  for(const s of starsR){ x.fillStyle='rgba(200,210,255,'+(0.2+0.4*s[2])+')'; x.fillRect(s[0]*w,s[1]*h,1.4,1.4); }
+  const sx=w*0.14, sy=h*0.5, tx=w*0.86, ty=h*0.5;
+  // expanding wavefronts
+  if(Math.random()<dt*6) rings.push(0);
+  x.lineWidth=1.4;
+  for(let i=rings.length-1;i>=0;i--){ rings[i]+=dt*0.9; const rr=rings[i]*(w*0.8);
+    const al=Math.max(0,0.5-rings[i]*0.5); if(al<=0){rings.splice(i,1);continue;}
+    x.strokeStyle='rgba(255,170,90,'+al+')'; x.beginPath(); x.arc(sx,sy,rr,-0.6,0.6); x.stroke();
+  }
+  // photons
+  if(Math.random()<dt*14) photons.push({x:sx+18,y:sy+(Math.random()-0.5)*h*0.5});
+  x.fillStyle='#ffd27a';
+  for(let i=photons.length-1;i>=0;i--){ const p=photons[i]; p.x+=dt*(w*0.55); p.y+=(ty-p.y)*dt*1.2;
+    if(p.x>tx-14){ photons.splice(i,1); targetWarm=Math.min(1,targetWarm+0.06); continue; }
+    x.save(); x.shadowColor='rgba(255,210,122,.9)'; x.shadowBlur=8; x.beginPath(); x.arc(p.x,p.y,2.6,0,7); x.fill(); x.restore();
+  }
+  targetWarm=Math.max(0,targetWarm-dt*0.25);
+  // hot source (sun)
+  const g=x.createRadialGradient(sx,sy,2,sx,sy,34); g.addColorStop(0,'#fff7e6'); g.addColorStop(.5,'#ffb347'); g.addColorStop(1,'rgba(255,120,60,0)');
+  x.fillStyle=g; x.beginPath(); x.arc(sx,sy,34,0,7); x.fill();
+  x.fillStyle='#ffd27a'; x.beginPath(); x.arc(sx,sy,15,0,7); x.fill();
+  // cool target
+  x.fillStyle=cmap(0.1+0.5*targetWarm);
+  x.fillRect(tx-6,sy-30,16,60);
+  x.fillStyle='rgba(204,166,170,.85)'; x.font='11px Inter, sans-serif'; x.textAlign='center'; x.textBaseline='bottom';
+  x.fillText('infrared crosses the vacuum — no medium needed', w/2, h-4);
+}
+
+// ── 4. EVAPORATION ── fast molecules escape the surface; liquid left behind cools
+let liq=[], vap=[];
+function initEvap(){ liq=[]; vap=[]; for(let i=0;i<70;i++){ const a=Math.random()*7, s=0.25+Math.random()*0.5;
+  liq.push({x:0.05+Math.random()*0.9, y:0.5+Math.random()*0.48, vx:Math.cos(a)*s, vy:Math.sin(a)*s}); } }
+function drawEvap(t,dt){
+  const {c,x}=C4, d=fit(c,x,0.6), w=d.w,h=d.h;
+  // liquid temperature from mean speed
+  let sp=0; for(const p of liq) sp+=Math.hypot(p.vx,p.vy); sp/= (liq.length||1);
+  const Tn=Math.max(0,Math.min(1,(sp-0.2)/0.7));
+  x.fillStyle='#0e1422'; x.fillRect(0,0,w,h);
+  const surf=0.46;
+  // liquid body
+  const lg=x.createLinearGradient(0,surf*h,0,h); lg.addColorStop(0,cmap(0.1+0.4*Tn)); lg.addColorStop(1,cmap(0.05+0.3*Tn));
+  x.globalAlpha=.5; x.fillStyle=lg; x.fillRect(0,surf*h,w,h-surf*h); x.globalAlpha=1;
+  x.strokeStyle='rgba(160,200,255,.5)'; x.lineWidth=2; x.beginPath(); x.moveTo(0,surf*h); x.lineTo(w,surf*h); x.stroke();
+  // liquid molecules
+  for(const p of liq){
+    p.x+=p.vx*dt*0.5; p.y+=p.vy*dt*0.5;
+    if(p.x<0.02){p.x=0.02;p.vx=Math.abs(p.vx);} if(p.x>0.98){p.x=0.98;p.vx=-Math.abs(p.vx);}
+    if(p.y>0.98){p.y=0.98;p.vy=-Math.abs(p.vy);}
+    if(p.y<surf+0.02){ // near surface
+      const v=Math.hypot(p.vx,p.vy);
+      if(p.vy<0 && v>0.62){ // fast enough & moving up -> escape
+        vap.push({x:p.x,y:p.y,vy:-(0.3+Math.random()*0.3),life:1});
+        // remainder cools: respawn at bottom slower
+        const a=Math.random()*7, s=0.22+Math.random()*0.32;
+        p.x=0.05+Math.random()*0.9; p.y=0.7+Math.random()*0.27; p.vx=Math.cos(a)*s; p.vy=Math.sin(a)*s;
+      } else { p.y=surf+0.02; p.vy=Math.abs(p.vy); }
+    }
+    const v=Math.hypot(p.vx,p.vy);
+    x.fillStyle=cmap(Math.min(1,v/0.95)); x.beginPath(); x.arc(p.x*w,p.y*h,3,0,7); x.fill();
+  }
+  // vapour
+  for(let i=vap.length-1;i>=0;i--){ const q=vap[i]; q.y+=q.vy*dt; q.life-=dt*0.5; q.x+=Math.sin(t*3+i)*0.0006;
+    if(q.life<=0||q.y<0){vap.splice(i,1);continue;}
+    x.fillStyle='rgba(200,220,255,'+(q.life*0.7)+')'; x.beginPath(); x.arc(q.x*w,q.y*h,2.4,0,7); x.fill();
+  }
+  x.fillStyle='rgba(204,166,170,.85)'; x.font='11px Inter, sans-serif'; x.textAlign='left'; x.textBaseline='top';
+  x.fillText('fast molecules escape → liquid cools', 12, 10);
+}
+
+// ── shared loop ──
+let last=null;
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1); const t=ts/1000;
+  stepCond(); drawCond(t);
+  drawConv(t,dt);
+  drawRad(t,dt);
+  drawEvap(t,dt);
+  requestAnimationFrame(loop);
+}
+initConv(); initRad(); initEvap();
+requestAnimationFrame(loop);
+window.addEventListener('resize',()=>{ initConv(); initRad(); initEvap(); });
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

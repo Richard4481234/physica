@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entropy &amp; Diffusion · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --accent-soft:#9c4a2e; --gold:#ffd27a;
+    --red:#ff7a59; --blue:#7cc4ff; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:60px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(255,138,91,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(255,138,91,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(255,138,91,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .actions{display:flex; flex-direction:column; gap:10px; margin-top:6px}
+  .btn{width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#2a1206; background:linear-gradient(135deg,#ffb37a,#ff8a5b); box-shadow:0 8px 24px -8px rgba(255,138,91,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.blue::before{background:var(--blue)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(255,138,91,.25),rgba(255,138,91,.08)); border:1px solid rgba(255,138,91,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .red{color:var(--red)} .ex-body .blue{color:var(--blue)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,138,91,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="thermal.html" class="back">← Thermal</a>
+    <div class="kicker">Statistical Mechanics</div>
+    <h1>Entropy &amp; Diffusion</h1>
+  </div>
+  <div class="sub">Two gases start separated. Lift the partition and watch them mix — and entropy climb.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Gas</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Particles</span>
+        <span class="val"><input id="nNum" class="num" type="number" min="40" max="600" step="20" value="300"></span></div>
+      <input id="n" type="range" min="40" max="600" step="20" value="300">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Temperature</span>
+        <span class="val"><input id="tNum" class="num" type="number" min="1" max="10" step="1" value="5"></span></div>
+      <input id="temp" type="range" min="1" max="10" step="1" value="5">
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="partition">Lift partition ↑</button>
+      <button class="btn ghost" id="pause">Pause ⏸</button>
+      <button class="btn ghost" id="reset">Reset (re-separate)</button>
+    </div>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:16px 0 0">
+      The barrier keeps the two gases apart. Lift it and the second law takes over — they spread and intermingle,
+      and won't spontaneously un-mix.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--red)"></i>Gas A</span>
+      <span><i class="dot" style="background:var(--blue)"></i>Gas B</span>
+      <span style="margin-left:auto;color:var(--faint)">The inset plots entropy S over time</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Particles</div><div class="v" id="sN">300</div></div>
+      <div class="stat gold"><div class="k">Mixing</div><div class="v"><span id="sMix">0</span><em>%</em></div></div>
+      <div class="stat blue"><div class="k">Entropy S</div><div class="v"><span id="sS">0.00</span><em>/ S_max</em></div></div>
+      <div class="stat green"><div class="k">State</div><div class="v" id="sState" style="font-size:15px">Separated</div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A box is split in two by a partition, with <span class="red">gas A</span> on the left and
+           <span class="blue">gas B</span> on the right. Each particle zips around and bounces off the walls.
+           While the partition is in place, the two gases stay separate. <b>Lift the partition</b> and they
+           gradually wander across, intermingling until the box is a uniform mixture — and they never sort
+           themselves back out. That one-way behaviour is the <b>second law of thermodynamics</b> in action.</p>
+
+        <h4>What is entropy?</h4>
+        <p>Entropy <span class="mono">S</span> measures the number of microscopic arrangements
+           (<b>microstates</b>) consistent with what we see. Boltzmann's famous relation is:</p>
+        <div class="ex-eq">
+          S = k_B · ln W <span class="lbl">W = number of microstates</span>
+        </div>
+        <p>There are vastly more ways for the particles to be <b>spread out and mixed</b> than to be neatly
+           separated on two sides. So as the particles explore at random, they overwhelmingly end up in a
+           mixed state simply because there are so many more of them. Entropy increases not by any force, but
+           by sheer probability.</p>
+
+        <h4>The arrow of time</h4>
+        <p>Nothing in the particle motion prefers a direction — each collision is reversible. Yet the whole
+           gas mixes and never un-mixes. Watching the <b>S(t) curve</b> in the inset, you'll see entropy rise
+           and then plateau near its maximum, wobbling slightly with fluctuations. A spontaneous un-mixing
+           isn't forbidden, just so staggeringly unlikely that we never see it. This statistical one-way street
+           is what gives time its direction.</p>
+
+        <h4>How the meters work</h4>
+        <ul>
+          <li><b>Mixing</b> divides the box into a grid and, for each cell, measures how evenly the two gases
+            share it. 0% means every cell is pure A or pure B (fully separated); 100% means every cell is an
+            even blend (fully mixed).</li>
+          <li><b>Entropy S</b> is that same information, expressed as
+            <span class="mono">S = −k_B Σ pᵢ ln pᵢ</span> summed over cells and shown as a fraction of its maximum.</li>
+        </ul>
+
+        <h4>Things to try</h4>
+        <p>Raise the <b>temperature</b> and the gases mix faster (more energetic particles diffuse quicker).
+           Lift the partition, let it mix, then watch the S(t) curve sit near the top and never fall back —
+           the hallmark of irreversibility.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={n:$('n'),temp:$('temp'),nNum:$('nNum'),tNum:$('tNum'),
+  sN:$('sN'),sMix:$('sMix'),sS:$('sS'),sState:$('sState'),
+  partition:$('partition'),pause:$('pause'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+const PAD=14, PR=2.6, LN2=Math.log(2);
+let box={x:PAD,y:PAD,w:100,h:100};
+let P=[], partition=true, playing=true, hist=[], raf=null, last=null;
+
+function dims(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.56);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+function init(){
+  const d=dims(); box={x:PAD,y:PAD,w:d.w-2*PAD,h:d.h-2*PAD};
+  const N=clampNum(els.nNum), sp=40+clampNum(els.tNum)*26;   // px/sec
+  const mid=box.x+box.w/2;
+  P=[];
+  for(let i=0;i<N;i++){
+    const s=i<N/2?0:1;
+    const x=s===0 ? box.x+PR+Math.random()*(mid-box.x-2*PR) : mid+PR+Math.random()*(box.x+box.w-mid-2*PR);
+    const y=box.y+PR+Math.random()*(box.h-2*PR);
+    const a=Math.random()*Math.PI*2;
+    P.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,s});
+  }
+  partition=true; hist=[]; els.partition.textContent='Lift partition ↑';
+  els.sN.textContent=N;
+}
+
+function speedScale(){return (4+clampNum(els.tNum)*7);}
+
+function stepSim(dt){
+  const mid=box.x+box.w/2;
+  for(const p of P){
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    if(p.x<box.x+PR){p.x=box.x+PR; p.vx=Math.abs(p.vx);}
+    if(p.x>box.x+box.w-PR){p.x=box.x+box.w-PR; p.vx=-Math.abs(p.vx);}
+    if(p.y<box.y+PR){p.y=box.y+PR; p.vy=Math.abs(p.vy);}
+    if(p.y>box.y+box.h-PR){p.y=box.y+box.h-PR; p.vy=-Math.abs(p.vy);}
+    if(partition){
+      if(p.s===0 || p.x<mid){ if(p.x>mid-PR){p.x=mid-PR; p.vx=-Math.abs(p.vx);} }
+      if(p.s===1 || p.x>=mid){ if(p.x<mid+PR){p.x=mid+PR; p.vx=Math.abs(p.vx);} }
+    }
+  }
+}
+
+function mixing(){
+  const cols=14, rows=7, grid=new Array(cols*rows);
+  for(let i=0;i<grid.length;i++) grid[i]=[0,0];
+  for(const p of P){
+    let cc=Math.floor((p.x-box.x)/box.w*cols), rr=Math.floor((p.y-box.y)/box.h*rows);
+    cc=Math.max(0,Math.min(cols-1,cc)); rr=Math.max(0,Math.min(rows-1,rr));
+    grid[rr*cols+cc][p.s]++;
+  }
+  let S=0;
+  for(const g of grid){const r=g[0],b=g[1],t=r+b; if(t===0)continue;
+    let h=0; if(r>0)h-=(r/t)*Math.log(r/t); if(b>0)h-=(b/t)*Math.log(b/t); S+=t*h;}
+  const frac=P.length? S/(P.length*LN2):0;
+  return Math.max(0,Math.min(1,frac));
+}
+
+function render(){
+  const d={w:cv.clientWidth,h:Math.round(cv.clientWidth*0.56)};
+  ctx.clearRect(0,0,d.w,d.h);
+  // backdrop
+  const bg=ctx.createLinearGradient(0,0,0,d.h);
+  bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,d.w,d.h);
+  // box
+  ctx.strokeStyle='rgba(255,200,170,.3)'; ctx.lineWidth=2;
+  ctx.strokeRect(box.x,box.y,box.w,box.h);
+  // partition
+  const mid=box.x+box.w/2;
+  if(partition){
+    ctx.strokeStyle='rgba(255,210,122,.85)'; ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(mid,box.y);ctx.lineTo(mid,box.y+box.h);ctx.stroke();
+  }
+  // particles
+  for(const p of P){
+    ctx.fillStyle=p.s===0?'#ff7a59':'#7cc4ff';
+    ctx.beginPath();ctx.arc(p.x,p.y,PR,0,7);ctx.fill();
+  }
+  drawSpark(d);
+}
+
+function drawSpark(d){
+  const w=190, h=60, x=box.x+10, y=box.y+10;
+  ctx.fillStyle='rgba(12,8,16,.55)'; ctx.strokeStyle='rgba(255,200,170,.18)'; ctx.lineWidth=1;
+  roundRect(x,y,w,h,8); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='rgba(204,166,170,.8)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('ENTROPY  S(t)', x+9, y+7);
+  // axis baseline
+  ctx.strokeStyle='rgba(255,200,170,.18)';
+  ctx.beginPath();ctx.moveTo(x+9,y+h-9);ctx.lineTo(x+w-9,y+h-9);ctx.stroke();
+  if(hist.length>1){
+    const x0=x+9, x1=x+w-9, y0=y+h-9, y1=y+22;
+    ctx.strokeStyle='#ffd27a'; ctx.lineWidth=1.8; ctx.beginPath();
+    for(let i=0;i<hist.length;i++){
+      const px=x0+(x1-x0)*(i/(hist.length-1)), py=y0+(y1-y0)*hist[i];
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // current dot
+    const lx=x1, ly=y0+(y1-y0)*hist[hist.length-1];
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(lx,ly,2.2,0,7);ctx.fill();
+  }
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+let frame=0;
+function meters(){
+  const frac=mixing();
+  hist.push(frac); if(hist.length>180)hist.shift();
+  els.sMix.textContent=Math.round(frac*100);
+  els.sS.textContent=frac.toFixed(2);
+  els.sState.textContent = partition ? 'Separated' : (frac<0.15?'Separated' : frac<0.8?'Mixing…':'Mixed');
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  if(playing){ const sub=3; for(let i=0;i<sub;i++) stepSim(dt/sub); }
+  render();
+  if(++frame%3===0) meters();
+  raf=requestAnimationFrame(loop);
+}
+
+// ── controls ──
+function linkSlider(slider,num){slider.addEventListener('input',()=>{num.value=slider.value; rebuild();});}
+function linkNum(num,slider){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value); if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v)); rebuild();});
+  num.addEventListener('change',()=>{num.value=clampNum(num); slider.value=num.value; rebuild();});
+}
+function rebuild(){ init(); }   // changing N or T re-separates
+linkSlider(els.n,els.nNum); linkSlider(els.temp,els.tNum);
+linkNum(els.nNum,els.n); linkNum(els.tNum,els.temp);
+
+els.partition.addEventListener('click',()=>{
+  partition=!partition;
+  els.partition.textContent = partition ? 'Lift partition ↑' : 'Insert partition ↓';
+});
+els.pause.addEventListener('click',()=>{ playing=!playing; els.pause.textContent= playing?'Pause ⏸':'Play ▶'; });
+els.reset.addEventListener('click',()=>{ init(); });
+window.addEventListener('resize',()=>{ const old=P.map(p=>({...p})); init(); });
+
+init();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

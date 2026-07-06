@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buoyancy &amp; Archimedes' Principle · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#06141a; --bg-1:#0a1f28;
+    --glass:rgba(20,42,52,0.55); --glass-line:rgba(120,200,220,0.16);
+    --ink:#eef8fb; --muted:#9cc4cf; --faint:#5f8f9c;
+    --accent:#56ccde; --accent-soft:#2a6b78; --gold:#ffd27a; --ember:#ff8a5b; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(86,204,222,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:31px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:70px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:14px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(86,204,222,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(86,204,222,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(86,204,222,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .chip{padding:8px 10px; border-radius:9px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .chip:hover{color:var(--ink); border-color:rgba(86,204,222,.45)}
+  .chip.on{background:linear-gradient(135deg,rgba(86,204,222,.22),rgba(86,204,222,.08)); color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -5px rgba(86,204,222,.55);}
+  .chip span{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--faint); margin-left:4px}
+  .chip.on span{color:var(--accent)}
+
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+  .btn{width:100%; padding:12px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600;
+    color:#04222a; background:linear-gradient(135deg,#8fe6f2,#56ccde); box-shadow:0 8px 24px -8px rgba(86,204,222,.6);}
+  .btn:active{transform:translateY(1px)}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.ember::before{background:var(--ember)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(86,204,222,.25),rgba(86,204,222,.08)); border:1px solid rgba(86,204,222,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(86,204,222,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="fluids.html" class="back">← Fluid</a>
+    <div class="kicker">Fluid Statics</div>
+    <h1>Buoyancy &amp; Archimedes' Principle</h1>
+  </div>
+  <div class="sub">Drop an object into a fluid and see whether it floats or sinks — and the upward force that decides.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Object</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Density ρ_object</span>
+        <span class="val"><input id="dNum" class="num" type="number" min="100" max="5000" step="50" value="600"><em>kg/m³</em></span></div>
+      <input id="dens" type="range" min="100" max="5000" step="50" value="600">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Size</span>
+        <span class="val"><span id="szV">1.0</span>×</span></div>
+      <input id="size" type="range" min="0.6" max="1.6" step="0.05" value="1">
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Fluid</p>
+    <div class="chips" id="fluid">
+      <button class="chip on" data-f="1000">Water<span>1000</span></button>
+      <button class="chip" data-f="920">Oil<span>920</span></button>
+      <button class="chip" data-f="1030">Sea water<span>1030</span></button>
+      <button class="chip" data-f="1260">Glycerin<span>1260</span></button>
+      <button class="chip" data-f="13600">Mercury<span>13600</span></button>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn" id="drop">Drop the object ↺</button>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      An object floats when it's <b>less dense</b> than the fluid, sinking just far enough to displace its own
+      weight. Try wood (≈600), ice (≈920) and iron (≈7800) in water and mercury.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Buoyant force (up)</span>
+      <span><i class="dot" style="background:var(--gold)"></i>Weight (down)</span>
+      <span style="margin-left:auto;color:var(--faint)" id="status">—</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Weight</div><div class="v"><span id="sW">0</span><em>N</em></div></div>
+      <div class="stat green"><div class="k">Buoyant force</div><div class="v"><span id="sB">0</span><em>N</em></div></div>
+      <div class="stat gold"><div class="k">Submerged</div><div class="v"><span id="sSub">0</span><em>%</em></div></div>
+      <div class="stat ember"><div class="k">Result</div><div class="v" id="sRes" style="font-size:15px">—</div></div>
+    </div>
+
+    <div class="formula">
+      <b>F_buoyant</b> = ρ_fluid · g · V_displaced &nbsp;&nbsp;|&nbsp;&nbsp; floats if ρ_object &lt; ρ_fluid,
+      with submerged fraction = ρ_object / ρ_fluid
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>An object is dropped into a tank of fluid. It bobs and settles, and the two arrows show the forces
+           deciding its fate: <b class="gold">gravity</b> pulling it down, and the <b class="accent">buoyant
+           force</b> pushing it up. Whether it floats or sinks comes down to a simple comparison of densities.</p>
+
+        <h4>Archimedes' principle</h4>
+        <p>Over two thousand years ago Archimedes realised that the upward force on a submerged object equals the
+           <b>weight of the fluid it pushes aside</b>:</p>
+        <div class="ex-eq">
+          F_buoyant = ρ_fluid · g · V_displaced <span class="lbl">weight of displaced fluid</span>
+        </div>
+        <p>The deeper an object sinks, the more fluid it displaces and the stronger the upward push — until the
+           buoyant force grows enough to balance gravity, or the object is fully submerged.</p>
+
+        <h4>To float or to sink</h4>
+        <p>Compare the object's weight, <span class="mono">ρ_object·V·g</span>, with the most buoyancy it can get
+           when fully submerged, <span class="mono">ρ_fluid·V·g</span>. The volume cancels, so it all comes down
+           to <b>density</b>:</p>
+        <ul>
+          <li><b>ρ_object &lt; ρ_fluid</b> → it <b>floats</b>, sinking only far enough that the submerged part
+            displaces its full weight.</li>
+          <li><b>ρ_object &gt; ρ_fluid</b> → it <b>sinks</b>; even fully submerged, gravity wins.</li>
+          <li><b>equal</b> → it hovers, neutrally buoyant at any depth.</li>
+        </ul>
+
+        <h4>The floating fraction</h4>
+        <p>For a floating object the fraction sitting below the surface is exactly the ratio of densities:</p>
+        <div class="ex-eq">
+          submerged fraction = ρ_object / ρ_fluid <span class="lbl">why icebergs hide 90% below water</span>
+        </div>
+        <p>Ice has about 90% of water's density, so a floating iceberg shows only a tenth of itself above the
+           surface — the rest lurks below.</p>
+
+        <h4>Things to try</h4>
+        <p>Float wood in water, then switch the fluid to <b>oil</b> (less dense) and watch it ride lower. Drop
+           dense iron into water (it sinks) and then into <b>mercury</b> (ρ ≈ 13600) and watch it bob right back
+           to the top.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={dens:$('dens'),size:$('size'),dNum:$('dNum'),szV:$('szV'),
+  sW:$('sW'),sB:$('sB'),sSub:$('sSub'),sRes:$('sRes'),status:$('status'),drop:$('drop')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+const g=9.8, TANK_W=2.4, TANK_H=2.0, WATER=1.55;   // metres
+let rhoFluid=1000;
+function P(){ return {rho:clampNum(els.dNum), size:(+els.size.value), }; }
+function objDims(){ const s=P().size; return {w:0.5*s, h:0.42*s}; }
+
+// state: yb = height of block's BOTTOM above tank floor (m), vy = vertical velocity (up +)
+let yb=1.9, vy=0, raf=null, last=null;
+function resetDrop(){ const od=objDims(); yb=WATER+0.35; vy=0; }
+
+function submerged(){ const od=objDims(); const top=yb+od.h;
+  // depth of block below the water surface
+  const d=Math.max(0, Math.min(od.h, WATER - yb));
+  return d; }   // metres of height submerged
+
+function step(dt){
+  const p=P(), od=objDims();
+  const V=od.w*od.h, m=p.rho*V;        // mass (unit depth)
+  const sub=submerged(), Vsub=od.w*sub;
+  let F = -m*g + rhoFluid*g*Vsub;       // gravity (down) + buoyancy (up)
+  if(sub>0) F += -vy*(2.6*rhoFluid*od.w*sub);   // viscous damping while in the fluid
+  const a=F/m;
+  vy+=a*dt; yb+=vy*dt;
+  if(yb<0){ yb=0; if(vy<0)vy=0; }                // rest on tank floor
+  const ceil=TANK_H-od.h;
+  if(yb>ceil){ yb=ceil; if(vy>0)vy=0; }          // don't fly out of the tank
+}
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.6);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function arrow(x0,y0,x1,y1,col,wd){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=wd; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0), s=6+wd;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-s*Math.cos(a-0.42),y1-s*Math.sin(a-0.42));ctx.lineTo(x1-s*Math.cos(a+0.42),y1-s*Math.sin(a+0.42));ctx.closePath();ctx.fill(); }
+function rrect(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+let tsec=0;
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#08161d'; ctx.fillRect(0,0,w,h);
+  // map metres -> px (centred tank)
+  const padB=24, padT=20, scale=(h-padB-padT)/TANK_H;
+  const tankPxW=TANK_W*scale, tx=(w-tankPxW)/2, floorY=h-padB;
+  const Y=ym=>floorY-ym*scale, Xc=w/2;
+  // tank
+  ctx.strokeStyle='rgba(120,200,220,.35)'; ctx.lineWidth=2;
+  ctx.strokeRect(tx,Y(TANK_H),tankPxW,TANK_H*scale);
+  // fluid body with wavy surface
+  const surfY=Y(WATER);
+  ctx.save(); ctx.beginPath(); ctx.moveTo(tx,surfY);
+  for(let i=0;i<=40;i++){ const xx=tx+tankPxW*(i/40); ctx.lineTo(xx, surfY+Math.sin(tsec*2+i*0.5)*2); }
+  ctx.lineTo(tx+tankPxW,floorY); ctx.lineTo(tx,floorY); ctx.closePath();
+  const fg=ctx.createLinearGradient(0,surfY,0,floorY); fg.addColorStop(0,'rgba(86,204,222,.28)'); fg.addColorStop(1,'rgba(40,120,150,.42)');
+  ctx.fillStyle=fg; ctx.fill(); ctx.restore();
+  ctx.strokeStyle='rgba(150,225,240,.7)'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=40;i++){ const xx=tx+tankPxW*(i/40), yy=surfY+Math.sin(tsec*2+i*0.5)*2; i===0?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy); } ctx.stroke();
+
+  // object
+  const od=objDims(), p=P();
+  const bw=od.w*scale, bh=od.h*scale, bx=Xc-bw/2, byTop=Y(yb+od.h);
+  // colour: floaters warm, sinkers steel, by density vs fluid
+  const dense=p.rho>rhoFluid;
+  const c1=dense?'#9fb0c2':'#caa46a', c2=dense?'#5f6f82':'#8a6a3a';
+  const bgrad=ctx.createLinearGradient(bx,byTop,bx,byTop+bh); bgrad.addColorStop(0,c1); bgrad.addColorStop(1,c2);
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=12; ctx.shadowOffsetY=4;
+  ctx.fillStyle=bgrad; rrect(ctx,bx,byTop,bw,bh,6); ctx.fill(); ctx.restore();
+  // density label
+  ctx.fillStyle='rgba(8,22,29,.85)'; ctx.font='600 11px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(p.rho+' kg/m³', Xc, byTop+bh/2);
+
+  // force arrows (from object centre)
+  const V=od.w*od.h, m=p.rho*V, W=m*g, sub=submerged(), B=rhoFluid*g*(od.w*sub);
+  const cyc=byTop+bh/2, maxF=Math.max(W,B,1);
+  const wlen=20+70*(W/maxF), blen=20+70*(B/maxF);
+  arrow(Xc-14, cyc, Xc-14, cyc+wlen, '#ffd27a', 3);                  // weight down
+  ctx.fillStyle='#ffd27a'; ctx.font='600 11px JetBrains Mono, monospace'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  ctx.fillText('W', Xc-22, cyc+wlen*0.6);
+  if(B>0.5){ arrow(Xc+14, cyc, Xc+14, cyc-blen, '#56ccde', 3);       // buoyancy up
+    ctx.fillStyle='#56ccde'; ctx.textAlign='left'; ctx.fillText('F_b', Xc+22, cyc-blen*0.6); }
+
+  // waterline label
+  ctx.fillStyle='rgba(150,225,240,.7)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('water line', tx+6, surfY-3);
+
+  meters(W,B,sub,od,p);
+}
+
+function meters(W,B,sub,od,p){
+  els.sW.textContent=W.toFixed(1); els.sB.textContent=B.toFixed(1);
+  els.sSub.textContent=Math.round(sub/od.h*100);
+  let res, st;
+  if(Math.abs(p.rho-rhoFluid)<8){ res='Neutral'; st='Neutrally buoyant — hovers at any depth'; }
+  else if(p.rho<rhoFluid){ res='Floats'; st='Floats — '+Math.round(p.rho/rhoFluid*100)+'% submerged at rest'; }
+  else { res='Sinks'; st='Sinks — weight exceeds maximum buoyancy'; }
+  els.sRes.textContent=res; els.status.textContent=st;
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1); tsec+=dt;
+  const sub=10; for(let i=0;i<sub;i++) step(dt/sub);
+  render();
+  raf=requestAnimationFrame(loop);
+}
+
+// ── controls ──
+function linkNumSlider(){
+  els.dens.addEventListener('input',()=>{els.dNum.value=els.dens.value;});
+  els.dNum.addEventListener('input',()=>{const v=parseFloat(els.dNum.value); if(isFinite(v))els.dens.value=Math.min(+els.dNum.max,Math.max(+els.dNum.min,v));});
+  els.dNum.addEventListener('change',()=>{els.dNum.value=clampNum(els.dNum); els.dens.value=els.dNum.value;});
+  els.size.addEventListener('input',()=>{els.szV.textContent=(+els.size.value).toFixed(2);});
+}
+linkNumSlider();
+document.getElementById('fluid').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; rhoFluid=+b.dataset.f;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+});
+els.drop.addEventListener('click',resetDrop);
+window.addEventListener('resize',render);
+
+resetDrop();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

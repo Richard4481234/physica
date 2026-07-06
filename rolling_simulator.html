@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rolling Without Slipping · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --accent-soft:#3b6ea8; --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 12px;}
+  .seg{display:grid; grid-template-columns:1fr 1fr; gap:7px}
+  .seg button{padding:10px 8px; border-radius:10px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit; text-align:left; line-height:1.3;}
+  .seg button .b{display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--faint); margin-top:2px}
+  .seg button.on{background:linear-gradient(135deg,rgba(124,196,255,.2),rgba(124,196,255,.06)); color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -5px rgba(124,196,255,.5);}
+  .seg button.on .b{color:var(--accent)}
+  .ctrl{margin:16px 0}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px}
+  .ctrl .name{font-size:13px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+  .divider{height:1px; background:var(--glass-line); margin:16px 0}
+  .actions{display:flex; gap:10px}
+  .btn{flex:1; padding:12px; border:none; border-radius:11px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#08111e; background:linear-gradient(135deg,#8fd0ff,#5aa8ee); box-shadow:0 8px 24px -8px rgba(124,196,255,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn.race{width:100%; margin-top:10px; color:#08111e; background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 8px 24px -8px rgba(98,210,162,.6)}
+  .btn.race.on{background:linear-gradient(135deg,#ffd9a3,#ff8a5b); color:#2a1206}
+  .btn:active{transform:translateY(1px)}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.green::before{background:var(--green)} .stat.ember::before{background:var(--ember)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08)); border:1px solid rgba(124,196,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body table{width:100%; border-collapse:collapse; margin:6px 0 14px; font-size:13.5px}
+  .ex-body th,.ex-body td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--glass-line)}
+  .ex-body th{color:var(--faint); font-weight:600; font-size:11px; letter-spacing:.05em; text-transform:uppercase}
+  .ex-body td:first-child{color:var(--ink); font-weight:600}
+  .ex-body .mono2{font-family:'JetBrains Mono',monospace; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="mechanics.html" class="back">← Mechanical</a>
+    <div class="kicker">Rotational Dynamics</div>
+    <h1>Rolling Without Slipping</h1>
+  </div>
+  <div class="sub">Roll shapes down a ramp — which reaches the bottom first depends only on how their mass is distributed.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Shape</p>
+    <div class="seg" id="shapes">
+      <button data-i="0" class="on">Solid sphere<span class="b">I = ⅖mr²</span></button>
+      <button data-i="1">Solid disc<span class="b">I = ½mr²</span></button>
+      <button data-i="2">Hollow sphere<span class="b">I = ⅔mr²</span></button>
+      <button data-i="3">Ring / hoop<span class="b">I = mr²</span></button>
+    </div>
+
+    <div class="ctrl">
+      <div class="row"><span class="name">Incline angle</span><span class="val"><span id="aV">25</span>°</span></div>
+      <input id="ang" type="range" min="8" max="40" step="1" value="25">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Radius</span><span class="val"><span id="rV">0.35</span> m</span></div>
+      <input id="rad" type="range" min="0.2" max="0.6" step="0.05" value="0.35">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Mass</span><span class="val"><span id="mV">2</span> kg</span></div>
+      <input id="mass" type="range" min="0.5" max="6" step="0.5" value="2">
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="play">Release ▶</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+    <button class="btn race" id="race">🏁 Race all 4 shapes</button>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      Notice the acceleration doesn't depend on mass or radius — only on the shape. Hit <b>Race</b> to send all
+      four down together and watch the solid sphere win.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Translational KE (½mv²)</span>
+      <span><i class="dot" style="background:var(--gold)"></i>Rotational KE (½Iω²)</span>
+      <span style="margin-left:auto;color:var(--faint)">A painted spoke shows the rotation — v = ωr</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Acceleration</div><div class="v"><span id="sA">0</span><em>m/s²</em></div></div>
+      <div class="stat green"><div class="k">Speed</div><div class="v"><span id="sV">0</span><em>m/s</em></div></div>
+      <div class="stat gold"><div class="k">Rotational energy</div><div class="v"><span id="sRot">0</span><em>%</em></div></div>
+      <div class="stat ember"><div class="k">Shape factor I/mr²</div><div class="v" id="sBeta">0.40</div></div>
+    </div>
+
+    <div class="formula">
+      <b>rolling</b> v = ω·r &nbsp;|&nbsp; <b>a</b> = g·sinθ / (1 + I/mr²) &nbsp;|&nbsp; KE = ½mv² + ½Iω²
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A round object rolls down a ramp <b>without slipping</b> — the contact point doesn't skid, so the
+           object both slides forward and spins, locked together. The painted spoke lets you see the spin. The
+           surprising result: how fast it rolls down depends only on its <b>shape</b>, not its mass or size.</p>
+
+        <h4>The no-slip condition</h4>
+        <p>Rolling without slipping ties the forward speed to the spin rate through the radius:</p>
+        <div class="ex-eq">
+          v = ω · r &nbsp;&nbsp;and&nbsp;&nbsp; a = α · r <span class="lbl">translation locked to rotation</span>
+        </div>
+        <p>Every metre the object advances, the rim turns by exactly that arc length — so a faster spin means a
+           faster roll.</p>
+
+        <h4>Why shape decides the race</h4>
+        <p>Gravity has to do two jobs at once: speed the object up <i>and</i> spin it up. How much goes into
+           spinning depends on the <b>moment of inertia</b> I — how far the mass sits from the axis. Solving
+           Newton's laws for the ramp gives:</p>
+        <div class="ex-eq">
+          a = g·sinθ / (1 + I/mr²) <span class="lbl">mass m and radius r cancel out!</span>
+        </div>
+        <p>The mass and radius cancel, leaving only the dimensionless ratio <span class="mono">I/mr²</span>. Mass
+           concentrated near the centre (a <b>solid sphere</b>) is easy to spin, so more energy goes into motion
+           and it accelerates fastest. Mass out at the rim (a <b>hoop</b>) is hard to spin, so it lags behind.</p>
+
+        <table>
+          <tr><th>Shape</th><th>I / mr²</th><th>Rotational energy</th></tr>
+          <tr><td>Solid sphere</td><td class="mono2">0.40</td><td>29% — <b>fastest</b></td></tr>
+          <tr><td>Solid disc / cylinder</td><td class="mono2">0.50</td><td>33%</td></tr>
+          <tr><td>Hollow sphere</td><td class="mono2">0.67</td><td>40%</td></tr>
+          <tr><td>Ring / hoop</td><td class="mono2">1.00</td><td>50% — <b>slowest</b></td></tr>
+        </table>
+
+        <h4>Energy split</h4>
+        <p>At the bottom the lost height has become kinetic energy, shared between motion and spin. The fraction
+           tied up in spinning is fixed by the shape:
+           <span class="mono">rotational fraction = (I/mr²) / (1 + I/mr²)</span>. A hoop puts half its energy
+           into spinning, a solid sphere less than a third — which is exactly why the sphere ends up moving
+           faster.</p>
+
+        <h4>Things to try</h4>
+        <p>Change the <b>mass</b> and <b>radius</b> and confirm the acceleration never budges. Then hit
+           <b>Race all 4 shapes</b> and watch them finish in the order sphere → disc → hollow sphere → hoop,
+           every time.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const g=9.8, Lm=5;   // ramp length (m)
+const SHAPES=[
+  {name:'Solid sphere',beta:2/5,col:'#7cc4ff',type:'ball'},
+  {name:'Solid disc',  beta:1/2,col:'#62d2a2',type:'disc'},
+  {name:'Hollow sphere',beta:2/3,col:'#ffd27a',type:'hollow'},
+  {name:'Ring / hoop', beta:1,  col:'#ff8a5b',type:'ring'}];
+let sel=0, raceMode=false, playing=false, t=0, raf=null, last=null, finishOrder=[];
+const els={ang:$('ang'),rad:$('rad'),mass:$('mass'),aV:$('aV'),rV:$('rV'),mV:$('mV'),
+  sA:$('sA'),sV:$('sV'),sRot:$('sRot'),sBeta:$('sBeta'),play:$('play'),reset:$('reset'),race:$('race')};
+function P(){return {th:(+els.ang.value)*Math.PI/180, r:(+els.rad.value), m:(+els.mass.value)};}
+function accel(beta){const p=P(); return g*Math.sin(p.th)/(1+beta);}      // m/s²
+function sAt(beta){const a=accel(beta); return Math.min(Lm, 0.5*a*t*t);}   // distance rolled
+function vAt(beta){const a=accel(beta); return Math.min(Math.sqrt(2*a*Lm), a*t);}
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*(raceMode?0.82:0.58));
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+function drawWheel(cx,cy,r,phi,shape,col){
+  ctx.save();
+  if(shape.type==='ball'){
+    const grd=ctx.createRadialGradient(cx-r*0.35,cy-r*0.35,r*0.1,cx,cy,r);
+    grd.addColorStop(0,'#fff'); grd.addColorStop(.35,col); grd.addColorStop(1,col);
+    ctx.fillStyle=grd; ctx.shadowColor=col; ctx.shadowBlur=12; ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();
+  } else if(shape.type==='disc'){
+    ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=10; ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();
+    ctx.shadowBlur=0; ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1; ctx.beginPath();ctx.arc(cx,cy,r*0.5,0,7);ctx.stroke();
+  } else if(shape.type==='hollow'){
+    ctx.fillStyle=col+'55'; ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=Math.max(3,r*0.22); ctx.shadowColor=col; ctx.shadowBlur=10; ctx.beginPath();ctx.arc(cx,cy,r*0.88,0,7);ctx.stroke();
+  } else { // ring
+    ctx.strokeStyle=col; ctx.lineWidth=Math.max(3,r*0.16); ctx.shadowColor=col; ctx.shadowBlur=10; ctx.beginPath();ctx.arc(cx,cy,r*0.9,0,7);ctx.stroke();
+  }
+  ctx.restore();
+  // spoke + rim marker (shows rotation)
+  ctx.strokeStyle='rgba(8,17,30,.7)'; ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(phi),cy+r*Math.sin(phi));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(phi+Math.PI/2),cy+r*Math.sin(phi+Math.PI/2));ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.beginPath();ctx.arc(cx+r*Math.cos(phi),cy+r*Math.sin(phi),r*0.14,0,7);ctx.fill();
+  ctx.fillStyle='rgba(8,17,30,.7)'; ctx.beginPath();ctx.arc(cx,cy,r*0.1,0,7);ctx.fill();
+}
+
+// build ramp geometry for a ramp that fits inside a vertical band [bandTop, bandBot]
+function rampGeo(w, bandTop, bandBot, rM){
+  const p=P();
+  const leftMargin=66, rightMargin=44, topPad=18, botPad=18;
+  const availW=w-leftMargin-rightMargin;
+  const bandH=bandBot-bandTop;
+  const horiz=Lm*Math.cos(p.th), vert=Lm*Math.sin(p.th);
+  // reserve vertical space for the object's full footprint so it's never clipped
+  const scale=Math.max(8, Math.min(availW/horiz, (bandH-topPad-botPad)/(vert+2.4*rM)));
+  const topX=leftMargin;
+  // push the ramp down so the object (offset up along the normal) clears the top of the band
+  const topY=bandTop+topPad+rM*scale*(1+Math.cos(p.th));
+  const bx=topX+horiz*scale, by=topY+vert*scale;
+  const dirx=Math.cos(p.th), diry=Math.sin(p.th);
+  const nx=Math.sin(p.th), ny=-Math.cos(p.th); // surface normal (points up-left of travel)
+  return {topX,topY,bx,by,dirx,diry,nx,ny,scale,rPx:rM*scale};
+}
+function drawRampSurface(G, lineCol){
+  ctx.fillStyle='rgba(124,196,255,.06)';
+  ctx.beginPath();ctx.moveTo(G.topX,G.topY);ctx.lineTo(G.bx,G.by);ctx.lineTo(G.topX,G.by);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=lineCol||'rgba(150,200,255,.6)'; ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(G.topX,G.topY);ctx.lineTo(G.bx,G.by);ctx.stroke();
+  // ground
+  ctx.strokeStyle='rgba(98,210,162,.4)'; ctx.lineWidth=2; ctx.beginPath();ctx.moveTo(G.topX-8,G.by);ctx.lineTo(G.bx+34,G.by);ctx.stroke();
+  // finish line at the foot of the ramp
+  ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(G.bx,G.by);ctx.lineTo(G.bx+G.nx*34,G.by+G.ny*34);ctx.stroke(); ctx.setLineDash([]);
+}
+function placeOn(G, beta, rM){
+  const s=sAt(beta);
+  const sx=G.topX+G.dirx*s*G.scale, sy=G.topY+G.diry*s*G.scale;
+  return {cxp:sx+G.nx*G.rPx, cyp:sy+G.ny*G.rPx, phi:s/rM, s};
+}
+
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#131934'); bg.addColorStop(1,'#1b2348');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+
+  if(!raceMode){
+    const p=P(), ebarH=36;
+    const G=rampGeo(w, ebarH, h, p.r);
+    drawRampSurface(G);
+    ctx.fillStyle='rgba(154,166,204,.8)'; ctx.font='12px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+    ctx.fillText((+els.ang.value)+'°', G.topX+34, G.by-4);
+    const sh=SHAPES[sel]; const o=placeOn(G, sh.beta, p.r);
+    drawWheel(o.cxp,o.cyp,G.rPx,o.phi,sh,sh.col);
+    drawEbar(w, sh.beta, sh.col);
+    meters(sh);
+    if(playing && o.s>=Lm){ playing=false; els.play.textContent='Release ▶'; }
+  } else {
+    // four separate stacked ramps — one lane per shape, all released together
+    const rM=0.30, lanes=4, topGap=6;
+    SHAPES.forEach((sh,i)=>{
+      const bandTop=topGap + i*(h-topGap)/lanes;
+      const bandBot=topGap + (i+1)*(h-topGap)/lanes - 4;
+      const G=rampGeo(w, bandTop, bandBot, rM);
+      drawRampSurface(G, sh.col+'99');
+      // lane label (top-left, clear of the ramp)
+      ctx.fillStyle=sh.col; ctx.font='600 12px Inter, sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText(sh.name+'  (I/mr²='+sh.beta.toFixed(2)+')', G.topX+2, bandTop+3);
+      const o=placeOn(G, sh.beta, rM);
+      drawWheel(o.cxp,o.cyp,G.rPx,o.phi,sh,sh.col);
+      if(o.s>=Lm && !finishOrder.includes(i)) finishOrder.push(i);
+      if(finishOrder.includes(i)){
+        ctx.fillStyle=sh.col; ctx.font='700 13px Inter, sans-serif'; ctx.textAlign='right'; ctx.textBaseline='top';
+        ctx.fillText('#'+(finishOrder.indexOf(i)+1), G.bx+34, bandTop+3);
+      }
+    });
+    if(playing && finishOrder.length===4){ playing=false; els.play.textContent='Release ▶'; }
+    meters(SHAPES[sel]);
+  }
+}
+
+function drawEbar(w, beta, col){
+  const x0=24,y0=18,bw=w-48,bh=13, rot=beta/(1+beta);
+  ctx.fillStyle='rgba(255,255,255,.05)'; rr(x0,y0,bw,bh,6); ctx.fill();
+  ctx.fillStyle=col; ctx.fillRect(x0,y0,bw*(1-rot),bh);
+  ctx.fillStyle='#ffd27a'; ctx.fillRect(x0+bw*(1-rot),y0,bw*rot,bh);
+  ctx.fillStyle='rgba(154,166,204,.75)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('translational '+Math.round((1-rot)*100)+'%', x0, y0-3);
+  ctx.textAlign='right'; ctx.fillText('rotational '+Math.round(rot*100)+'%', x0+bw, y0-3);
+}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawRanking(w){
+  ctx.fillStyle='rgba(12,16,32,.7)'; rr(w-186,16,170,96,10); ctx.fill();
+  ctx.strokeStyle='rgba(140,160,220,.2)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='rgba(238,241,251,.9)'; ctx.font='600 12px Inter, sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('🏁 Finish order', w-176, 24);
+  ctx.font='12px JetBrains Mono, monospace';
+  for(let p=0;p<finishOrder.length;p++){ const sh=SHAPES[finishOrder[p]];
+    ctx.fillStyle=sh.col; ctx.fillText((p+1)+'. '+sh.name, w-176, 44+p*17); }
+}
+function meters(sh){
+  const p=P(), a=accel(sh.beta), v=vAt(sh.beta), rot=sh.beta/(1+sh.beta);
+  els.sA.textContent=a.toFixed(2); els.sV.textContent=v.toFixed(2);
+  els.sRot.textContent=Math.round(rot*100); els.sBeta.textContent=sh.beta.toFixed(2);
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  if(playing) t+=dt;
+  render();
+  raf=requestAnimationFrame(loop);
+}
+function release(){ playing=true; t=0; finishOrder=[]; els.play.textContent='Pause ⏸'; }
+function play(){ if(playing){playing=false; els.play.textContent='Release ▶';} else { if(t===0||sAt(SHAPES[sel].beta)>=Lm) release(); else {playing=true; els.play.textContent='Pause ⏸';} } }
+function reset(){ playing=false; t=0; finishOrder=[]; els.play.textContent='Release ▶'; }
+
+// controls
+document.getElementById('shapes').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b)return;
+  sel=+b.dataset.i; [...e.currentTarget.children].forEach(c=>c.classList.remove('on')); b.classList.add('on'); if(!playing)render();});
+els.ang.addEventListener('input',()=>{els.aV.textContent=els.ang.value; if(!playing)render();});
+els.rad.addEventListener('input',()=>{els.rV.textContent=(+els.rad.value).toFixed(2); if(!playing)render();});
+els.mass.addEventListener('input',()=>{els.mV.textContent=els.mass.value; if(!playing)render();});
+els.play.addEventListener('click',play);
+els.reset.addEventListener('click',reset);
+els.race.addEventListener('click',()=>{ raceMode=!raceMode; els.race.classList.toggle('on',raceMode);
+  els.race.textContent= raceMode?'🏁 Racing — single shape':'🏁 Race all 4 shapes'; t=0; finishOrder=[]; release(); });
+window.addEventListener('resize',()=>{if(!playing)render();});
+
+reset();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

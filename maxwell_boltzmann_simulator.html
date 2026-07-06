@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maxwell–Boltzmann Distribution · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#160c08;--bg-1:#1d130d;--glass:rgba(48,32,24,0.55);--glass-line:rgba(220,150,110,0.16);
+    --ink:#fbeee8;--muted:#d0b3a2;--faint:#a07f6c;--accent:#ff8a5b;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(255,138,91,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(255,210,122,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#ffb083,#ff8a5b);box-shadow:0 6px 18px -6px rgba(255,138,91,.8);color:#2a1206;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#160d09}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(255,138,91,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(30,18,12,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(255,138,91,.14);border:1px solid rgba(255,138,91,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(255,138,91,.24)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(30,18,12,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="thermal.html">← Thermal</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Thermal · Experiment</div>
+    <h1>The Maxwell–Boltzmann Distribution</h1>
+    <p>In a gas the molecules don't all move at one speed — collisions constantly reshuffle their energy into a
+       lop-sided bell curve of speeds. Heat the gas and the whole spread shifts faster and wider.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#ff8a5b"></i>measured speeds</span><span><i style="background:#ffd27a"></i>Maxwell–Boltzmann curve</span><span><i style="background:#7cc4ff"></i>v_p · &lt;v&gt; · v_rms</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Temperature <span class="val" id="tV">1.0×</span></label>
+        <div class="row"><input type="range" id="temp" min="0.3" max="3" step="0.05" value="1"><input type="number" id="tempN" min="0.3" max="3" step="0.05" value="1"></div></div>
+      <div class="ctl"><label>Number of molecules <span class="val" id="nV">160</span></label>
+        <div class="row"><input type="range" id="n" min="40" max="320" step="10" value="160"><input type="number" id="nN" min="40" max="320" step="10" value="160"></div></div>
+      <div class="btns"><button class="act" id="uniform">Start all same speed</button></div>
+      <div class="btns"><button class="act" id="heat">Heat ▲</button><button class="act" id="cool">Cool ▼</button><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Temperature (∝ ⟨KE⟩)</span><span id="sT">—</span></div>
+        <div class="s"><span>Most probable v_p</span><span id="sVp">—</span></div>
+        <div class="s"><span>Average ⟨v⟩</span><span id="sVa">—</span></div>
+        <div class="s"><span>RMS v_rms</span><span id="sVr">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Collisions thermalise the gas — the histogram settles onto the Maxwell–Boltzmann curve.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      On the left is a 2-D box of gas molecules bouncing off the walls and — crucially — off <strong>each
+      other</strong>, in perfectly elastic collisions that swap energy around. On the right, a live histogram
+      records how many molecules currently have each speed. Watch it settle into a fixed, lop-sided shape: the
+      <strong>Maxwell–Boltzmann distribution</strong>.
+
+      <h3>Why the speeds spread out</h3>
+      Even if every molecule started at the same speed, collisions would quickly scramble that — one comes away
+      fast, its partner slow. Energy is conserved overall, but it gets shared unevenly, and the system relaxes to
+      the most probable arrangement. In two dimensions the resulting distribution of speeds is
+      <div class="eq">f(v) ∝ v · e^(−m v² / 2kT)</div>
+      It starts at zero (nothing is perfectly still), rises to a peak, then tails off — there are always a few very
+      fast molecules but no upper limit. Press <strong>"Start all same speed"</strong> and watch the single spike
+      collapse into this smooth curve within seconds: that is a gas <strong>thermalising</strong>.
+
+      <h3>Three special speeds</h3>
+      The distribution has three landmark speeds, and they're always in the same order:
+      <div class="eq">v_p = √(kT/m) &lt; ⟨v⟩ = √(πkT/2m) &lt; v_rms = √(2kT/m)</div>
+      The <strong>most probable</strong> speed v_p sits at the peak; the <strong>average</strong> ⟨v⟩ is a little
+      higher; and the <strong>root-mean-square</strong> v_rms — the one tied to the average kinetic energy and
+      hence the temperature — is higher still, pulled up by the fast tail.
+
+      <h3>Temperature is just average energy</h3>
+      Temperature is nothing more than the average kinetic energy of the molecules. <strong>Heat</strong> the gas
+      and every molecule speeds up: the whole curve slides to the right and flattens (the fast tail stretches
+      out). <strong>Cool</strong> it and the curve bunches back toward zero. The shape never changes — only its
+      scale.
+
+      <h3>Things to try</h3>
+      Heat and cool the gas and watch the histogram and the three markers slide together. Reset to a single speed
+      and time how fast collisions rebuild the bell curve. Add more molecules for a smoother, less noisy
+      histogram.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=470,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={temp:1, N:160};
+const R=5, m=1;
+let parts=[], box={};
+function boxRect(){ return {x:14, y:14, w:W*0.52-14, h:H-28}; }
+function targetRms(){ return 55*Math.sqrt(st.temp); }
+function initGas(uniform){
+  parts=[]; const b=boxRect(); const sp=targetRms();
+  for(let i=0;i<st.N;i++){
+    const ang=Math.random()*Math.PI*2;
+    let speed = uniform? sp : sp*(0.3+1.4*Math.random());
+    parts.push({x:b.x+R+Math.random()*(b.w-2*R), y:b.y+R+Math.random()*(b.h-2*R), vx:Math.cos(ang)*speed, vy:Math.sin(ang)*speed});
+  }
+  rescale();
+}
+function meanSq(){ let s=0; for(const p of parts) s+=p.vx*p.vx+p.vy*p.vy; return s/Math.max(1,parts.length); }
+function rescale(){ const cur=Math.sqrt(meanSq())||1; const f=targetRms()/cur; for(const p of parts){p.vx*=f;p.vy*=f;} }
+
+function step(dt){
+  const b=boxRect();
+  for(const p of parts){ p.x+=p.vx*dt; p.y+=p.vy*dt;
+    if(p.x<b.x+R){p.x=b.x+R;p.vx=Math.abs(p.vx);} if(p.x>b.x+b.w-R){p.x=b.x+b.w-R;p.vx=-Math.abs(p.vx);}
+    if(p.y<b.y+R){p.y=b.y+R;p.vy=Math.abs(p.vy);} if(p.y>b.y+b.h-R){p.y=b.y+b.h-R;p.vy=-Math.abs(p.vy);}
+  }
+  // elastic pairwise collisions (equal mass → exchange normal components)
+  for(let i=0;i<parts.length;i++) for(let j=i+1;j<parts.length;j++){
+    const a=parts[i],c=parts[j]; let dx=c.x-a.x, dy=c.y-a.y; let d2=dx*dx+dy*dy; const min=2*R;
+    if(d2<min*min && d2>1e-9){ const d=Math.sqrt(d2), nx=dx/d, ny=dy/d;
+      const dvx=a.vx-c.vx, dvy=a.vy-c.vy, along=dvx*nx+dvy*ny;
+      if(along>0){ a.vx-=along*nx; a.vy-=along*ny; c.vx+=along*nx; c.vy+=along*ny; }
+      const overlap=(min-d)/2; a.x-=nx*overlap; a.y-=ny*overlap; c.x+=nx*overlap; c.y+=ny*overlap;
+    }
+  }
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#160d09'; ctx.fillRect(0,0,W,H);
+  const b=boxRect();
+  ctx.strokeStyle='rgba(220,150,110,.4)'; ctx.lineWidth=2; ctx.strokeRect(b.x,b.y,b.w,b.h);
+  const sp=targetRms();
+  for(const p of parts){ const s=Math.hypot(p.vx,p.vy), f=Math.min(1,s/(sp*2));
+    ctx.fillStyle='rgb('+(255)+','+(180-100*f|0)+','+(120-90*f|0)+')';
+    ctx.beginPath();ctx.arc(p.x,p.y,R,0,7);ctx.fill();
+  }
+  drawHisto(b.x+b.w+22, 14, W-(b.x+b.w+22)-14, H-28);
+  requestAnimationFrame(()=>{});
+}
+function drawHisto(hx,hy,hw,hh){
+  // build histogram
+  const speeds=parts.map(p=>Math.hypot(p.vx,p.vy));
+  const vmax=targetRms()*3.0;                       // x-axis max
+  const bins=26; const cnt=new Array(bins).fill(0);
+  for(const s of speeds){ const bi=Math.min(bins-1,Math.floor(s/vmax*bins)); cnt[bi]++; }
+  const N=parts.length, binW=vmax/bins;
+  // theoretical MB density: kT=0.5 m <v^2>; f(v)=(m/kT) v exp(-m v^2/2kT)
+  const kT=0.5*m*meanSq();
+  const X=v=>hx+ v/vmax*hw, dens=v=> (m/kT)*v*Math.exp(-m*v*v/(2*kT));
+  // scale: probability density = count/(N*binW); find max for y-scale
+  let ymax=1e-9; for(let i=0;i<bins;i++){ const d=cnt[i]/(N*binW); if(d>ymax)ymax=d; }
+  for(let v=0;v<vmax;v+=vmax/200){ ymax=Math.max(ymax,dens(v)); }
+  const Y=d=>hy+hh - d/ymax*(hh-16);
+  // axes
+  ctx.strokeStyle='rgba(220,150,110,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(hx,hy+2);ctx.lineTo(hx,hy+hh);ctx.lineTo(hx+hw,hy+hh);ctx.stroke();
+  ctx.fillStyle='rgba(208,179,162,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('molecular speed →', hx+hw/2, hy+hh+6);
+  // histogram bars
+  for(let i=0;i<bins;i++){ const d=cnt[i]/(N*binW); const x=X(i*binW), w=hw/bins-1.5;
+    ctx.fillStyle='rgba(255,138,91,.55)'; ctx.fillRect(x, Y(d), w, hy+hh-Y(d)); }
+  // MB curve
+  ctx.strokeStyle='#ffd27a'; ctx.lineWidth=2.4; ctx.beginPath();
+  for(let i=0;i<=200;i++){ const v=vmax*i/200; const x=X(v), y=Y(dens(v)); i?ctx.lineTo(x,y):ctx.moveTo(x,y); } ctx.stroke();
+  // markers
+  const vp=Math.sqrt(kT/m), va=Math.sqrt(Math.PI*kT/(2*m)), vr=Math.sqrt(2*kT/m);
+  const mk=(v,lab)=>{ const x=X(v); ctx.strokeStyle='rgba(124,196,255,.55)'; ctx.setLineDash([3,4]); ctx.beginPath();ctx.moveTo(x,hy+6);ctx.lineTo(x,hy+hh);ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(124,196,255,.9)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText(lab,x,hy+2); };
+  mk(vp,'v_p'); mk(va,'⟨v⟩'); mk(vr,'v_rms');
+  ctx.textAlign='left';
+}
+let last=0;
+function loop(ts){ let dt=Math.min(0.03,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; step(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const kT=0.5*m*meanSq();
+  document.getElementById('sT').textContent=(kT).toFixed(0);
+  document.getElementById('sVp').textContent=Math.sqrt(kT/m).toFixed(0);
+  document.getElementById('sVa').textContent=Math.sqrt(Math.PI*kT/(2*m)).toFixed(0);
+  document.getElementById('sVr').textContent=Math.sqrt(2*kT/m).toFixed(0);
+}
+function bind(sl,nu,key,labId,fmt,after){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); if(after)after();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('temp','tempN','temp','tV',v=>(+v).toFixed(1)+'×', rescale);
+bind('n','nN','N','nV',v=>Math.round(v), ()=>initGas(false));
+document.getElementById('uniform').addEventListener('click',()=>initGas(true));
+document.getElementById('heat').addEventListener('click',()=>{ st.temp=Math.min(3,st.temp+0.3); syncTemp(); rescale(); });
+document.getElementById('cool').addEventListener('click',()=>{ st.temp=Math.max(0.3,st.temp-0.3); syncTemp(); rescale(); });
+document.getElementById('reset').addEventListener('click',()=>{ st.temp=1; syncTemp(); initGas(false); });
+function syncTemp(){ document.getElementById('temp').value=st.temp; document.getElementById('tempN').value=st.temp.toFixed(2); document.getElementById('tV').textContent=st.temp.toFixed(1)+'×'; }
+window.addEventListener('resize',()=>{fit();});
+fit(); initGas(false); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(48,32,24,0.85)',color:'#fbeee8',border:'1px solid rgba(220,150,110,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

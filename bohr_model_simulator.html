@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bohr Model of the Atom · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#081512; --bg-1:#0d2020;
+    --glass:rgba(26,44,40,0.55); --glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3; --muted:#9accb6; --faint:#6b9a86;
+    --accent:#62d2a2; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(98,210,162,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 6px 18px -6px rgba(98,210,162,.8); color:#06241a; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#06140f}
+  #spec{margin-top:12px}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(98,210,162,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:64px; background:rgba(6,18,14,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:30px; background:rgba(6,18,14,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:13px; padding:9px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(98,210,162,.25); border-color:rgba(98,210,162,.6); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(98,210,162,.12); border:1px solid rgba(98,210,162,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(98,210,162,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(6,18,14,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .hint{font-size:11.5px; color:var(--faint); margin-top:10px}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="modern.html">← Modern</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Modern · Experiment</div>
+    <h1>The Bohr Model of the Atom</h1>
+    <p>An electron may orbit the nucleus only in certain fixed shells. When it jumps between them it emits or
+       absorbs a single photon — and the colours of those photons are the atom's fingerprint spectrum.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <canvas id="spec"></canvas>
+      <div class="hint">Click an orbit or energy level — or use the buttons — to send the electron there. Jumping down emits a photon; jumping up absorbs one.</div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Send electron to level n</label>
+        <div class="seg" id="nseg"></div>
+      </div>
+      <div class="ctl">
+        <label>Nuclear charge Z <span class="val" id="zV">1 — Hydrogen</span></label>
+        <div class="row"><input type="range" id="z" min="1" max="4" step="1" value="1">
+          <input type="number" id="zN" min="1" max="4" step="1" value="1"></div>
+      </div>
+      <div class="btns"><button class="act" id="ground">Ground state</button><button class="act" id="excite">Excite ↑</button></div>
+      <div class="stats">
+        <div class="s"><span>Current level n</span><span id="sN">1</span></div>
+        <div class="s"><span>Energy Eₙ</span><span id="sEn">−13.60 eV</span></div>
+        <div class="s"><span>Orbit radius rₙ</span><span id="sRn">0.053 nm</span></div>
+        <div class="s"><span>Last transition</span><span id="sTr">—</span></div>
+        <div class="s"><span>Photon energy ΔE</span><span id="sDe">—</span></div>
+        <div class="s"><span>Wavelength λ</span><span id="sLam">—</span></div>
+        <div class="s"><span>Series</span><span id="sSer">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Electron in the ground state (n = 1).</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A single electron circles a positively charged nucleus, but — unlike a planet, which could orbit at any
+      distance — it is allowed only a discrete set of <strong>shells</strong> labelled n = 1, 2, 3, … On the right
+      is the matching <strong>energy-level diagram</strong>, and along the bottom is the <strong>emission
+      spectrum</strong>: the specific colours this atom can give off. Send the electron to a new level and watch a
+      photon fly out (jumping down) or get absorbed (jumping up).
+
+      <h3>Bohr's quantum leap</h3>
+      In 1913 Niels Bohr proposed three rules that broke with classical physics. First, the electron occupies only
+      certain <strong>stationary states</strong> with quantized angular momentum, and — crucially — does
+      <strong>not</strong> radiate while in them (classically an orbiting charge should spiral inward and the atom
+      collapse). Second, each state has a fixed energy:
+      <div class="eq">Eₙ = −13.6 · Z² / n²  eV</div>
+      negative because the electron is bound, approaching 0 as n → ∞ (free). The orbit radius grows as
+      rₙ = n²a₀/Z, with a₀ = 0.053 nm the Bohr radius. Third, the atom changes energy only by
+      <strong>jumping</strong> between levels, emitting or absorbing one photon whose energy exactly bridges the gap:
+      <div class="eq">ΔE = Eᵢ − E_f = h f = h c / λ</div>
+
+      <h3>Why atoms have line spectra</h3>
+      Because only certain energy gaps exist, an atom emits only certain wavelengths — sharp <strong>spectral
+      lines</strong>, not a continuous rainbow. For hydrogen these fall into series named by the final level:
+      <strong>Lyman</strong> (down to n = 1, ultraviolet), <strong>Balmer</strong> (to n = 2, visible — the four
+      coloured lines on the strip), and <strong>Paschen</strong> (to n = 3, infrared). The wavelengths obey the
+      Rydberg formula 1/λ = R(1/n_f² − 1/n_i²). These fingerprints are how we identify elements in stars.
+
+      <h3>Things to try</h3>
+      Excite the electron to a high level and let it cascade down, watching each photon's colour. Find the Balmer
+      lines (any jump landing on n = 2) and see them line up with the coloured spectrum below. Increase the
+      <strong>nuclear charge Z</strong> for hydrogen-like ions (He⁺, Li²⁺): every energy deepens by Z² and the
+      orbits shrink, pushing the spectrum toward the ultraviolet. Bohr's model works beautifully for one electron
+      but fails for many-electron atoms — the door it opened led to full quantum mechanics.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const sp=document.getElementById('spec'), spx=sp.getContext('2d');
+let W=900,H=460,dpr=1, SW=900,SH=70;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  SW=sp.clientWidth; SH=64; sp.width=SW*dpr; sp.height=SH*dpr; sp.style.height=SH+'px'; spx.setTransform(dpr,0,0,dpr,0,0);
+}
+const NMAX=6;
+const st={n:1, Z:1};
+const En=(n)=>-13.6*st.Z*st.Z/(n*n);
+const a0=0.0529;
+const rn=(n)=>a0*n*n/st.Z;
+const elemName=z=>({1:'Hydrogen',2:'He⁺ (helium ion)',3:'Li²⁺ (lithium ion)',4:'Be³⁺ (beryllium ion)'}[z]||'');
+
+function wlColor(wl){
+  if(wl<380) return [160,120,255];
+  if(wl>740) return [190,70,60];
+  let r=0,g=0,b=0;
+  if(wl<440){r=-(wl-440)/60;b=1;} else if(wl<490){g=(wl-440)/50;b=1;}
+  else if(wl<510){g=1;b=-(wl-510)/20;} else if(wl<580){r=(wl-510)/70;g=1;}
+  else if(wl<645){r=1;g=-(wl-645)/65;} else {r=1;}
+  return [r*255|0,g*255|0,b*255|0];
+}
+function region(wl){ return wl<380?'ultraviolet': wl>740?'infrared':'visible'; }
+function seriesName(nf){ return ({1:'Lyman (UV)',2:'Balmer (visible)',3:'Paschen (IR)',4:'Brackett (IR)',5:'Pfund (IR)'}[nf]||'—'); }
+
+// orbit radii in px
+let acx, acy, orbR=[];
+function geo(){
+  acx=W*0.27; acy=H*0.52;
+  const maxR=Math.min(W*0.24, H*0.42);
+  orbR=[0]; for(let n=1;n<=NMAX;n++) orbR[n]=maxR*(n*n)/(NMAX*NMAX);
+}
+
+let elecAng=0, rCur=0, rTarget=0, photons=[], last=null;
+function transition(nf){
+  const ni=st.n; if(nf===ni){ return; }
+  const dE=Math.abs(En(nf)-En(ni));
+  const lam=1240/dE;
+  const down = nf<ni;
+  last={ni,nf,dE,lam,down};
+  if(down){ spawnPhoton(lam, true); } else { spawnPhoton(lam, false); }
+  st.n=nf; rTarget=orbR[nf];
+  updateUI();
+}
+function spawnPhoton(lam, outward){
+  const col=wlColor(lam);
+  const ang=Math.random()*Math.PI*2;
+  photons.push({lam,col,ang, r: outward? (rCur||orbR[1]) : Math.min(W,H), out:outward, ttl:1.4, phase:0});
+}
+
+function update(dt){
+  geo();
+  elecAng += dt*1.6/Math.max(1,Math.sqrt(st.n));
+  if(rCur===0) rCur=orbR[st.n];
+  rCur += (rTarget-rCur)*Math.min(1,dt*6);
+  if(rTarget===0) rTarget=orbR[st.n];
+  for(const p of photons){ const v=260; p.r += (p.out?1:-1)*v*dt; p.phase+=dt*18; p.ttl-=dt; }
+  photons=photons.filter(p=>p.ttl>0 && p.r>0 && p.r<Math.max(W,H));
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#06140f'; ctx.fillRect(0,0,W,H);
+  geo();
+
+  // orbits
+  for(let n=1;n<=NMAX;n++){
+    ctx.beginPath(); ctx.arc(acx,acy,orbR[n],0,7);
+    ctx.strokeStyle = n===st.n? 'rgba(255,210,122,.7)':'rgba(140,210,180,.22)';
+    ctx.lineWidth = n===st.n?1.8:1; ctx.setLineDash(n===st.n?[]:[3,5]); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = n===st.n?'rgba(255,210,122,.8)':'rgba(154,204,182,.45)';
+    ctx.font='10px JetBrains Mono'; ctx.fillText('n='+n, acx+orbR[n]-22, acy-4);
+  }
+  // photons (wavelets)
+  for(const p of photons){
+    ctx.save(); ctx.translate(acx,acy); ctx.rotate(p.ang);
+    ctx.strokeStyle=`rgba(${p.col[0]},${p.col[1]},${p.col[2]},${Math.min(1,p.ttl)})`; ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let s=-16;s<=16;s++){ const rr=p.r+s; const yy=Math.sin(s*0.6+p.phase)*4; if(s===-16)ctx.moveTo(rr,yy); else ctx.lineTo(rr,yy); }
+    ctx.stroke(); ctx.restore();
+  }
+  // nucleus
+  ctx.beginPath(); ctx.arc(acx,acy,11,0,7);
+  const ng=ctx.createRadialGradient(acx-3,acy-3,2,acx,acy,12); ng.addColorStop(0,'#ffe6b0'); ng.addColorStop(1,'#e06a4a');
+  ctx.fillStyle=ng; ctx.fill();
+  ctx.fillStyle='#3a1410'; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='center'; ctx.fillText('+'+st.Z, acx, acy+4); ctx.textAlign='left';
+  // electron
+  const ex=acx+Math.cos(elecAng)*rCur, ey=acy+Math.sin(elecAng)*rCur;
+  ctx.beginPath(); ctx.arc(ex,ey,6,0,7); ctx.fillStyle='#9fe9ff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(ex,ey,10,0,7); ctx.fillStyle='rgba(120,200,255,.25)'; ctx.fill();
+  ctx.fillStyle='rgba(154,204,182,.6)'; ctx.font='11px JetBrains Mono'; ctx.fillText('e⁻', ex+9, ey-7);
+  ctx.fillStyle='rgba(154,204,182,.5)'; ctx.font='11px Inter'; ctx.fillText(elemName(st.Z), acx-orbR[NMAX]*0+14-14, H-12);
+
+  drawLevels();
+  requestAnimationFrame(()=>{});
+}
+
+function drawLevels(){
+  const x0=W*0.60, x1=W-16, padT=24, padB=22;
+  const y0=H-padB, y1=padT;
+  ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='11px Inter'; ctx.fillText('Energy levels (eV)', x0, y1-8);
+  // E from E1(deepest) to 0
+  const Edeep=En(1), eY=E=>y0 - (E-Edeep)/(0-Edeep)*(y0-y1);
+  // zero line
+  ctx.strokeStyle='rgba(140,210,180,.3)'; ctx.setLineDash([2,4]); ctx.beginPath(); ctx.moveTo(x0,eY(0)); ctx.lineTo(x1,eY(0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(154,204,182,.55)'; ctx.font='10px JetBrains Mono'; ctx.fillText('0  (ionised)', x1-78, eY(0)-3);
+  levelY=[];
+  for(let n=1;n<=NMAX;n++){ const y=eY(En(n)); levelY[n]=y;
+    ctx.strokeStyle = n===st.n?'rgba(255,210,122,.9)':'rgba(140,210,180,.35)'; ctx.lineWidth=n===st.n?2.2:1.2;
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.fillStyle=n===st.n?'#ffd27a':'rgba(154,204,182,.6)'; ctx.font='10px JetBrains Mono';
+    ctx.fillText('n='+n+'  '+En(n).toFixed(2), x0+2, y-3);
+  }
+  levelX0=x0; levelX1=x1;
+  // transition arrow
+  if(last){
+    const yi=eY(En(last.ni)), yf=eY(En(last.nf)), ax=x0+(x1-x0)*0.62;
+    const c=wlColor(last.lam);
+    ctx.strokeStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(ax,yi); ctx.lineTo(ax,yf); ctx.stroke();
+    const dir=yf>yi?1:-1; // arrowhead at final
+    ctx.beginPath(); ctx.moveTo(ax,yf); ctx.lineTo(ax-4,yf-dir*8); ctx.lineTo(ax+4,yf-dir*8); ctx.closePath(); ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fill();
+    ctx.fillStyle='rgba(234,247,243,.85)'; ctx.font='10px JetBrains Mono';
+    ctx.fillText((last.down?'emit ':'absorb ')+last.lam.toFixed(0)+'nm', ax+8, (yi+yf)/2);
+  }
+}
+let levelY=[], levelX0=0, levelX1=0;
+
+function drawSpec(){
+  spx.clearRect(0,0,SW,SH);
+  const x0=8, x1=SW-8, h=SH-22, top=4;
+  // visible gradient 400-700nm
+  for(let x=x0;x<=x1;x++){ const wl=400+(x-x0)/(x1-x0)*300; const c=wlColor(wl); spx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; spx.globalAlpha=.32; spx.fillRect(x,top,1,h); }
+  spx.globalAlpha=1;
+  const wx=wl=>x0+(wl-400)/300*(x1-x0);
+  // Balmer lines for current Z (n->2)
+  spx.font='9.5px JetBrains Mono';
+  for(const ni of [3,4,5,6]){ const lam=1240/Math.abs(En(ni)-En(2)); if(lam<400||lam>700) continue; const c=wlColor(lam);
+    spx.strokeStyle=`rgb(${c[0]},${c[1]},${c[2]})`; spx.lineWidth=2; spx.beginPath(); spx.moveTo(wx(lam),top); spx.lineTo(wx(lam),top+h); spx.stroke();
+    spx.fillStyle='rgba(234,247,243,.7)'; spx.fillText('Hα Hβ Hγ Hδ'.split(' ')[ni-3], wx(lam)-6, top+h+12); }
+  // current emitted line marker
+  if(last){ const lam=last.lam; if(lam>=400&&lam<=700){ spx.strokeStyle='#fff'; spx.lineWidth=1.4; spx.setLineDash([3,3]); spx.beginPath(); spx.moveTo(wx(lam),top); spx.lineTo(wx(lam),top+h); spx.stroke(); spx.setLineDash([]); } }
+  spx.fillStyle='rgba(154,204,182,.6)'; spx.fillText('400 nm', x0, SH-3); spx.fillText('visible emission spectrum (Balmer lines)', (SW)/2-100, SH-3); spx.fillText('700 nm', x1-44, SH-3);
+}
+
+function update_draw(dt){ update(dt); draw(); drawSpec(); }
+
+let lastT=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-lastT)/1000||0.016)*(window.SLOWMO||1); lastT=ts; update_draw(dt); requestAnimationFrame(loop); }
+
+// interaction: click orbit or energy level
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect(); const px=e.clientX-r.left, py=e.clientY-r.top;
+  // energy level region?
+  if(px>levelX0 && levelY.length){
+    let best=1,bd=1e9; for(let n=1;n<=NMAX;n++){ const d=Math.abs(py-levelY[n]); if(d<bd){bd=d;best=n;} } if(bd<18){ transition(best); return; }
+  }
+  // orbit region: distance from atom center ~ orbR[n]
+  const d=Math.hypot(px-acx,py-acy); let best=1,bd=1e9; for(let n=1;n<=NMAX;n++){ const dd=Math.abs(d-orbR[n]); if(dd<bd){bd=dd;best=n;} }
+  if(bd<22) transition(best);
+});
+
+function updateUI(){
+  document.getElementById('sN').textContent=st.n;
+  document.getElementById('sEn').textContent=En(st.n).toFixed(2)+' eV';
+  document.getElementById('sRn').textContent=rn(st.n).toFixed(3)+' nm';
+  [...nseg.children].forEach(c=>c.classList.toggle('on',+c.dataset.n===st.n));
+  const v=document.getElementById('verdict');
+  if(last){
+    document.getElementById('sTr').textContent=last.ni+' → '+last.nf;
+    document.getElementById('sDe').textContent=last.dE.toFixed(2)+' eV';
+    document.getElementById('sLam').textContent=last.lam.toFixed(0)+' nm ('+region(last.lam)+')';
+    document.getElementById('sSer').textContent=seriesName(last.nf);
+    v.textContent = last.down
+      ? `Dropped ${last.ni}→${last.nf}: emitted a ${last.lam.toFixed(0)} nm ${region(last.lam)} photon.`
+      : `Rose ${last.ni}→${last.nf}: absorbed a ${last.lam.toFixed(0)} nm ${region(last.lam)} photon.`;
+  } else { v.textContent='Electron in the ground state (n = 1).'; }
+}
+
+// n buttons
+const nseg=document.getElementById('nseg');
+for(let i=1;i<=NMAX;i++){ const b=document.createElement('button'); b.textContent=i; b.dataset.n=i; if(i===1)b.classList.add('on');
+  b.addEventListener('click',()=>transition(i)); nseg.appendChild(b); }
+
+document.getElementById('ground').addEventListener('click',()=>transition(1));
+document.getElementById('excite').addEventListener('click',()=>{ if(st.n<NMAX) transition(st.n+1); });
+
+function bindZ(){ const s=document.getElementById('z'), n=document.getElementById('zN');
+  function set(v){ v=Math.max(1,Math.min(4,Math.round(v))); st.Z=v; s.value=v; n.value=v;
+    document.getElementById('zV').textContent=v+' — '+elemName(v); last=null; rCur=0; updateUI(); }
+  s.addEventListener('input',()=>set(+s.value)); n.addEventListener('change',()=>set(+n.value)); }
+bindZ();
+
+window.addEventListener('resize',fit);
+fit(); rCur=0; updateUI(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(26,44,40,0.85)',color:'#eef8f3',border:'1px solid rgba(140,210,180,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

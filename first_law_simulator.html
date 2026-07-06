@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Law of Thermodynamics · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --accent-soft:#9c4a2e; --gold:#ffd27a;
+    --hot:#ff6b6b; --cold:#5a9bff; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:31px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--cold),#6b6f86,var(--hot)); outline:none; cursor:pointer;}
+  input[type=range].plain{background:linear-gradient(90deg,var(--accent-soft),rgba(255,138,91,.15))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(255,138,91,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .chips{display:flex; flex-wrap:wrap; gap:7px}
+  .chip{padding:9px 10px; border-radius:9px; border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .chip:hover{color:var(--ink); border-color:rgba(255,138,91,.45)}
+  .chip b{display:block; color:var(--ink); font-size:12.5px; font-weight:600}
+  .chip span{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--faint)}
+
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+  .btn{width:100%; padding:12px; border:none; border-radius:11px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600;
+    background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line); transition:all .15s ease;}
+  .btn:hover{color:var(--ink); border-color:rgba(255,138,91,.45)}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  #pv{margin-top:14px}
+  .ledger{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--muted); line-height:1.9; text-align:center;}
+  .ledger b{color:var(--ink)} .ledger .q{color:var(--hot)} .ledger .w{color:var(--gold)} .ledger .u{color:var(--green)}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.hot::before{background:var(--hot)} .stat.gold::before{background:var(--gold)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(255,138,91,.25),rgba(255,138,91,.08)); border:1px solid rgba(255,138,91,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .q{color:var(--hot)} .ex-body .w{color:var(--gold)} .ex-body .u{color:var(--green)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,138,91,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="thermal.html" class="back">← Thermal</a>
+    <div class="kicker">Energy Conservation</div>
+    <h1>First Law of Thermodynamics</h1>
+  </div>
+  <div class="sub">Add heat, push the piston, and watch energy balance the books: ΔU = Q − W.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Do something to the gas</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Heat flow Q̇</span><span class="val" id="heatV">0</span></div>
+      <input id="heat" type="range" min="-10" max="10" step="1" value="0">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:4px"><span>cool</span><span>off</span><span>heat</span></div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Piston / Volume</span><span class="val"><span id="volV">1.5</span> L</span></div>
+      <input id="vol" type="range" class="plain" min="0.6" max="4" step="0.05" value="1.5">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:4px"><span>compress</span><span>expand</span></div>
+    </div>
+
+    <p class="group-label" style="margin-top:22px">Run a process</p>
+    <div class="chips">
+      <button class="chip" data-p="isochoric"><b>Isochoric</b><span>fixed V · heat</span></button>
+      <button class="chip" data-p="isobaric"><b>Isobaric</b><span>fixed P · expand</span></button>
+      <button class="chip" data-p="isothermal"><b>Isothermal</b><span>fixed T · expand</span></button>
+      <button class="chip" data-p="adiabatic"><b>Adiabatic</b><span>Q=0 · expand</span></button>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn" id="reset">Reset gas &amp; tallies</button>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      Heat raises the internal energy; expanding does work and lowers it. The tallies show heat added (Q),
+      work done by the gas (W), and the net change in internal energy (ΔU).</p>
+  </aside>
+
+  <main>
+    <canvas id="sys"></canvas>
+    <canvas id="pv"></canvas>
+    <div class="ledger" id="ledger">ΔU = Q − W</div>
+
+    <div class="stats">
+      <div class="stat hot"><div class="k">Heat added Q</div><div class="v" id="sQ">0</div></div>
+      <div class="stat gold"><div class="k">Work by gas W</div><div class="v" id="sW">0</div></div>
+      <div class="stat green"><div class="k">ΔInternal energy</div><div class="v" id="sU">0</div></div>
+      <div class="stat"><div class="k">Temperature</div><div class="v"><span id="sT">300</span><em>K</em></div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A gas is trapped in a cylinder under a movable piston. You can do two things to it: <b class="q">add or
+           remove heat</b> with the burner below, and <b class="w">push or pull the piston</b> to compress or let
+           it expand. The simulation keeps a running account of the energy, and you'll see it always balances.</p>
+
+        <h4>The first law</h4>
+        <p>The first law of thermodynamics is simply <b>conservation of energy</b> applied to heat. The internal
+           energy of the gas can only change by heat flowing in or work being done:</p>
+        <div class="ex-eq">
+          ΔU = Q − W <span class="lbl">change in energy = heat in − work out</span>
+        </div>
+        <p>Here <b class="q">Q</b> is the heat added to the gas, <b class="w">W</b> is the work the gas does on
+           the piston as it expands, and <b class="u">ΔU</b> is the change in its internal energy. For an ideal
+           gas the internal energy depends only on temperature (<span class="mono">U = n·Cv·T</span>), so when
+           ΔU rises, the gas gets hotter.</p>
+
+        <h4>Heat, work, and the sign of things</h4>
+        <ul>
+          <li><b class="q">Heat in (Q &gt; 0)</b> raises the internal energy — the gas warms.</li>
+          <li><b class="w">Expansion (W &gt; 0)</b> means the gas pushes the piston out and spends energy doing
+            it — on its own this cools the gas.</li>
+          <li><b>Compression (W &lt; 0)</b> means work is done <i>on</i> the gas, adding energy and warming it —
+            this is why a bike pump gets hot.</li>
+        </ul>
+
+        <h4>Four special processes</h4>
+        <p>The preset buttons run the textbook cases, and the ledger shows how the first law simplifies in each:</p>
+        <ul>
+          <li><b>Isochoric</b> (fixed volume): no work is done, so <span class="mono">ΔU = Q</span> — all the heat
+            becomes internal energy.</li>
+          <li><b>Isobaric</b> (fixed pressure): the gas expands as it's heated, so <span class="mono">Q = ΔU + W</span>.</li>
+          <li><b>Isothermal</b> (fixed temperature): ΔU = 0, so every bit of heat becomes work,
+            <span class="mono">Q = W</span>.</li>
+          <li><b>Adiabatic</b> (no heat, Q = 0): the gas does work purely at the expense of its own energy,
+            <span class="mono">ΔU = −W</span>, so it cools as it expands.</li>
+        </ul>
+
+        <h4>Things to try</h4>
+        <p>Heat the gas at fixed volume and watch ΔU track Q exactly. Then expand the piston with the burner off
+           (adiabatic) and see the temperature fall as the gas spends energy doing work. Compress it quickly and
+           watch it heat up — no flame required.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const sys=document.getElementById('sys'), sx=sys.getContext('2d');
+const pv=document.getElementById('pv'), px=pv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={heat:$('heat'),vol:$('vol'),heatV:$('heatV'),volV:$('volV'),
+  sQ:$('sQ'),sW:$('sW'),sU:$('sU'),sT:$('sT'),ledger:$('ledger'),reset:$('reset')};
+
+// ideal monatomic gas, scaled units: nR=1, Cv=1.5, Cp=2.5
+const Cv=1.5, Cp=2.5, Vmin=0.6, Vmax=4, Tmin=40;
+let V=1.5, T=300, Tref=300, Q=0, W=0;
+let trace=[], proc=null, raf=null, last=null, frame=0;
+function Pres(){return T/V;}
+
+function resetTallies(){ Q=0; W=0; Tref=T; trace=[[V,Pres()]]; }
+function resetAll(){ V=1.5; T=300; els.vol.value=1.5; els.volV.textContent='1.50'; els.heat.value=0; els.heatV.textContent='0'; resetTallies(); }
+
+function startProc(type){
+  resetTallies(); const target=Math.min(Vmax, V*1.8);
+  proc={type, t:0, dur:3.2, dVdt:(type==='isochoric')?0:(target-V)/3.2, heat:9};
+  els.heat.value=0; els.heatV.textContent='0';
+}
+
+function physics(dt){
+  let dV=0, dQ=0;
+  if(proc){
+    proc.t+=dt; const P=Pres(), dv=proc.dVdt*dt;
+    if(proc.type==='isochoric'){ dV=0; dQ=proc.heat*dt; }
+    else if(proc.type==='isobaric'){ dV=dv; dQ=Cp*P*proc.dVdt*dt; }
+    else if(proc.type==='isothermal'){ dV=dv; dQ=P*proc.dVdt*dt; }
+    else if(proc.type==='adiabatic'){ dV=dv; dQ=0; }
+    if(proc.t>=proc.dur){ proc=null; els.vol.value=V.toFixed(2); els.volV.textContent=V.toFixed(2); }
+  } else {
+    const Vt=+els.vol.value; dV=(Vt-V)*Math.min(1,dt*7);
+    dQ=(+els.heat.value)*dt*1.6;
+  }
+  const P=Pres(), dW=P*dV, dU=dQ-dW;
+  T+=dU/Cv; V+=dV;
+  if(V<Vmin)V=Vmin; if(V>Vmax)V=Vmax; if(T<Tmin)T=Tmin;
+  Q+=dQ; W+=dW;
+  // record trace
+  const lp=trace[trace.length-1];
+  if(!lp || Math.abs(V-lp[0])>0.01 || Math.abs(Pres()-lp[1])>0.5){ trace.push([V,Pres()]); if(trace.length>500)trace.shift(); }
+}
+
+function cmap(t){ t=Math.max(0,Math.min(1,t)); let r,g,b;
+  if(t<0.5){const u=t/0.5; r=90+(255-90)*u; g=155+(107-155)*u; b=255+(107-255)*u;}
+  else{const u=(t-0.5)/0.5; r=255; g=107+(224-107)*u; b=107+(138-107)*u;}
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+function fit(c,cx,a){const dpr=window.devicePixelRatio||1; const w=c.clientWidth, h=Math.round(c.clientWidth*a);
+  c.width=w*dpr; c.height=h*dpr; c.style.height=h+'px'; cx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function arrow(cx,x0,y0,x1,y1,col,wd){ cx.strokeStyle=col; cx.fillStyle=col; cx.lineWidth=wd; cx.lineCap='round';
+  cx.beginPath();cx.moveTo(x0,y0);cx.lineTo(x1,y1);cx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0), s=5+wd;
+  cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x1-s*Math.cos(a-0.45),y1-s*Math.sin(a-0.45));cx.lineTo(x1-s*Math.cos(a+0.45),y1-s*Math.sin(a+0.45));cx.closePath();cx.fill(); }
+
+function drawSys(){
+  const d=fit(sys,sx,0.42), w=d.w,h=d.h; sx.clearRect(0,0,w,h);
+  const bg=sx.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  sx.fillStyle=bg; sx.fillRect(0,0,w,h);
+  // cylinder on the left
+  const cw=92, cx0=46, cyl=h-30, cylTop=24, cylH=cyl-cylTop;
+  const tnorm=(T-Tmin)/(700-Tmin);
+  const gasFrac=0.1+0.82*((V-Vmin)/(Vmax-Vmin));
+  const gasTop=cyl-cylH*gasFrac;
+  // gas
+  sx.fillStyle=cmap(0.12+0.8*Math.max(0,Math.min(1,tnorm)));
+  sx.fillRect(cx0,gasTop,cw,cyl-gasTop);
+  // gas particles
+  sx.fillStyle='rgba(255,255,255,.4)';
+  for(let i=0;i<22;i++){const gx=cx0+8+((i*47.3)%(cw-16)), gy=gasTop+8+((i*61.7+i*i*13)%Math.max(4,(cyl-gasTop-14))); sx.fillRect(gx,gy,2,2);}
+  // cylinder walls
+  sx.strokeStyle='rgba(255,200,170,.35)'; sx.lineWidth=2;
+  sx.beginPath();sx.moveTo(cx0,cylTop);sx.lineTo(cx0,cyl);sx.lineTo(cx0+cw,cyl);sx.lineTo(cx0+cw,cylTop);sx.stroke();
+  // piston
+  sx.fillStyle='rgba(230,210,220,.92)'; sx.fillRect(cx0-3,gasTop-9,cw+6,9);
+  sx.fillStyle='rgba(230,210,220,.6)'; sx.fillRect(cx0+cw/2-3,gasTop-26,6,18);
+  // burner
+  const hv=+els.heat.value;
+  if(!proc && hv>0 || (proc&&proc.type==='isochoric')||(proc&&proc.type==='isobaric')){
+    for(let f=0;f<3;f++){const fx=cx0+cw*(0.3+0.2*f), fy=cyl+12;
+      const g=sx.createRadialGradient(fx,fy,1,fx,fy,16); g.addColorStop(0,'rgba(255,230,150,.9)'); g.addColorStop(.5,'rgba(255,150,70,.7)'); g.addColorStop(1,'rgba(255,90,60,0)');
+      sx.fillStyle=g; sx.beginPath(); sx.ellipse(fx,fy,7,13,0,0,7); sx.fill();}
+  } else if(!proc && hv<0){
+    sx.fillStyle='rgba(120,190,255,.5)'; for(let f=0;f<3;f++){sx.fillRect(cx0+cw*(0.25+0.22*f),cyl+6,10,10);}
+  }
+  // P,V,T readout
+  sx.fillStyle='rgba(204,166,170,.85)'; sx.font='10px JetBrains Mono, monospace'; sx.textAlign='center'; sx.textBaseline='top';
+  sx.fillText('V='+V.toFixed(2)+'L  P='+Pres().toFixed(0)+'  T='+T.toFixed(0)+'K', cx0+cw/2, cyl+26);
+
+  // energy-flow diagram on the right
+  const bx=cx0+cw+90, by=h*0.5, boxW=120, boxH=64;
+  // system box (ΔU)
+  const dU=Cv*(T-Tref);
+  sx.fillStyle='rgba(98,210,162,.12)'; sx.strokeStyle='rgba(98,210,162,.7)'; sx.lineWidth=1.5;
+  rrect(sx,bx,by-boxH/2,boxW,boxH,10); sx.fill(); sx.stroke();
+  sx.fillStyle='rgba(246,238,240,.9)'; sx.font='600 12px Inter, sans-serif'; sx.textAlign='center'; sx.textBaseline='middle';
+  sx.fillText('GAS', bx+boxW/2, by-12);
+  sx.fillStyle='#8fe7c2'; sx.font='600 13px JetBrains Mono, monospace';
+  sx.fillText('ΔU '+(dU>=0?'+':'')+dU.toFixed(0), bx+boxW/2, by+10);
+  // Q arrow (heat in from left)
+  const qMag=Math.max(0,Math.min(34, Math.abs(Q)*0.5));
+  sx.font='11px JetBrains Mono, monospace'; sx.textAlign='center';
+  if(Q>=0){ arrow(sx, bx-70, by, bx-6, by, '#ff6b6b', 2+qMag*0.12); sx.fillStyle='#ff8a7a'; sx.fillText('Q +'+Q.toFixed(0), bx-40, by-16); }
+  else { arrow(sx, bx-6, by, bx-70, by, '#5a9bff', 2+qMag*0.12); sx.fillStyle='#9bd0f5'; sx.fillText('Q '+Q.toFixed(0), bx-40, by-16); }
+  // W arrow (work out to the right)
+  const wMag=Math.max(0,Math.min(34, Math.abs(W)*0.5));
+  if(W>=0){ arrow(sx, bx+boxW+6, by, bx+boxW+72, by, '#ffd27a', 2+wMag*0.12); sx.fillStyle='#ffd27a'; sx.fillText('W +'+W.toFixed(0), bx+boxW+40, by-16); }
+  else { arrow(sx, bx+boxW+72, by, bx+boxW+6, by, '#ffd27a', 2+wMag*0.12); sx.fillStyle='#ffd27a'; sx.fillText('W '+W.toFixed(0), bx+boxW+40, by-16); }
+  // process label
+  sx.textAlign='left'; sx.textBaseline='top'; sx.font='600 12px Inter, sans-serif'; sx.fillStyle='#ff8a5b';
+  sx.fillText(proc?('▶ '+proc.type+' process'):'sandbox — use the sliders', 16, 10);
+}
+function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+function drawPV(){
+  const d=fit(pv,px,0.5), w=d.w,h=d.h; px.clearRect(0,0,w,h);
+  const bg=px.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1f1422'); bg.addColorStop(1,'#281a24');
+  px.fillStyle=bg; px.fillRect(0,0,w,h);
+  const mL=48,mR=18,mT=16,mB=34,x0=mL,x1=w-mR,y0=h-mB,y1=mT;
+  const Pmax=(700/Vmin)*0.5, Vlo=Vmin*0.9, Vhi=Vmax*1.02;
+  const X=v=>x0+(x1-x0)*((v-Vlo)/(Vhi-Vlo)), Y=p=>y0-(y0-y1)*Math.min(1,p/Pmax);
+  px.strokeStyle='rgba(140,160,220,.10)'; px.lineWidth=1;
+  px.beginPath();px.moveTo(x0,y0);px.lineTo(x1,y0);px.moveTo(x0,y0);px.lineTo(x0,y1);px.stroke();
+  px.fillStyle='rgba(204,166,170,.8)'; px.font='11px Inter, sans-serif';
+  px.textAlign='center'; px.textBaseline='top'; px.fillText('Volume  V →',(x0+x1)/2,y0+16);
+  px.save();px.translate(15,(y0+y1)/2);px.rotate(-Math.PI/2);px.textAlign='center';px.textBaseline='bottom';px.fillText('Pressure  P →',0,0);px.restore();
+  // path
+  if(trace.length>1){ px.strokeStyle='#ff8a5b'; px.lineWidth=2.2; px.beginPath();
+    for(let i=0;i<trace.length;i++){const X0=X(trace[i][0]),Y0=Y(trace[i][1]); i===0?px.moveTo(X0,Y0):px.lineTo(X0,Y0);} px.stroke(); }
+  // current point
+  const cx=X(V), cy=Y(Pres());
+  px.save();px.shadowColor='rgba(255,210,122,.9)';px.shadowBlur=12;px.fillStyle='#ffd27a';px.beginPath();px.arc(cx,cy,6,0,7);px.fill();px.restore();
+  px.fillStyle='rgba(204,166,170,.85)'; px.font='11px Inter, sans-serif'; px.textAlign='left'; px.textBaseline='top';
+  px.fillText('your path through P–V space', x0+4, y1-2);
+}
+
+function meters(){
+  const dU=Cv*(T-Tref);
+  els.sQ.textContent=(Q>=0?'+':'')+Q.toFixed(0);
+  els.sW.textContent=(W>=0?'+':'')+W.toFixed(0);
+  els.sU.textContent=(dU>=0?'+':'')+dU.toFixed(0);
+  els.sT.textContent=T.toFixed(0);
+  els.ledger.innerHTML='<span class="u">ΔU '+(dU>=0?'+':'')+dU.toFixed(0)+'</span> = '+
+    '<span class="q">Q '+(Q>=0?'+':'')+Q.toFixed(0)+'</span> − <span class="w">W '+(W>=0?'+':'')+W.toFixed(0)+'</span>'+
+    ' &nbsp;<b>('+(Q-W).toFixed(0)+')</b>';
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  const sub=4; for(let i=0;i<sub;i++) physics(dt/sub);
+  drawSys(); drawPV();
+  if(++frame%3===0) meters();
+  raf=requestAnimationFrame(loop);
+}
+
+els.heat.addEventListener('input',()=>{ els.heatV.textContent=(+els.heat.value>0?'+':'')+els.heat.value; });
+els.vol.addEventListener('input',()=>{ els.volV.textContent=(+els.vol.value).toFixed(2); if(proc){proc=null;} });
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>startProc(c.dataset.p)));
+els.reset.addEventListener('click',()=>{ proc=null; resetAll(); });
+window.addEventListener('resize',()=>{ drawSys(); drawPV(); });
+
+resetTallies();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

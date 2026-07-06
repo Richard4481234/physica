@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projectile with Air Drag · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:14px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:62px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .pre{display:flex;gap:6px;margin-top:2px;flex-wrap:wrap}
+  .pre button{flex:1;min-width:66px;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:11.5px;padding:7px 5px;border-radius:8px;cursor:pointer}
+  .pre button:hover{border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  button.act.play{background:linear-gradient(135deg,#8fd0ff,#5aa8ee);color:#06203a;border-color:transparent}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Experiment</div>
+    <h1>Projectile with Air Drag</h1>
+    <p>In a vacuum every projectile traces a perfect parabola. Add air resistance and the path shrinks, tilts,
+       and comes down steeper than it went up — real life, not the textbook.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#7cc4ff"></i>with air drag</span><span><i style="background:#9ab2cc"></i>vacuum (ideal parabola)</span><span><i style="background:#67e8a0"></i>velocity</span><span><i style="background:#ff8a5b"></i>drag force</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Launch speed v₀ <span class="val" id="vV">40 m/s</span></label>
+        <div class="row"><input type="range" id="v" min="10" max="80" step="1" value="40"><input type="number" id="vN" min="10" max="80" step="1" value="40"></div></div>
+      <div class="ctl"><label>Launch angle <span class="val" id="aV">45°</span></label>
+        <div class="row"><input type="range" id="ang" min="10" max="80" step="1" value="45"><input type="number" id="angN" min="10" max="80" step="1" value="45"></div></div>
+      <div class="ctl"><label>Air resistance k <span class="val" id="kV">0.010</span></label>
+        <div class="row"><input type="range" id="k" min="0" max="0.04" step="0.001" value="0.01"><input type="number" id="kN" min="0" max="0.04" step="0.001" value="0.01"></div></div>
+      <div class="ctl"><label>Mass m <span class="val" id="mV">1.0 kg</span></label>
+        <div class="row"><input type="range" id="m" min="0.1" max="8" step="0.1" value="1"><input type="number" id="mN" min="0.1" max="8" step="0.1" value="1"></div></div>
+      <div class="ctl"><label>Object presets</label>
+        <div class="pre"><button data-k="0.004" data-m="6">Cannonball</button><button data-k="0.006" data-m="0.15">Baseball</button><button data-k="0.03" data-m="0.1">Beach ball</button></div></div>
+      <div class="btns"><button class="act play" id="play">Replay ▶</button><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Range (drag)</span><span id="sRd">— m</span></div>
+        <div class="s"><span>Range (vacuum)</span><span id="sRv">— m</span></div>
+        <div class="s"><span>Max height (drag)</span><span id="sH">— m</span></div>
+        <div class="s"><span>Flight time (drag)</span><span id="sT">— s</span></div>
+        <div class="s"><span>Terminal velocity</span><span id="sVt">— m/s</span></div>
+        <div class="s"><span>Impact speed · angle</span><span id="sImp">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">—</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      The same launch, shown two ways: the pale dashed curve is the ideal <strong>vacuum</strong> path (a perfect
+      parabola), and the bright curve is the real path <strong>with air resistance</strong>. The moving dot follows
+      the real trajectory, with its velocity (green) and the drag force (orange) drawn on it. Compare where the two
+      land.
+
+      <h3>The drag force</h3>
+      As an object pushes through air, the air pushes back. For anything moving quickly the resistance grows with
+      the <strong>square of the speed</strong> and always points <strong>opposite to the motion</strong>:
+      <div class="eq">F_drag = −k · v · |v|&nbsp;&nbsp;(k = ½ ρ C_d A)</div>
+      Here k bundles up the air density ρ, the object's drag coefficient C_d, and its cross-sectional area A. So the
+      full motion is gravity plus drag:
+      <div class="eq">m a = −m g ĵ − k v |v|</div>
+      There is no tidy formula for this path — it has to be computed step by step (this uses a 4th-order
+      Runge–Kutta integrator). Set <strong>k = 0</strong> and the bright curve snaps exactly onto the vacuum
+      parabola.
+
+      <h3>What air does to the flight</h3>
+      Drag steals energy the whole way, so compared with the vacuum path the projectile flies a
+      <strong>shorter range</strong>, reaches a <strong>lower peak</strong>, and — the striking part — comes down
+      <strong>more steeply than it went up</strong>. The trajectory is no longer symmetric: on the way up drag and
+      gravity both fight the motion, but on the way down drag opposes gravity, so the fall is slower and steeper.
+      Because of this, the range-maximising launch angle in air is a bit <strong>below 45°</strong>, not exactly 45°.
+
+      <h3>Terminal velocity</h3>
+      In a long fall, drag eventually balances gravity and the speed stops increasing — the
+      <strong>terminal velocity</strong>:
+      <div class="eq">k v_t² = m g&nbsp;&nbsp;→&nbsp;&nbsp;v_t = √(m g / k)</div>
+      A dense, streamlined object (cannonball) has a huge terminal velocity and barely notices the air; a light,
+      bluff object (beach ball) has a tiny one and is dominated by drag. Try the presets to feel the difference.
+
+      <h3>Things to try</h3>
+      Start from the vacuum case (k = 0), then raise the air resistance and watch the bright curve peel away from
+      the dashed parabola and steepen on descent. Compare a heavy cannonball with a light beach ball at the same
+      launch. Then hunt for the angle that gives the greatest range with drag on — you'll find it sitting a little
+      under 45°.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=520,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.56);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const G=9.8;
+const st={v0:40, ang:45, k:0.01, m:1};
+let dragPath=[], vacPath=[], info={}, playT=0, dur=1;
+
+function compute(){
+  const a=st.ang*Math.PI/180;
+  // vacuum (analytic points)
+  const vx0=st.v0*Math.cos(a), vy0=st.v0*Math.sin(a);
+  const tf=2*vy0/G;
+  vacPath=[]; for(let i=0;i<=120;i++){ const t=tf*i/120; vacPath.push([vx0*t, vy0*t-0.5*G*t*t]); }
+  const vacRange=vx0*tf, vacApex=vy0*vy0/(2*G);
+  // drag (RK4)
+  const der=s=>{const sp=Math.hypot(s[2],s[3]); return [s[2],s[3], -(st.k/st.m)*sp*s[2], -G-(st.k/st.m)*sp*s[3]];};
+  let s=[0,0,vx0,vy0], t=0, h=0.002, apex=0; dragPath=[[0,0,vx0,vy0,0]];
+  let imp={v:0,ang:0};
+  for(let it=0; it<200000; it++){
+    const k1=der(s),s2=s.map((z,i)=>z+h/2*k1[i]),k2=der(s2),s3=s.map((z,i)=>z+h/2*k2[i]),k3=der(s3),s4=s.map((z,i)=>z+h*k3[i]),k4=der(s4);
+    const ns=s.map((z,i)=>z+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]));
+    if(ns[1]<0){ const f=s[1]/(s[1]-ns[1]); const xl=s[0]+f*(ns[0]-s[0]);
+      const ivx=s[2]+f*(ns[2]-s[2]), ivy=s[3]+f*(ns[3]-s[3]);
+      dragPath.push([xl,0,ivx,ivy,t+f*h]); imp={v:Math.hypot(ivx,ivy),ang:Math.atan2(-ivy,ivx)*180/Math.PI};
+      t=t+f*h; break; }
+    s=ns; t+=h; if(s[1]>apex)apex=s[1];
+    if(it%6===0) dragPath.push([s[0],s[1],s[2],s[3],t]);
+    if(t>60) break;
+  }
+  const dragRange=dragPath[dragPath.length-1][0];
+  const vt = st.k>1e-6? Math.sqrt(st.m*G/st.k) : Infinity;
+  info={vacRange,vacApex,dragRange,dragApex:apex,tflight:t,vt,imp};
+  dur=t; playT=0;
+  refreshStats();
+}
+function refreshStats(){
+  document.getElementById('sRd').textContent=info.dragRange.toFixed(1)+' m';
+  document.getElementById('sRv').textContent=info.vacRange.toFixed(1)+' m';
+  document.getElementById('sH').textContent=info.dragApex.toFixed(1)+' m';
+  document.getElementById('sT').textContent=info.tflight.toFixed(2)+' s';
+  document.getElementById('sVt').textContent=isFinite(info.vt)? info.vt.toFixed(1)+' m/s':'∞ (no drag)';
+  document.getElementById('sImp').textContent=info.imp.v.toFixed(1)+' m/s · '+info.imp.ang.toFixed(0)+'°';
+  const red=100*(1-info.dragRange/info.vacRange);
+  const ve=document.getElementById('verdict');
+  if(st.k<1e-6) ve.textContent='No drag — the path is a perfect parabola matching the vacuum curve exactly.';
+  else ve.textContent=`Air cuts the range by ${red.toFixed(0)}% and the projectile lands at ${info.imp.ang.toFixed(0)}° — steeper than the ${st.ang}° launch.`;
+}
+
+let sc=1, ox=0, oy=0;
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const margin=54, groundY=H-40;
+  const maxX=Math.max(info.vacRange,info.dragRange)*1.06;
+  const maxY=Math.max(info.vacApex,info.dragApex)*1.18;
+  sc=Math.min((W-margin*2)/Math.max(maxX,1), (groundY-30)/Math.max(maxY,1));
+  ox=margin; oy=groundY;
+  const SX=x=>ox+x*sc, SY=y=>oy-y*sc;
+  // ground
+  ctx.strokeStyle='rgba(98,210,162,.5)'; ctx.lineWidth=2; ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke();
+  ctx.fillStyle='rgba(98,210,162,.06)'; ctx.fillRect(0,groundY,W,H-groundY);
+  // distance ticks
+  ctx.fillStyle='rgba(140,160,200,.4)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  const step= maxX>240?50: maxX>120?25:10;
+  for(let d=0; d<=maxX; d+=step){ const x=SX(d); ctx.strokeStyle='rgba(140,160,220,.12)'; ctx.beginPath();ctx.moveTo(x,groundY);ctx.lineTo(x,SY(maxY));ctx.stroke();
+    ctx.fillStyle='rgba(140,160,200,.4)'; ctx.fillText(d+'m',x,groundY+14); }
+  ctx.textAlign='left';
+  // vacuum path (dashed)
+  ctx.strokeStyle='rgba(154,178,204,.55)'; ctx.lineWidth=1.6; ctx.setLineDash([5,6]); ctx.beginPath();
+  vacPath.forEach((p,i)=>{const x=SX(p[0]),y=SY(p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); ctx.stroke(); ctx.setLineDash([]);
+  // vacuum landing marker
+  ctx.fillStyle='rgba(154,178,204,.7)'; ctx.beginPath();ctx.arc(SX(info.vacRange),groundY,4,0,7);ctx.fill();
+  // drag path (glow)
+  ctx.save(); ctx.shadowColor='rgba(124,196,255,.6)'; ctx.shadowBlur=8;
+  ctx.strokeStyle='#7cc4ff'; ctx.lineWidth=2.6; ctx.beginPath();
+  dragPath.forEach((p,i)=>{const x=SX(p[0]),y=SY(p[1]); i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); ctx.stroke(); ctx.restore();
+  ctx.fillStyle='#7cc4ff'; ctx.beginPath();ctx.arc(SX(info.dragRange),groundY,4.5,0,7);ctx.fill();
+  // apex markers
+  ctx.fillStyle='rgba(255,210,122,.7)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  // moving projectile along drag path
+  const p=sampleDrag(playT);
+  if(p){ const X=SX(p.x), Y=SY(p.y);
+    // vectors
+    const sp=Math.hypot(p.vx,p.vy);
+    arrow(X,Y, p.vx, p.vy, Math.min(60,8+sp*0.7), '#67e8a0', 2.4);       // velocity (note: world y up)
+    const dmag=(st.k/st.m)*sp; arrow(X,Y, -p.vx, -p.vy, Math.min(55,dmag*sp*3+6), '#ff8a5b', 2.4); // drag opposes v
+    arrow(X,Y, 0, -1, 20, 'rgba(154,178,204,.8)', 2);                    // gravity (down on screen)
+    // ball
+    ctx.save(); ctx.shadowColor='rgba(124,196,255,.9)'; ctx.shadowBlur=12;
+    const g=ctx.createRadialGradient(X-2,Y-2,1,X,Y,7); g.addColorStop(0,'#fff'); g.addColorStop(.5,'#8fd0ff'); g.addColorStop(1,'#3a78c0');
+    ctx.fillStyle=g; ctx.beginPath();ctx.arc(X,Y,6.5,0,7);ctx.fill(); ctx.restore();
+  }
+  ctx.textAlign='left';
+  requestAnimationFrame(()=>{});
+}
+function arrow(x,y,ux,uy,len,col,w){ // ux,uy in world coords (y up); convert to screen (y down)
+  const m=Math.hypot(ux,uy)||1, dx=ux/m, dy=-uy/m; ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx*len,y+dy*len);ctx.stroke();
+  const ex=x+dx*len,ey=y+dy*len,a=Math.atan2(dy,dx);
+  ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-8*Math.cos(a-0.4),ey-8*Math.sin(a-0.4));ctx.lineTo(ex-8*Math.cos(a+0.4),ey-8*Math.sin(a+0.4));ctx.closePath();ctx.fill();
+}
+function sampleDrag(tt){
+  if(dragPath.length<2) return null;
+  const T=dragPath[dragPath.length-1][4];
+  const u=Math.min(tt,T);
+  // find segment by time
+  for(let i=1;i<dragPath.length;i++){ if(dragPath[i][4]>=u){ const p0=dragPath[i-1],p1=dragPath[i];
+    const f=(u-p0[4])/((p1[4]-p0[4])||1);
+    return {x:p0[0]+f*(p1[0]-p0[0]), y:p0[1]+f*(p1[1]-p0[1]), vx:p0[2]+f*(p1[2]-p0[2]), vy:p0[3]+f*(p1[3]-p0[3])}; } }
+  const l=dragPath[dragPath.length-1]; return {x:l[0],y:l[1],vx:l[2],vy:l[3]};
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts;
+  playT+=dt; if(playT>dur+0.6) playT=0; draw(); requestAnimationFrame(loop); }
+
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); compute();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('v','vN','v0','vV',v=>v+' m/s');
+bind('ang','angN','ang','aV',v=>Math.round(v)+'°');
+bind('k','kN','k','kV',v=>(+v).toFixed(3));
+bind('m','mN','m','mV',v=>(+v).toFixed(1)+' kg');
+document.querySelectorAll('.pre button').forEach(b=>b.addEventListener('click',()=>{
+  const kk=+b.dataset.k, mm=+b.dataset.m;
+  st.k=kk; st.m=mm;
+  document.getElementById('k').value=kk; document.getElementById('kN').value=kk; document.getElementById('kV').textContent=kk.toFixed(3);
+  document.getElementById('m').value=mm; document.getElementById('mN').value=mm; document.getElementById('mV').textContent=mm.toFixed(1)+' kg';
+  compute();
+}));
+document.getElementById('play').addEventListener('click',()=>{playT=0;});
+document.getElementById('reset').addEventListener('click',()=>{
+  st.v0=40;st.ang=45;st.k=0.01;st.m=1;
+  for(const[id,val,f] of [['v',40,v=>v+' m/s'],['ang',45,v=>v+'°'],['k',0.01,v=>(+v).toFixed(3)],['m',1,v=>(+v).toFixed(1)+' kg']]){
+    document.getElementById(id).value=val; document.getElementById(id+'N').value=val; document.getElementById(id+'V').textContent=f(val);}
+  compute();
+});
+window.addEventListener('resize',fit);
+fit(); compute(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Torque &amp; Levers · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.14),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.07),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#9bd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#06203a;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Experiment</div>
+    <h1>Torque &amp; Levers — the Seesaw</h1>
+    <p>Slide two masses along a balanced beam and find the exact spot where they cancel. Torque is force times
+       distance — which is why a child far from the pivot can hold up an adult sitting close in.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#7cc4ff"></i>mass 1 · torque τ₁ (counter-clockwise)</span><span><i style="background:#ffd27a"></i>mass 2 · torque τ₂ (clockwise)</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Mass 1 (left) <span class="val" id="m1V">4.0 kg</span></label>
+        <div class="row"><input type="range" id="m1" min="0.5" max="10" step="0.5" value="4"><input type="number" id="m1N" min="0.5" max="10" step="0.5" value="4"></div></div>
+      <div class="ctl"><label>Distance d₁ (left) <span class="val" id="d1V">1.50 m</span></label>
+        <div class="row"><input type="range" id="d1" min="0.2" max="2.5" step="0.05" value="1.5"><input type="number" id="d1N" min="0.2" max="2.5" step="0.05" value="1.5"></div></div>
+      <div class="ctl"><label>Mass 2 (right) <span class="val" id="m2V">3.0 kg</span></label>
+        <div class="row"><input type="range" id="m2" min="0.5" max="10" step="0.5" value="3"><input type="number" id="m2N" min="0.5" max="10" step="0.5" value="3"></div></div>
+      <div class="ctl"><label>Distance d₂ (right) <span class="val" id="d2V">2.00 m</span></label>
+        <div class="row"><input type="range" id="d2" min="0.2" max="2.5" step="0.05" value="2"><input type="number" id="d2N" min="0.2" max="2.5" step="0.05" value="2"></div></div>
+      <div class="stats">
+        <div class="s"><span>Left torque τ₁ = m₁g·d₁</span><span id="sTL">—</span></div>
+        <div class="s"><span>Right torque τ₂ = m₂g·d₂</span><span id="sTR">—</span></div>
+        <div class="s"><span>Net torque (CW positive)</span><span id="sNet">—</span></div>
+        <div class="s"><span>Balance needs</span><span id="sBal">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Balanced: m₁d₁ = m₂d₂ — the torques cancel.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A rigid beam pivots on a central fulcrum, with a mass on each side that you can move and resize. If the
+      turning effects cancel, the beam floats level; otherwise it tips toward the winning side and rests against
+      its stop. The curved arrows show each side's torque and direction.
+
+      <h3>Torque: force times leverage</h3>
+      A force's ability to rotate something depends not just on how hard it pushes but on <strong>how far from
+      the pivot</strong> it acts:
+      <div class="eq">τ = F · d = m·g·d</div>
+      Doubling the distance doubles the torque as surely as doubling the force — which is why door handles sit far
+      from the hinges and wrenches have long handles.
+
+      <h3>Static equilibrium</h3>
+      The beam is in equilibrium when the net force <em>and</em> the net torque are both zero. The pivot supplies
+      the force balance automatically, so the whole problem reduces to the torques:
+      <div class="eq">m₁·g·d₁ = m₂·g·d₂&nbsp;&nbsp;⇒&nbsp;&nbsp;m₁d₁ = m₂d₂</div>
+      Gravity cancels out: only the mass-distance products matter. A 3 kg mass at 2 m holds a 4 kg mass at 1.5 m —
+      6 kg·m each side.
+
+      <h3>The law of the lever</h3>
+      This is Archimedes' machine: a small force far from the pivot balances (or lifts) a large force close in,
+      trading <strong>distance for force</strong>. The mechanical advantage is d₁/d₂ — but as with the hydraulic
+      press, energy is conserved: the far end sweeps a proportionally longer arc, so force × distance comes out
+      even. "Give me a place to stand," Archimedes said, "and I shall move the Earth."
+
+      <h3>Things to try</h3>
+      Balance unequal masses by sliding the lighter one outward until m₁d₁ = m₂d₂ exactly. Then double both
+      distances — still balanced, since both torques doubled. Park a 10 kg mass at 0.5 m and hold it with just
+      2.5 kg at 2 m: a 4× lever.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const g=9.8, MAXTH=0.22;
+const st={m1:4, d1:1.5, m2:3, d2:2.0};
+let th=0, om=0;
+function tauL(){ return st.m1*g*st.d1; }
+function tauR(){ return st.m2*g*st.d2; }
+function balanced(){ return Math.abs(st.m1*st.d1-st.m2*st.d2) < 0.015*Math.max(st.m1*st.d1,st.m2*st.d2,0.1); }
+function update(dt){
+  const I=st.m1*st.d1*st.d1 + st.m2*st.d2*st.d2 + 6;
+  const net=(tauR()-tauL())*Math.cos(th);
+  const alpha=net/I - 2.0*om;
+  om+=alpha*dt; th+=om*dt;
+  if(th>MAXTH){th=MAXTH; if(om>0)om=0;}
+  if(th<-MAXTH){th=-MAXTH; if(om<0)om=0;}
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, py=H*0.62, SC=Math.min(W*0.17,150);   // px per metre
+  // ground + pivot
+  ctx.fillStyle='rgba(140,180,220,.15)'; ctx.fillRect(0,py+46,W,4);
+  ctx.beginPath(); ctx.moveTo(cx,py); ctx.lineTo(cx-26,py+48); ctx.lineTo(cx+26,py+48); ctx.closePath();
+  ctx.fillStyle='rgba(124,196,255,.25)'; ctx.fill();
+  ctx.strokeStyle='#7cc4ff'; ctx.lineWidth=1.6; ctx.stroke();
+  // beam (rotated)
+  const half=2.7*SC;
+  ctx.save(); ctx.translate(cx,py); ctx.rotate(th);
+  ctx.fillStyle='rgba(238,244,251,.9)'; ctx.fillRect(-half,-5,2*half,10);
+  // ruler ticks every 0.5 m
+  ctx.fillStyle='rgba(10,20,36,.8)';
+  for(let d=-2.5;d<=2.5;d+=0.5){ ctx.fillRect(d*SC-0.7,-5,1.4,10); }
+  // masses (blocks sitting on beam)
+  function block(d,m,col){
+    const bw=26+m*4, bh=20+m*5, x=d*SC;
+    ctx.fillStyle=col; ctx.strokeStyle='rgba(238,244,251,.6)'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.rect(x-bw/2,-5-bh,bw,bh); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#0a1424'; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText(m.toFixed(1)+'kg', x, -5-bh/2+4);
+  }
+  block(-st.d1, st.m1, '#7cc4ff');
+  block(+st.d2, st.m2, '#ffd27a');
+  ctx.restore();
+  // distance labels under beam ends (screen space)
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillStyle='#7cc4ff'; ctx.fillText('d₁ = '+st.d1.toFixed(2)+' m', cx-st.d1*SC*Math.cos(th), py+72);
+  ctx.fillStyle='#ffd27a'; ctx.fillText('d₂ = '+st.d2.toFixed(2)+' m', cx+st.d2*SC*Math.cos(th), py+72);
+  // torque arc arrows around pivot
+  function torqArc(ccw,mag,col){
+    const r=34+Math.min(26,mag*0.35);
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2;
+    const a0=ccw? 0.4 : Math.PI-0.4, a1=ccw? -0.9 : Math.PI+0.9;
+    ctx.beginPath(); ctx.arc(cx,py,r,a0,a1,ccw); ctx.stroke();
+    const ea=a1;
+    const ex=cx+r*Math.cos(ea), ey=py+r*Math.sin(ea);
+    const tx=-Math.sin(ea)*(ccw?-1:1), ty=Math.cos(ea)*(ccw?-1:1);
+    ctx.beginPath(); ctx.moveTo(ex+tx*9,ey+ty*9);
+    ctx.lineTo(ex-ty*4.5,ey+tx*4.5); ctx.lineTo(ex+ty*4.5,ey-tx*4.5); ctx.closePath(); ctx.fill();
+  }
+  torqArc(true, tauL(), 'rgba(124,196,255,.8)');    // left mass turns beam CCW
+  torqArc(false, tauR(), 'rgba(255,210,122,.8)');   // right mass turns beam CW
+  ctx.font='11.5px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillStyle='#7cc4ff'; ctx.fillText('τ₁ = m₁g·d₁ = '+tauL().toFixed(1)+' N·m ↺', 16, 24);
+  ctx.fillStyle='#ffd27a'; ctx.fillText('τ₂ = m₂g·d₂ = '+tauR().toFixed(1)+' N·m ↻', 16, 42);
+  const state = balanced()? 'BALANCED' : (tauL()>tauR()?'left side wins':'right side wins');
+  ctx.fillStyle = balanced()? '#67e8a0':'rgba(238,244,251,.8)';
+  ctx.fillText(state, 16, 60);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); requestAnimationFrame(loop); }
+function updateStats(){
+  document.getElementById('sTL').textContent=tauL().toFixed(1)+' N·m';
+  document.getElementById('sTR').textContent=tauR().toFixed(1)+' N·m';
+  document.getElementById('sNet').textContent=(tauR()-tauL()).toFixed(1)+' N·m';
+  document.getElementById('sBal').textContent='d₂ = '+(st.m1*st.d1/st.m2).toFixed(2)+' m';
+  const ve=document.getElementById('verdict');
+  if(balanced()) ve.textContent='Balanced: m₁d₁ = m₂d₂ — the torques cancel, so a small mass far out holds a big mass close in. That is the whole secret of the lever.';
+  else if(tauL()>tauR()) ve.textContent='Left side wins: τ₁ = '+tauL().toFixed(1)+' > τ₂ = '+tauR().toFixed(1)+' N·m. Slide the right mass outward (bigger d₂) or add mass — torque is force × distance, and distance is cheap.';
+  else ve.textContent='Right side wins: τ₂ = '+tauR().toFixed(1)+' > τ₁ = '+tauL().toFixed(1)+' N·m. Balance needs m₁d₁ = m₂d₂ → d₂ = '+(st.m1*st.d1/st.m2).toFixed(2)+' m.';
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('m1','m1N','m1','m1V',v=>(+v).toFixed(1)+' kg');
+bind('d1','d1N','d1','d1V',v=>(+v).toFixed(2)+' m');
+bind('m2','m2N','m2','m2V',v=>(+v).toFixed(1)+' kg');
+bind('d2','d2N','d2','d2V',v=>(+v).toFixed(2)+' m');
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinetic Theory of Gases · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#120c12; --bg-1:#1c1320;
+    --glass:rgba(46,30,38,0.55); --glass-line:rgba(220,160,140,0.16);
+    --ink:#f6eef0; --muted:#cca6aa; --faint:#9a7670;
+    --accent:#ff8a5b; --accent-soft:#9c4a2e; --gold:#ffd27a;
+    --cool:#5a9bff; --warm:#ff6b6b; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,138,91,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .num{width:60px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(255,138,91,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(255,138,91,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(255,138,91,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .actions{display:flex; flex-direction:column; gap:10px; margin-top:6px}
+  .btn{width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#2a1206; background:linear-gradient(135deg,#ffb37a,#ff8a5b); box-shadow:0 8px 24px -8px rgba(255,138,91,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:18px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  #hist{margin-top:14px}
+  .caption{margin:8px 4px 0; font-size:12px; color:var(--faint)}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .swatch{width:26px; height:11px; border-radius:3px; background:linear-gradient(90deg,#5a9bff,#ff6b6b)}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.cool::before{background:var(--cool)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(255,138,91,.25),rgba(255,138,91,.08)); border:1px solid rgba(255,138,91,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .gold{color:var(--gold)} .ex-body .cool{color:var(--cool)} .ex-body .warm{color:var(--warm)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(255,138,91,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="thermal.html" class="back">← Thermal</a>
+    <div class="kicker">Statistical Mechanics</div>
+    <h1>Kinetic Theory of Gases</h1>
+  </div>
+  <div class="sub">Watch molecules collide, and see temperature, pressure and the Maxwell–Boltzmann distribution emerge.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Gas</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Particles</span>
+        <span class="val"><input id="nNum" class="num" type="number" min="20" max="240" step="10" value="140"></span></div>
+      <input id="n" type="range" min="20" max="240" step="10" value="140">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Temperature</span>
+        <span class="val"><input id="tNum" class="num" type="number" min="1" max="10" step="1" value="5"></span></div>
+      <input id="temp" type="range" min="1" max="10" step="1" value="5">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Volume (piston)</span>
+        <span class="val"><span id="volV">100</span><em>%</em></span></div>
+      <input id="vol" type="range" min="50" max="100" step="5" value="100">
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="pause">Pause ⏸</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:16px 0 0">
+      Heat the gas and molecules speed up; squeeze the piston and they hit the walls more often, raising the
+      pressure. The histogram shows how many molecules move at each speed.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <canvas id="hist"></canvas>
+    <div class="caption">Speed distribution (bars) vs the theoretical Maxwell–Boltzmann curve (line) — they match once the gas thermalizes.</div>
+    <div class="legend">
+      <span><i class="swatch"></i>slow → fast</span>
+      <span style="margin-left:auto;color:var(--faint)">Colour shows each molecule's speed</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Particles</div><div class="v" id="sN">140</div></div>
+      <div class="stat gold"><div class="k">Temperature</div><div class="v"><span id="sT">0</span><em>arb.</em></div></div>
+      <div class="stat cool"><div class="k">Mean speed</div><div class="v"><span id="sV">0</span><em>px/s</em></div></div>
+      <div class="stat green"><div class="k">Pressure</div><div class="v"><span id="sP">0</span><em>arb.</em></div></div>
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A gas is nothing but a swarm of tiny molecules in ceaseless, random motion, colliding with each
+           other and the walls. The <b>kinetic theory</b> explains the everyday properties of a gas —
+           temperature and pressure — purely from this molecular motion. Each dot is a molecule; collisions
+           here are <b>elastic</b>, conserving energy and momentum.</p>
+
+        <h4>Temperature is motion</h4>
+        <p>Temperature is just a measure of the <b>average kinetic energy</b> of the molecules. In two
+           dimensions:</p>
+        <div class="ex-eq">
+          ½ m⟨v²⟩ = k_B · T <span class="lbl">average KE ∝ temperature</span>
+        </div>
+        <p>Turn up the <span class="warm">temperature</span> and every molecule speeds up; the colours (blue =
+           slow, red = fast) shift warmer and the whole distribution slides to higher speeds.</p>
+
+        <h4>Pressure is collisions</h4>
+        <p>Pressure isn't a substance pushing on the walls — it's the <b>combined drumbeat of molecules
+           bouncing off them</b>. Each impact delivers a tiny impulse; billions per second add up to a steady
+           force. Squeeze the <b>piston</b> to shrink the volume and the molecules strike the walls more
+           often, so the pressure rises — exactly the ideal gas law:</p>
+        <div class="ex-eq">
+          P · V = N · k_B · T <span class="lbl">pressure × volume = particles × temperature</span>
+        </div>
+
+        <h4>The Maxwell–Boltzmann distribution</h4>
+        <p>Even if every molecule starts at the <b>same speed</b>, collisions quickly randomize them: some get
+           a lucky double-hit and speed up, others slow down. The result is a characteristic spread of speeds —
+           the <b>Maxwell–Boltzmann distribution</b>. The histogram fills in as the gas <b>thermalizes</b>, and
+           the smooth curve is the theoretical prediction for the current temperature. A few molecules are very
+           slow, a few very fast, and most cluster near a typical speed.</p>
+
+        <h4>Things to try</h4>
+        <p>Watch the histogram right after a Reset: it starts as a single spike (all the same speed) and
+           spreads into the smooth bell-like curve within a second or two. Raise the temperature and the whole
+           curve shifts right and flattens. Shrink the volume and watch the pressure climb.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const hc=document.getElementById('hist'), hx=hc.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={n:$('n'),temp:$('temp'),vol:$('vol'),nNum:$('nNum'),tNum:$('tNum'),volV:$('volV'),
+  sN:$('sN'),sT:$('sT'),sV:$('sV'),sP:$('sP'),pause:$('pause'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+const PAD=14, PR=3.6;
+let box={x:PAD,y:PAD,w:100,h:100};
+let P=[], playing=true, raf=null, last=null, frame=0;
+let imp=0, pSmooth=0;
+
+function fit(c,cx,aspect){const dpr=window.devicePixelRatio||1; const w=c.clientWidth, h=Math.round(c.clientWidth*aspect);
+  c.width=w*dpr; c.height=h*dpr; c.style.height=h+'px'; cx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function volFrac(){return clampNum(els.vol)/100;}
+function rightB(){return box.x+box.w*volFrac();}
+function targetSpeed(){return 34+clampNum(els.tNum)*24;}   // px/s mean
+
+function init(){
+  const d=fit(cv,ctx,0.5); box={x:PAD,y:PAD,w:d.w-2*PAD,h:d.h-2*PAD};
+  const N=clampNum(els.nNum), sp=targetSpeed(), rb=rightB();
+  P=[];
+  for(let i=0;i<N;i++){
+    const a=Math.random()*Math.PI*2;
+    P.push({x:box.x+PR+Math.random()*(rb-box.x-2*PR), y:box.y+PR+Math.random()*(box.h-2*PR),
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp});
+  }
+  imp=0; pSmooth=0; els.sN.textContent=N;
+}
+
+function walls(p){
+  const rb=rightB();
+  if(p.x<box.x+PR){p.x=box.x+PR; p.vx=Math.abs(p.vx); imp+=2*Math.abs(p.vx);}
+  if(p.x>rb-PR){p.x=rb-PR; p.vx=-Math.abs(p.vx); imp+=2*Math.abs(p.vx);}
+  if(p.y<box.y+PR){p.y=box.y+PR; p.vy=Math.abs(p.vy); imp+=2*Math.abs(p.vy);}
+  if(p.y>box.y+box.h-PR){p.y=box.y+box.h-PR; p.vy=-Math.abs(p.vy); imp+=2*Math.abs(p.vy);}
+}
+function collide(){
+  const D=2*PR, D2=D*D;
+  for(let i=0;i<P.length;i++){const a=P[i];
+    for(let j=i+1;j<P.length;j++){const b=P[j];
+      let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy;
+      if(d2<D2 && d2>1e-9){
+        const d=Math.sqrt(d2), nx=dx/d, ny=dy/d, ov=D-d;
+        a.x-=nx*ov/2; a.y-=ny*ov/2; b.x+=nx*ov/2; b.y+=ny*ov/2;
+        const dvx=a.vx-b.vx, dvy=a.vy-b.vy, vn=dvx*nx+dvy*ny;
+        if(vn>0){ a.vx-=vn*nx; a.vy-=vn*ny; b.vx+=vn*nx; b.vy+=vn*ny; }
+      }
+    }
+  }
+}
+function stepSim(dt){
+  for(const p of P){ p.x+=p.vx*dt; p.y+=p.vy*dt; }
+  collide();
+  for(const p of P) walls(p);
+}
+
+function meanStats(){
+  let sv=0,sv2=0,mx=0;
+  for(const p of P){const v=Math.hypot(p.vx,p.vy); sv+=v; sv2+=v*v; if(v>mx)mx=v;}
+  const n=P.length||1;
+  return {mean:sv/n, mv2:sv2/n, max:mx};
+}
+
+function vcolor(v,vref){ let t=Math.max(0,Math.min(1,v/vref));
+  const r=Math.round(90+(255-90)*t), g=Math.round(155+(107-155)*t), b=Math.round(255+(107-255)*t);
+  return 'rgb('+r+','+g+','+b+')'; }
+
+function render(){
+  const d={w:cv.clientWidth,h:Math.round(cv.clientWidth*0.5)};
+  ctx.clearRect(0,0,d.w,d.h);
+  const bg=ctx.createLinearGradient(0,0,0,d.h);
+  bg.addColorStop(0,'#241526'); bg.addColorStop(1,'#2a1a22');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,d.w,d.h);
+  const rb=rightB();
+  // outside-piston region
+  if(rb<box.x+box.w){ ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(rb,box.y-2,box.x+box.w-rb+2,box.h+4); }
+  // box
+  ctx.strokeStyle='rgba(255,200,170,.3)'; ctx.lineWidth=2; ctx.strokeRect(box.x,box.y,box.w,box.h);
+  // piston
+  if(rb<box.x+box.w){
+    ctx.fillStyle='rgba(255,210,122,.9)'; ctx.fillRect(rb-3,box.y,6,box.h);
+    ctx.fillStyle='rgba(255,210,122,.35)'; ctx.fillRect(rb+3,box.y+box.h/2-14,10,28);
+  }
+  const st=meanStats(), vref=Math.max(1,1.7*st.mean);
+  for(const p of P){
+    const v=Math.hypot(p.vx,p.vy);
+    ctx.fillStyle=vcolor(v,vref);
+    ctx.beginPath();ctx.arc(p.x,p.y,PR,0,7);ctx.fill();
+  }
+  drawHist(st);
+}
+
+function drawHist(st){
+  const d=fit(hc,hx,0.3); const w=d.w,h=d.h, padL=8, padR=8, padT=14, padB=22;
+  hx.clearRect(0,0,w,h);
+  hx.fillStyle='rgba(255,255,255,.02)'; hx.fillRect(0,0,w,h);
+  const bins=26, vmax=Math.max(1,1.05*st.max), bw=vmax/bins;
+  const counts=new Array(bins).fill(0);
+  for(const p of P){const v=Math.hypot(p.vx,p.vy); let bi=Math.floor(v/bw); if(bi>=bins)bi=bins-1; if(bi<0)bi=0; counts[bi]++;}
+  // theoretical 2D Maxwell-Boltzmann (Rayleigh): f(v)=(v/s2)exp(-v^2/2s2), s2=<v^2>/2
+  const s2=Math.max(1e-6, st.mv2/2), N=P.length;
+  const exp=new Array(bins);
+  for(let i=0;i<bins;i++){const vc=(i+0.5)*bw; exp[i]=N*( (vc/s2)*Math.exp(-vc*vc/(2*s2)) )*bw;}
+  let mx=0; for(let i=0;i<bins;i++){ if(counts[i]>mx)mx=counts[i]; if(exp[i]>mx)mx=exp[i]; }
+  mx=Math.max(1,mx*1.15);
+  const plotW=w-padL-padR, plotH=h-padT-padB, x0=padL, y0=h-padB;
+  const X=i=>x0+plotW*(i/bins), Y=c=>y0-plotH*(c/mx);
+  // bars
+  for(let i=0;i<bins;i++){
+    const bx=X(i), bx2=X(i+1), by=Y(counts[i]);
+    const t=(i+0.5)/bins;
+    hx.fillStyle=vcolor((i+0.5)*bw, Math.max(1,1.7*st.mean));
+    hx.globalAlpha=.55; hx.fillRect(bx+1,by,Math.max(1,bx2-bx-2),y0-by); hx.globalAlpha=1;
+  }
+  // MB curve
+  hx.strokeStyle='#ffd27a'; hx.lineWidth=2; hx.beginPath();
+  for(let i=0;i<bins;i++){const px=X(i+0.5), py=Y(exp[i]); i===0?hx.moveTo(px,py):hx.lineTo(px,py);}
+  hx.stroke();
+  // axis
+  hx.strokeStyle='rgba(255,200,170,.25)'; hx.lineWidth=1;
+  hx.beginPath();hx.moveTo(x0,y0);hx.lineTo(x0+plotW,y0);hx.stroke();
+  hx.fillStyle='rgba(204,166,170,.8)'; hx.font='10px JetBrains Mono, monospace'; hx.textAlign='left'; hx.textBaseline='top';
+  hx.fillText('number of molecules  ↑', x0+2, padT-12<0?2:padT-10);
+  hx.textAlign='right'; hx.fillText('molecular speed →', x0+plotW, y0+6);
+}
+
+function meters(){
+  const st=meanStats();
+  els.sT.textContent=(0.5*st.mv2/100).toFixed(1);
+  els.sV.textContent=Math.round(st.mean);
+  const peri=2*((rightB()-box.x)+box.h);
+  els.sP.textContent=(pSmooth/peri*40).toFixed(1);
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.045)dt=0.045; dt*=(window.SLOWMO||1);
+  if(playing){
+    imp=0; const sub=2; for(let i=0;i<sub;i++) stepSim(dt/sub);
+    const pRate=imp/Math.max(1e-3,dt); pSmooth+=(pRate-pSmooth)*0.08;
+  }
+  render();
+  if(++frame%3===0) meters();
+  raf=requestAnimationFrame(loop);
+}
+
+// ── controls ──
+function rescaleTo(sp){
+  const st=meanStats(); const cur=st.mean||1; const f=sp/cur;
+  for(const p of P){ p.vx*=f; p.vy*=f; }
+}
+function linkSlider(slider,num,after){slider.addEventListener('input',()=>{num.value=slider.value; after();});}
+function linkNum(num,slider,after){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value); if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v)); after();});
+  num.addEventListener('change',()=>{num.value=clampNum(num); slider.value=num.value; after();});
+}
+// N change rebuilds; T change rescales speeds; volume just moves the wall
+linkSlider(els.n,els.nNum,()=>init());
+linkNum(els.nNum,els.n,()=>init());
+linkSlider(els.temp,els.tNum,()=>rescaleTo(targetSpeed()));
+linkNum(els.tNum,els.temp,()=>rescaleTo(targetSpeed()));
+function volUpdate(){ els.volV.textContent=els.vol.value; /* keep particles inside on shrink */
+  const rb=rightB(); for(const p of P){ if(p.x>rb-PR){p.x=rb-PR; p.vx=-Math.abs(p.vx);} } }
+els.vol.addEventListener('input',volUpdate);
+
+els.pause.addEventListener('click',()=>{ playing=!playing; els.pause.textContent= playing?'Pause ⏸':'Play ▶'; });
+els.reset.addEventListener('click',()=>{ init(); });
+window.addEventListener('resize',()=>{ init(); });
+
+init();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

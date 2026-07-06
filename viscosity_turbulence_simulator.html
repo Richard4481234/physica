@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viscosity &amp; Turbulence · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#06121a; --bg-1:#0a1e2b;
+    --glass:rgba(18,42,56,0.55); --glass-line:rgba(120,200,220,0.16);
+    --ink:#eaf7fb; --muted:#9ec6d4; --faint:#6a93a3;
+    --accent:#56ccde; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(86,204,222,0.16), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(86,204,222,0.07), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#7fe0ee,#56ccde); box-shadow:0 6px 18px -6px rgba(86,204,222,.8); color:#062029; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#04101a}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:16px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(86,204,222,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eafcff; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eafcff; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:72px; background:rgba(6,18,28,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px}
+  .seg button{flex:1; background:rgba(6,18,28,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(86,204,222,.2); border-color:rgba(86,204,222,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(86,204,222,.12); border:1px solid rgba(86,204,222,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(86,204,222,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13.5px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(6,18,28,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="fluids.html">← Fluid</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Fluid · Experiment</div>
+    <h1>Viscosity &amp; Turbulence</h1>
+    <p>Watch fluid stream past a cylinder. Turn viscosity up and the flow glides past in smooth laminar
+       sheets; turn it down and the wake breaks into a marching street of vortices, then full turbulence.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Flow speed <span class="val" id="uV">1.4</span></label>
+        <div class="row"><input type="range" id="u" min="0.3" max="3" step="0.05" value="1.4">
+          <input type="number" id="uN" min="0.3" max="3" step="0.05" value="1.4"></div>
+      </div>
+      <div class="ctl">
+        <label>Viscosity <span class="val" id="nuV">1.1</span></label>
+        <div class="row"><input type="range" id="nu" min="0.15" max="8" step="0.05" value="1.1">
+          <input type="number" id="nuN" min="0.15" max="8" step="0.05" value="1.1"></div>
+      </div>
+      <div class="ctl">
+        <label>Cylinder size <span class="val" id="dV">1.0</span></label>
+        <div class="row"><input type="range" id="d" min="0.6" max="1.8" step="0.05" value="1.0">
+          <input type="number" id="dN" min="0.6" max="1.8" step="0.05" value="1.0"></div>
+      </div>
+      <div class="ctl">
+        <label>Show</label>
+        <div class="seg"><button id="tVort" class="on">Vortices</button><button id="tProf" class="on">Profile</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Reynolds number Re</span><span id="sRe">204</span></div>
+        <div class="s"><span>Re = ρ·v·D / μ</span><span id="sReF">—</span></div>
+        <div class="s"><span>Shedding (Strouhal)</span><span id="sSt">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Laminar vortex street.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A steady stream of fluid flows from left to right past a fixed circular cylinder. The drifting dots are
+      <strong>tracer particles</strong> carried along by the flow — their trails reveal the streamlines.
+      Whether the flow stays smooth or breaks up depends on a tug-of-war between two effects: the fluid's
+      <strong>inertia</strong> (which wants to keep moving and tumble) and its <strong>viscosity</strong>
+      (internal friction, which wants to smooth everything out).
+
+      <h3>Viscosity</h3>
+      Viscosity is a fluid's resistance to flowing — honey is very viscous, water much less so, air less still.
+      It arises because neighbouring layers of fluid moving at different speeds drag on one another. Newton's law
+      of viscosity captures this shear stress:
+      <div class="eq">τ = μ (dv/dy)</div>
+      where μ is the viscosity and dv/dy is the velocity gradient between layers. Turn the viscosity up in the
+      simulation and the fluid moves in orderly, parallel sheets — <strong>laminar flow</strong>.
+
+      <h3>The Reynolds number</h3>
+      The single number that decides the character of the flow is the dimensionless <strong>Reynolds number</strong>:
+      <div class="eq">Re = ρ v D / μ = (inertial forces) / (viscous forces)</div>
+      with ρ the density, v the speed, D the cylinder diameter and μ the viscosity. <strong>Low Re</strong>
+      (thick fluid, slow flow, small body) means viscosity dominates and the flow is smooth and laminar.
+      <strong>High Re</strong> means inertia wins and the flow becomes unsteady and chaotic —
+      <strong>turbulent</strong>. Because v and D are on top and μ is on the bottom, you can reach the same Re by
+      speeding up the flow, shrinking the viscosity, or growing the cylinder.
+
+      <h3>The story as Re climbs</h3>
+      <strong>Re &lt; 5:</strong> creeping (Stokes) flow — the streamlines slip around the cylinder almost
+      symmetrically. <strong>Re ≈ 5–40:</strong> two steady eddies sit attached behind the cylinder.
+      <strong>Re ≈ 40–1000:</strong> those eddies peel off alternately, top then bottom, forming the beautiful
+      <strong>von Kármán vortex street</strong> — the same effect that makes flags flutter and power lines hum.
+      The shedding frequency follows the <strong>Strouhal</strong> relation f = St·v/D with St ≈ 0.2.
+      <strong>Re &gt; ~2000:</strong> the wake becomes fully <strong>turbulent</strong>, a churning mess of
+      eddies on every scale.
+
+      <h3>Things to try</h3>
+      Start with high viscosity and watch the smooth laminar flow, then lower it step by step to trigger the
+      vortex street and finally turbulence — the Reynolds readout and regime label track the transition. Speed
+      the flow up for the same effect, or grow the cylinder. Use the slow-motion button to watch individual
+      vortices peel away from the cylinder one at a time.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=520,dpr=1;
+function fit(){
+  const cssW=cv.clientWidth; dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cssW; H=Math.round(cssW*0.56);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={u:1.4, nu:1.1, d:1.0, vort:true, prof:true};
+
+let cx,cy,a,Upx,Re,regime,shed,turb,attach,vortices,particles,shedTimer,shedSide;
+function setup(keepField){
+  cx=W*0.30; cy=H*0.50; a=Math.round(Math.min(H*0.13, 60)*st.d);
+  Upx=st.u*150;
+  Re=160*st.u/st.nu * (st.d/1.0);   // D in numerator
+  shed = Re>45 ? Math.min(1,(Re-45)/120) : 0;
+  attach = (Re>5 && Re<70) ? Math.max(0, Math.min((Re-5)/12,(70-Re)/22)) : 0;
+  turb = Math.max(0, Math.min(1,(Re-1200)/1800));
+  if(!keepField){ vortices=[]; particles=[]; seedParticles(); shedTimer=0; shedSide=1; }
+}
+function regimeName(){
+  if(Re<5) return 'Creeping (Stokes) flow — viscosity dominates.';
+  if(Re<40) return 'Steady flow with two attached eddies.';
+  if(Re<1000) return 'Laminar von Kármán vortex street.';
+  if(Re<2500) return 'Transitional — wake starting to break up.';
+  return 'Turbulent wake — chaotic eddies on all scales.';
+}
+
+function seedParticles(){
+  const N=Math.round(W*0.9);
+  particles=[];
+  for(let i=0;i<N;i++){ particles.push({x:Math.random()*W, y:Math.random()*H, py:0}); }
+}
+
+function vel(x,y){
+  let u=0,v=0;
+  const dx=x-cx, dy=y-cy, r2=dx*dx+dy*dy;
+  if(r2>a*a){
+    u += Upx*(1 - a*a*(dx*dx-dy*dy)/(r2*r2));
+    v += Upx*(-2*a*a*dx*dy/(r2*r2));
+  } else { return [Upx*0.02,0]; }
+  // attached standing eddies (counter-rotating, just behind cylinder)
+  if(attach>0){
+    const G=attach*1.4*Upx*a;
+    for(const s of [1,-1]){
+      const vx=cx+a*1.15, vy=cy+s*a*0.55;
+      const ex=x-vx, ey=y-vy, er2=ex*ex+ey*ey+25;
+      const f=(s*G)/(2*Math.PI)*(1-Math.exp(-er2/(a*0.7*a*0.7)))/er2;
+      u+=-f*ey; v+=f*ex;
+    }
+  }
+  // shed + turbulent vortices
+  for(const vt of vortices){
+    const ex=x-vt.x, ey=y-vt.y, er2=ex*ex+ey*ey+4;
+    const f=vt.G/(2*Math.PI)*(1-Math.exp(-er2/(vt.rc*vt.rc)))/er2;
+    u+=-f*ey; v+=f*ex;
+  }
+  return [u,v];
+}
+
+let tAnim=0;
+function step(dt){
+  // spawn shed vortices
+  if(shed>0){
+    const spacing=92, conv=0.82*Upx;
+    const T=spacing/Math.max(conv,1);
+    shedTimer+=dt;
+    if(shedTimer>=T){
+      shedTimer-=T;
+      vortices.push({x:cx+a+3, y:cy+shedSide*a*0.75, G:shedSide*2.4*shed*Upx*a,
+        rc:a*0.55, conv:conv, born:tAnim});
+      shedSide*=-1;
+    }
+  }
+  // spawn turbulence eddies in wake
+  if(turb>0 && Math.random()<turb*0.5){
+    vortices.push({x:cx+a+Math.random()*(W-cx-a), y:cy+(Math.random()-0.5)*H*0.5*(0.4+turb),
+      G:(Math.random()<0.5?1:-1)*(0.7+1.6*Math.random())*turb*Upx*a*0.7,
+      rc:a*(0.25+0.4*Math.random()), conv:0.82*Upx*(0.8+0.4*Math.random()), born:tAnim, decay:0.6+Math.random()*0.8});
+  }
+  // advect vortices downstream + slight transverse wander, decay/remove
+  for(const vt of vortices){ vt.x+=vt.conv*dt; vt.y+=Math.sin((tAnim*0.001+vt.x*0.01))*8*dt; if(vt.decay){ vt.G*=Math.exp(-vt.decay*dt);} vt.rc+=4*dt*st.nu*0.2; }
+  vortices=vortices.filter(vt=>vt.x<W+60 && Math.abs(vt.G)>Upx*a*0.05);
+  if(vortices.length>60) vortices.splice(0, vortices.length-60);
+  // advect particles (2 substeps)
+  const sub=2, h=dt/sub;
+  for(const p of particles){
+    p.py=p.y;
+    for(let s=0;s<sub;s++){
+      const [u,v]=vel(p.x,p.y);
+      p.x+=u*h; p.y+=v*h;
+    }
+    p.sp=Math.hypot(p.x-(p.lx??p.x), p.y-(p.ly??p.y));
+    p.lx=p.x; p.ly=p.y;
+    // recycle
+    const dx=p.x-cx, dy=p.y-cy;
+    if(p.x>W+4 || p.x<-4 || p.y<-4 || p.y>H+4 || dx*dx+dy*dy<a*a){
+      p.x=-2; p.y=Math.random()*H; p.lx=p.x; p.ly=p.y;
+    }
+  }
+}
+
+function draw(){
+  // trail fade
+  ctx.fillStyle='rgba(4,16,26,0.18)'; ctx.fillRect(0,0,W,H);
+
+  // particles colored by speed
+  for(const p of particles){
+    const sp=Math.min(1,(p.sp||0)/(Upx*0.045));
+    const r=120+sp*135, g=210+sp*45, b=222+sp*33;
+    ctx.fillStyle=`rgba(${r|0},${g|0},${b|0},${0.5+0.4*sp})`;
+    ctx.fillRect(p.x, p.y, 1.8, 1.8);
+  }
+
+  // vortex centres
+  if(st.vort){
+    for(const vt of vortices){
+      ctx.strokeStyle=vt.G>0?'rgba(255,180,120,.5)':'rgba(120,200,255,.5)';
+      ctx.lineWidth=1.4; ctx.beginPath();
+      const dir=vt.G>0?1:-1;
+      for(let t=0;t<Math.PI*1.6;t+=0.25){ const rr=4+t*3.2; const x=vt.x+rr*Math.cos(dir*t), y=vt.y+rr*Math.sin(dir*t); if(t===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.stroke();
+    }
+  }
+
+  // cylinder
+  ctx.beginPath(); ctx.arc(cx,cy,a,0,7);
+  ctx.fillStyle='#0b2533'; ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle='rgba(150,210,225,.8)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx-a*0.3,cy-a*0.3,a*0.5,0,7); ctx.fillStyle='rgba(120,200,220,.12)'; ctx.fill();
+
+  // inlet velocity profile (uniform) arrows
+  if(st.prof){
+    ctx.strokeStyle='rgba(150,210,225,.45)'; ctx.fillStyle='rgba(150,210,225,.45)'; ctx.lineWidth=1.4;
+    const len=18+st.u*16;
+    for(let y=H*0.12;y<H*0.9;y+=H*0.13){
+      ctx.beginPath(); ctx.moveTo(8,y); ctx.lineTo(8+len,y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(8+len,y); ctx.lineTo(8+len-6,y-3); ctx.lineTo(8+len-6,y+3); ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle='rgba(150,210,225,.6)'; ctx.font='11px JetBrains Mono'; ctx.fillText('uniform inflow', 8, H*0.08);
+  }
+
+  // HUD regime
+  ctx.fillStyle='rgba(234,247,251,.9)'; ctx.font='13px Inter';
+  ctx.fillText('Re ≈ '+Re.toFixed(0), W-110, 22);
+}
+
+let last=0;
+function loop(t){
+  const dt=Math.min(0.05,(t-last)/1000||0.016)*(window.SLOWMO||1); last=t;
+  tAnim+=dt*1000;
+  step(dt); draw();
+  requestAnimationFrame(loop);
+}
+
+function updateStats(){
+  document.getElementById('sRe').textContent=Re.toFixed(0);
+  document.getElementById('sReF').textContent=`v${st.u.toFixed(2)} · D${st.d.toFixed(2)} · μ${st.nu.toFixed(2)}`;
+  const St=0.198*(1-19.7/Math.max(Re,20));
+  document.getElementById('sSt').textContent = shed>0 ? ('St ≈ '+Math.max(0,St).toFixed(2)) : '— (no shedding)';
+  document.getElementById('verdict').textContent=regimeName();
+}
+
+function bind(sl,nu,key,labId,fmt){
+  const s=document.getElementById(sl), n=document.getElementById(nu), lab=document.getElementById(labId);
+  function set(v){ v=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),v)); if(isNaN(v))return;
+    st[key]=v; s.value=v; n.value=v; lab.textContent=fmt(v); setup(true); updateStats(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+}
+bind('u','uN','u','uV',v=>(+v).toFixed(2));
+bind('nu','nuN','nu','nuV',v=>(+v).toFixed(2));
+bind('d','dN','d','dV',v=>(+v).toFixed(2));
+
+function tog(id,key){const b=document.getElementById(id); b.addEventListener('click',()=>{st[key]=!st[key]; b.classList.toggle('on',st[key]);});}
+tog('tVort','vort'); tog('tProf','prof');
+
+document.getElementById('reset').addEventListener('click',()=>{
+  st.u=1.4; st.nu=1.1; st.d=1.0;
+  for(const [id,v] of [['u',1.4],['nu',1.1],['d',1.0]]){ document.getElementById(id).value=v; document.getElementById(id+'N').value=v; document.getElementById(id+'V').textContent=(+v).toFixed(2);}
+  setup(false); updateStats();
+});
+
+window.addEventListener('resize',()=>{fit(); setup(false); updateStats();});
+fit(); setup(false); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(18,42,56,0.85)',color:'#eaf7fb',border:'1px solid rgba(120,200,220,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

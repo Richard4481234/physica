@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standing Waves on a String · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:34px;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:13px;padding:9px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.22);border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Waves</div>
+    <h1>Standing Waves on a String</h1>
+    <p>Pin a string at both ends and only special "resonant" shapes survive — the harmonics. Each is really two
+       waves travelling in opposite directions, frozen into a pattern of still nodes and swinging antinodes.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#7cc4ff"></i>the string</span><span><i style="background:#67e8a0"></i>→ travelling wave</span><span><i style="background:#ff8a5b"></i>← travelling wave</span><span><i style="background:#ffd27a"></i>nodes / antinodes</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Harmonic n</label>
+        <div class="seg" id="harm"></div></div>
+      <div class="ctl"><label>Tension T <span class="val" id="tV">40 N</span></label>
+        <div class="row"><input type="range" id="t" min="5" max="90" step="1" value="40"><input type="number" id="tN" min="5" max="90" step="1" value="40"></div></div>
+      <div class="ctl"><label>String density μ <span class="val" id="muV">10 g/m</span></label>
+        <div class="row"><input type="range" id="mu" min="2" max="30" step="1" value="10"><input type="number" id="muN" min="2" max="30" step="1" value="10"></div></div>
+      <div class="ctl"><label>Amplitude <span class="val" id="aV">60%</span></label>
+        <div class="row"><input type="range" id="amp" min="15" max="100" step="1" value="60"><input type="number" id="ampN" min="15" max="100" step="1" value="60"></div></div>
+      <div class="ctl"><label>Show</label>
+        <div class="seg"><button id="tComp">Travelling waves</button><button id="tMark" class="on">Nodes / antinodes</button><button id="tEnv" class="on">Envelope</button></div></div>
+      <div class="stats">
+        <div class="s"><span>Wavelength λ = 2L/n</span><span id="sLam">2.00 m</span></div>
+        <div class="s"><span>Wave speed v = √(T/μ)</span><span id="sV">63 m/s</span></div>
+        <div class="s"><span>Frequency fₙ = n·v/2L</span><span id="sF">31.6 Hz</span></div>
+        <div class="s"><span>Nodes · antinodes</span><span id="sNodes">2 · 1</span></div>
+      </div>
+      <div class="verdict" id="verdict">Fundamental (n = 1): one antinode, the lowest note.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A string is clamped at both ends (a guitar or violin string, a jump-rope, a washing line). Because the ends
+      cannot move, only certain wave shapes fit — the ones with a whole number of half-wavelengths between the
+      clamps. These are the <strong>standing waves</strong>, or <strong>harmonics</strong>. Points that never move
+      are <strong>nodes</strong> (always the two ends, plus more inside); points that swing the most are
+      <strong>antinodes</strong>.
+
+      <h3>Which shapes fit</h3>
+      To vanish at both ends, the string must hold a whole number n of half-wavelengths:
+      <div class="eq">L = n · λ/2&nbsp;&nbsp;→&nbsp;&nbsp;λₙ = 2L / n&nbsp;&nbsp;(n = 1, 2, 3, …)</div>
+      n = 1 is the <strong>fundamental</strong> (one big belly, the lowest note); n = 2, 3, … are the
+      <strong>overtones</strong>, each with one more loop. A wave travels along the string at a speed set by how
+      tight and how heavy it is:
+      <div class="eq">v = √(T / μ)&nbsp;&nbsp;→&nbsp;&nbsp;fₙ = v / λₙ = n · v / (2L)</div>
+      So the harmonics are evenly spaced in frequency — f₂ = 2f₁, f₃ = 3f₁ — which is exactly what makes a
+      plucked string sound musical. <strong>Tighten</strong> the string (more T) and every frequency rises (the
+      wave travels faster); use a <strong>heavier</strong> string (more μ) and they all fall.
+
+      <h3>A standing wave is two travelling waves</h3>
+      Switch on <strong>travelling waves</strong> and you'll see the secret: a standing wave is the sum of two
+      identical waves running in opposite directions. Where they always cancel, you get a node; where they always
+      reinforce, an antinode:
+      <div class="eq">A sin(kx)cos(ωt) = ½A sin(kx−ωt) + ½A sin(kx+ωt)</div>
+      On a real string, the backward wave is the forward wave <em>reflected</em> off the fixed end — which is why
+      only the resonant frequencies build up into a big, steady pattern instead of a messy jumble.
+
+      <h3>Things to try</h3>
+      Step through the harmonics and count the loops — n loops, n antinodes, n+1 nodes. Watch the frequency jump
+      to 2×, 3× the fundamental. Then adjust tension and density and see the wave speed and every frequency shift
+      together while the shape stays the same. Turn on the two travelling waves to see the standing pattern
+      assemble itself from them.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=440,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.46);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const L=1.0; // string length (m)
+const st={n:2, T:40, mu:10, amp:60, comp:false, mark:true, env:true};
+const muSI=()=>st.mu/1000;                    // g/m -> kg/m
+const vwave=()=>Math.sqrt(st.T/muSI());        // m/s
+const lam=()=>2*L/st.n;
+const freq=()=>st.n*vwave()/(2*L);
+
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const x0=W*0.09, x1=W*0.91, cy=H*0.52, span=x1-x0;
+  const A=(st.amp/100)*(H*0.32);
+  const k=st.n*Math.PI/L;                       // wavenumber (per L units, x in [0,L])
+  const omegaVis=2*Math.PI*freq()*0.02;         // scaled so it's watchable; real f shown in stats
+  const ph=omegaVis*t;
+  // clamps / walls
+  ctx.fillStyle='rgba(120,140,175,.4)'; ctx.fillRect(x0-10,cy-40,10,80); ctx.fillRect(x1,cy-40,10,80);
+  ctx.strokeStyle='rgba(150,180,210,.6)'; ctx.lineWidth=2; ctx.strokeRect(x0-10,cy-40,10,80); ctx.strokeRect(x1,cy-40,10,80);
+  // axis
+  ctx.strokeStyle='rgba(140,160,220,.18)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,cy);ctx.lineTo(x1,cy);ctx.stroke();
+  // envelope (max shape)
+  if(st.env){
+    ctx.strokeStyle='rgba(124,196,255,.28)'; ctx.setLineDash([4,5]); ctx.lineWidth=1.4;
+    for(const sgn of [1,-1]){ ctx.beginPath();
+      for(let i=0;i<=240;i++){ const xf=i/240, x=x0+xf*span, y=cy - sgn*A*Math.sin(k*xf*L); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+      ctx.stroke(); }
+    ctx.setLineDash([]);
+  }
+  // component travelling waves
+  if(st.comp){
+    ctx.lineWidth=1.6;
+    ctx.strokeStyle='rgba(103,232,162,.55)'; ctx.beginPath();
+    for(let i=0;i<=240;i++){ const xf=i/240, x=x0+xf*span, y=cy - 0.5*A*Math.sin(k*xf*L - ph); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+    ctx.strokeStyle='rgba(255,138,91,.55)'; ctx.beginPath();
+    for(let i=0;i<=240;i++){ const xf=i/240, x=x0+xf*span, y=cy - 0.5*A*Math.sin(k*xf*L + ph); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);} ctx.stroke();
+  }
+  // the string (standing wave) with glow
+  ctx.save(); ctx.shadowColor='rgba(124,196,255,.7)'; ctx.shadowBlur=10;
+  ctx.strokeStyle='#7cc4ff'; ctx.lineWidth=3; ctx.beginPath();
+  for(let i=0;i<=300;i++){ const xf=i/300, x=x0+xf*span, y=cy - A*Math.sin(k*xf*L)*Math.cos(ph); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+  ctx.stroke(); ctx.restore();
+  // nodes & antinodes
+  if(st.mark){
+    for(let j=0;j<=st.n;j++){ const x=x0+ (j/st.n)*span;
+      ctx.fillStyle='#ffd27a'; ctx.beginPath();ctx.arc(x,cy,4,0,7);ctx.fill();
+      ctx.strokeStyle='rgba(255,210,122,.4)'; ctx.lineWidth=1; }
+    ctx.fillStyle='rgba(255,210,122,.85)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText('node', x0+0, cy+20);
+    for(let j=0;j<st.n;j++){ const x=x0+((j+0.5)/st.n)*span;
+      ctx.strokeStyle='rgba(255,210,122,.35)'; ctx.setLineDash([3,4]); ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,cy-A);ctx.lineTo(x,cy+A);ctx.stroke(); ctx.setLineDash([]); }
+    ctx.fillStyle='rgba(255,210,122,.7)'; ctx.fillText('antinode', x0+(0.5/st.n)*span, cy-A-6);
+    ctx.textAlign='left';
+  }
+  // half-wavelength count label
+  ctx.fillStyle='rgba(154,178,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center';
+  ctx.fillText('n = '+st.n+'  ·  '+st.n+' half-wavelength'+(st.n>1?'s':'')+' fit between the clamps', W*0.5, H-14);
+  ctx.textAlign='left';
+  requestAnimationFrame(()=>{});
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; t+=dt; draw(); requestAnimationFrame(loop); }
+
+function fmtF(f){ return f>=1000? (f/1000).toFixed(2)+' kHz' : f.toFixed(1)+' Hz'; }
+function updateStats(){
+  document.getElementById('sLam').textContent=lam().toFixed(2)+' m';
+  document.getElementById('sV').textContent=vwave().toFixed(0)+' m/s';
+  document.getElementById('sF').textContent=fmtF(freq());
+  document.getElementById('sNodes').textContent=(st.n+1)+' · '+st.n;
+  const names={1:'Fundamental (n = 1): one antinode, the lowest note.',2:'2nd harmonic — one octave above the fundamental.',3:'3rd harmonic.',4:'4th harmonic.',5:'5th harmonic.',6:'6th harmonic — six loops.'};
+  document.getElementById('verdict').textContent=names[st.n]||('Harmonic n = '+st.n);
+  [...harm.children].forEach(b=>b.classList.toggle('on',+b.dataset.n===st.n));
+}
+const harm=document.getElementById('harm');
+for(let i=1;i<=6;i++){ const b=document.createElement('button'); b.textContent=i; b.dataset.n=i; if(i===2)b.classList.add('on');
+  b.addEventListener('click',()=>{ st.n=i; updateStats(); }); harm.appendChild(b); }
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('t','tN','T','tV',v=>v+' N');
+bind('mu','muN','mu','muV',v=>v+' g/m');
+bind('amp','ampN','amp','aV',v=>v+'%');
+function tog(id,key){const b=document.getElementById(id);b.addEventListener('click',()=>{st[key]=!st[key];b.classList.toggle('on',st[key]);});}
+tog('tComp','comp'); tog('tMark','mark'); tog('tEnv','env');
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

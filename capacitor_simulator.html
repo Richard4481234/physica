@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capacitor &amp; Dielectrics · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(16,12,30,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(184,155,255,.2);border-color:rgba(184,155,255,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Capacitor &amp; Dielectrics</h1>
+    <p>Two parallel plates store charge and energy in the field between them. Resize the plates, stretch the gap,
+       then slide a dielectric slab in — and see why what happens depends on whether the battery is still attached.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#ffd27a"></i>E field (uniform, E = V/d)</span><span><i style="background:#67e8a0"></i>dielectric slab κ</span><span><i style="background:#cdb6ff"></i>plates &amp; capacitance bar</span><span>± polarization charges on the slab faces</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Circuit</label>
+        <div class="seg"><button id="mBat" class="on">Battery connected</button><button id="mIso">Isolated</button></div></div>
+      <div class="ctl" id="ctlV"><label>Battery voltage V <span class="val" id="vV">6.0 V</span></label>
+        <div class="row"><input type="range" id="v" min="1" max="12" step="0.5" value="6"><input type="number" id="vN" min="1" max="12" step="0.5" value="6"></div></div>
+      <div class="ctl"><label>Plate area A <span class="val" id="aV">100 cm²</span></label>
+        <div class="row"><input type="range" id="a" min="50" max="400" step="10" value="100"><input type="number" id="aN" min="50" max="400" step="10" value="100"></div></div>
+      <div class="ctl"><label>Plate separation d <span class="val" id="dV">1.0 mm</span></label>
+        <div class="row"><input type="range" id="d" min="0.5" max="4" step="0.1" value="1"><input type="number" id="dN" min="0.5" max="4" step="0.1" value="1"></div></div>
+      <div class="ctl"><label>Dielectric constant κ <span class="val" id="kV">4.0</span></label>
+        <div class="row"><input type="range" id="k" min="1" max="8" step="0.5" value="4"><input type="number" id="kN" min="1" max="8" step="0.5" value="4"></div></div>
+      <div class="ctl"><label>Dielectric inserted <span class="val" id="xV">0 %</span></label>
+        <div class="row"><input type="range" id="x" min="0" max="100" step="1" value="0"><input type="number" id="xN" min="0" max="100" step="1" value="0"></div></div>
+      <div class="stats">
+        <div class="s"><span>Capacitance C</span><span id="sC">—</span></div>
+        <div class="s"><span>Charge Q = CV</span><span id="sQ">—</span></div>
+        <div class="s"><span>Voltage V</span><span id="sV">—</span></div>
+        <div class="s"><span>Field E = V/d</span><span id="sE">—</span></div>
+        <div class="s"><span>Energy U = ½CV²</span><span id="sU">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Battery connected: V is pinned. C = ε₀A/d — grow the plates or shrink the gap and the capacitor holds more charge at the same voltage.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A parallel-plate capacitor seen edge-on: the violet plates carry + and − charge, the gold arrows show the
+      electric field between them, and the green slab is a dielectric you can slide into the gap. The bars on the
+      right track the capacitance and stored energy live.
+
+      <h3>Capacitance is pure geometry</h3>
+      A capacitor's ability to hold charge per volt depends only on its shape — big plates close together store
+      more:
+      <div class="eq">C = ε₀·A / d</div>
+      With a dielectric filling the gap, the slab's molecules polarize — their charges shift slightly and build a
+      surface charge that opposes the field. The same plate charge now produces less voltage, which means more
+      capacitance:
+      <div class="eq">C = κ·ε₀·A / d</div>
+      A partially-inserted slab acts as two capacitors side by side (filled and empty), added in parallel — so C
+      climbs smoothly from ε₀A/d to κε₀A/d as you push it in. Because the plates are conductors, the gap field
+      stays uniform at E = V/d everywhere.
+
+      <h3>The experiment that matters: battery vs isolated</h3>
+      What happens when C changes depends on what is held fixed:
+      <div class="eq">Battery connected: V fixed → Q = CV rises, E = V/d unchanged, U = ½CV² rises</div>
+      <div class="eq">Isolated: Q fixed → V = Q/C falls, E falls by κ, U = Q²/2C falls</div>
+      The isolated case is the striking one: push the slab in and the voltmeter reading actually drops — the
+      trapped charge hasn't changed, but the polarized dielectric partially cancels its field.
+
+      <h3>Why the slab gets pulled in</h3>
+      In the isolated case the stored energy U = Q²/2C strictly decreases as the slab enters — and systems feel a
+      force toward lower energy, so the fringing field grips the dielectric and drags it inward. With the battery
+      attached U rises, but the battery supplies exactly twice the increase, so the net energy still drops and the
+      pull is inward either way. This tiny tug is real — it's how some microphones and MEMS sensors work.
+
+      <h3>Things to try</h3>
+      Charge up, disconnect the battery, then slide the slab in and watch V plunge by κ while Q stays frozen.
+      Reconnect the battery and repeat: now V holds and Q climbs instead. Halve the gap d and watch C double —
+      then check that E = V/d doubles too (battery mode) since the same volts now span half the distance.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const E0=8.854e-12;
+const st={mode:'battery', A:100, d:1, k:4, x:0, V:6};
+let Qf=0;   // frozen charge (isolated mode), in C
+function capF(){ // farads, partial dielectric = two capacitors in parallel
+  const Am=st.A*1e-4, dm=st.d*1e-3, x=st.x/100;
+  return E0*Am/dm*(1-x+st.k*x);
+}
+function Vnow(){ return st.mode==='battery'? st.V : Qf/capF(); }
+function Qnow(){ return st.mode==='battery'? capF()*st.V : Qf; }
+function Enow(){ return Vnow()/(st.d*1e-3); }       // V/m
+function Unow(){ return 0.5*capF()*Vnow()*Vnow(); } // J
+let anim=0;
+function draw(dt){
+  anim+=dt;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  const pw=Math.min(W*0.44, 150+st.A*0.9);         // plate width px, grows with A
+  const gap=Math.max(26, st.d*30);                  // gap px, grows with d
+  const cx=W*0.40, cy=H*0.48;
+  const px0=cx-pw/2, px1=cx+pw/2, yTop=cy-gap/2, yBot=cy+gap/2;
+  const V=Vnow(), Emag=Enow();
+
+  // battery / isolated indicator on the left
+  ctx.lineWidth=2; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  if(st.mode==='battery'){
+    const bx=40, by=cy;
+    ctx.strokeStyle='rgba(184,155,255,.6)';
+    ctx.beginPath(); ctx.moveTo(bx,by-14); ctx.lineTo(bx,yTop-16); ctx.lineTo(px0+14,yTop-16); ctx.lineTo(px0+14,yTop-3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx,by+14); ctx.lineTo(bx,yBot+16); ctx.lineTo(px0+14,yBot+16); ctx.lineTo(px0+14,yBot+3); ctx.stroke();
+    ctx.strokeStyle='#b89bff';
+    ctx.beginPath(); ctx.moveTo(bx-9,by-6); ctx.lineTo(bx+9,by-6); ctx.moveTo(bx-5,by+6); ctx.lineTo(bx+5,by+6); ctx.stroke();
+    ctx.fillStyle='#b89bff'; ctx.fillText(st.V.toFixed(1)+' V', bx, by-22);
+  } else {
+    ctx.fillStyle='rgba(255,210,122,.85)';
+    ctx.fillText('disconnected — Q trapped', 92, cy-6);
+    ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(40,cy-14); ctx.lineTo(40,cy+2); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // dielectric slab (behind field arrows)
+  const sw=pw*st.x/100;
+  if(sw>1){
+    ctx.fillStyle='rgba(103,232,162,.13)';
+    ctx.strokeStyle='rgba(103,232,162,.55)'; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.rect(px0, yTop+2, sw, gap-4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='rgba(103,232,162,.9)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText('κ = '+st.k.toFixed(1), px0+sw/2, cy+4);
+    // polarization charges: E points down (top plate +), so slab top face = −, bottom face = +
+    ctx.font='10px JetBrains Mono';
+    const np=Math.max(2,Math.round(sw/26));
+    for(let i=0;i<np;i++){ const sx=px0+ (i+0.5)*sw/np;
+      ctx.fillStyle='rgba(124,196,255,.85)'; ctx.fillText('−', sx, yTop+11);
+      ctx.fillStyle='rgba(255,138,138,.85)'; ctx.fillText('+', sx, yBot-4); }
+    // pull-in arrow while partially inserted
+    if(st.x>2 && st.x<98){
+      const ax=px0+sw+8, ay=cy;
+      ctx.strokeStyle='#ffd27a'; ctx.fillStyle='#ffd27a'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ax+22,ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ax+28,ay); ctx.lineTo(ax+20,ay-4.5); ctx.lineTo(ax+20,ay+4.5); ctx.closePath(); ctx.fill();
+      ctx.font='9.5px JetBrains Mono'; ctx.textAlign='left';
+      ctx.fillText('pulled in', ax+32, ay+3);
+    }
+  }
+
+  // plates
+  ctx.fillStyle='#cdb6ff';
+  ctx.fillRect(px0, yTop-6, pw, 6);
+  ctx.fillRect(px0, yBot, pw, 6);
+  // plate charges: count ∝ Q
+  const Qscale=Qnow()/(E0*(st.A*1e-4)/(st.d*1e-3)*12);  // ~ #symbols normalization
+  const nq=Math.max(2, Math.min(40, Math.round(Qscale)));
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  for(let i=0;i<nq;i++){ const sx=px0+(i+0.5)*pw/nq;
+    ctx.fillStyle='rgba(255,138,138,.95)'; ctx.fillText('+', sx, yTop-10);
+    ctx.fillStyle='rgba(124,196,255,.95)'; ctx.fillText('−', sx, yBot+16); }
+  // E field arrows (uniform: plates are equipotentials, E = V/d everywhere in the gap)
+  const Enorm=Math.min(1, Emag/24000);
+  const na=Math.max(3, Math.round(pw/46));
+  for(let i=0;i<na;i++){ const sx=px0+(i+0.5)*pw/na;
+    const col='rgba(255,210,122,'+(0.25+0.65*Enorm)+')';
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(sx,yTop+4); ctx.lineTo(sx,yBot-8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(sx,yBot-3); ctx.lineTo(sx-4,yBot-10); ctx.lineTo(sx+4,yBot-10); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle='rgba(239,238,251,.7)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('E = V/d = '+(Emag/1000).toFixed(1)+' kV/m', px1+12, cy+4);
+  ctx.fillText('d = '+st.d.toFixed(1)+' mm', px1+12, cy+20);
+
+  // right-side live bars: C and U
+  drawBars(W*0.76, 30, W*0.21, H-70);
+  requestAnimationFrame(()=>{});
+}
+function drawBars(x,y,wd,ht){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,wd,ht);
+  const Cmax=E0*(400e-4)/(0.5e-3)*8;              // largest reachable C
+  const Umax=0.5*Cmax*12*12;
+  const items=[['C',capF()/Cmax,'#cdb6ff',fmtC(capF())],['U',Unow()/Umax,'#67e8a0',fmtU(Unow())]];
+  const bw=wd*0.26;
+  items.forEach((it,i)=>{
+    const bx=x+wd*(0.22+0.42*i)-bw/2, frac=Math.pow(Math.max(0,Math.min(1,it[1])),0.4);
+    ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fillRect(bx,y+16,bw,ht-52);
+    ctx.fillStyle=it[2]; ctx.fillRect(bx, y+16+(ht-52)*(1-frac), bw, (ht-52)*frac);
+    ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(239,238,251,.85)'; ctx.fillText(it[0], bx+bw/2, y+12);
+    ctx.fillText(it[3], bx+bw/2, y+ht-22);
+  });
+  ctx.fillStyle='rgba(179,170,204,.6)'; ctx.font='10px Inter'; ctx.textAlign='center';
+  ctx.fillText('log-scaled bars', x+wd/2, y+ht-6);
+}
+function fmtC(c){ return c>=1e-9? (c*1e9).toFixed(2)+' nF' : (c*1e12).toFixed(0)+' pF'; }
+function fmtQ(q){ return q>=1e-9? (q*1e9).toFixed(2)+' nC' : (q*1e12).toFixed(0)+' pC'; }
+function fmtU(u){ return u>=1e-9? (u*1e9).toFixed(1)+' nJ' : (u*1e12).toFixed(0)+' pJ'; }
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; draw(dt); requestAnimationFrame(loop); }
+function updateStats(){
+  document.getElementById('sC').textContent=fmtC(capF());
+  document.getElementById('sQ').textContent=fmtQ(Qnow());
+  document.getElementById('sV').textContent=Vnow().toFixed(2)+' V';
+  document.getElementById('sE').textContent=(Enow()/1000).toFixed(1)+' kV/m';
+  document.getElementById('sU').textContent=fmtU(Unow());
+  const ve=document.getElementById('verdict');
+  if(st.mode==='battery'){
+    ve.textContent = st.x<2
+      ? 'Battery connected: V is pinned. C = ε₀A/d — grow the plates or shrink the gap and the capacitor holds more charge at the same voltage.'
+      : 'Battery connected: sliding the dielectric in raises C, so MORE charge flows on (Q = CV) while V and E = V/d stay fixed. The slab is pulled in.';
+  } else {
+    ve.textContent = st.x<2
+      ? 'Isolated: the trapped charge Q is fixed. Now C changes make V = Q/C respond instead.'
+      : 'Isolated: Q can’t change, so raising C drags V = Q/C DOWN — the field and stored energy U = Q²/2C drop. The lost energy went into pulling the slab in.';
+  }
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('a','aN','A','aV',v=>Math.round(v)+' cm²');
+bind('d','dN','d','dV',v=>(+v).toFixed(1)+' mm');
+bind('k','kN','k','kV',v=>(+v).toFixed(1));
+bind('x','xN','x','xV',v=>Math.round(v)+' %');
+bind('v','vN','V','vV',v=>(+v).toFixed(1)+' V');
+function setMode(m){
+  if(m===st.mode)return;
+  if(m==='isolated'){ Qf=capF()*st.V; }      // freeze the charge at disconnect
+  st.mode=m;
+  document.getElementById('mBat').classList.toggle('on',m==='battery');
+  document.getElementById('mIso').classList.toggle('on',m==='isolated');
+  document.getElementById('ctlV').style.opacity = m==='battery'?'1':'0.35';
+  updateStats();
+}
+document.getElementById('mBat').addEventListener('click',()=>setMode('battery'));
+document.getElementById('mIso').addEventListener('click',()=>setMode('isolated'));
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beats · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  button.act.on{background:linear-gradient(135deg,#8fe7c2,#62d2a2);color:#06241a;border-color:transparent}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Waves</div>
+    <h1>Beats</h1>
+    <p>Sound two close notes together and they don't just blur — the combined loudness pulses, swelling and fading
+       at a rate equal to the difference in their frequencies. That throb is a beat.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#7cc4ff"></i>wave 1 (f₁)</span><span><i style="background:#ff8a5b"></i>wave 2 (f₂)</span><span><i style="background:#eef4fb"></i>sum</span><span><i style="background:#ffd27a"></i>envelope</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Frequency f₁ <span class="val" id="f1V">10.0 Hz</span></label>
+        <div class="row"><input type="range" id="f1" min="4" max="20" step="0.1" value="10"><input type="number" id="f1N" min="4" max="20" step="0.1" value="10"></div></div>
+      <div class="ctl"><label>Frequency f₂ <span class="val" id="f2V">12.0 Hz</span></label>
+        <div class="row"><input type="range" id="f2" min="4" max="20" step="0.1" value="12"><input type="number" id="f2N" min="4" max="20" step="0.1" value="12"></div></div>
+      <div class="ctl"><label>Amplitude <span class="val" id="aV">70%</span></label>
+        <div class="row"><input type="range" id="amp" min="20" max="100" step="1" value="70"><input type="number" id="ampN" min="20" max="100" step="1" value="70"></div></div>
+      <div class="btns"><button class="act" id="listen">🔊 Listen</button><button class="act" id="pause">Pause ⏸</button></div>
+      <div class="stats">
+        <div class="s"><span>Beat frequency |f₁−f₂|</span><span id="sBf">2.0 Hz</span></div>
+        <div class="s"><span>Beat period 1/|f₁−f₂|</span><span id="sBp">0.50 s</span></div>
+        <div class="s"><span>Carrier (average)</span><span id="sCar">11.0 Hz</span></div>
+        <div class="s"><span>Loudness now</span><span id="sLoud">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Two waves 2.0 Hz apart → you hear 2 pulses of loudness per second.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      The top panel shows two pure waves of slightly different frequency, <strong style="color:#7cc4ff">f₁</strong>
+      and <strong style="color:#ff8a5b">f₂</strong>. The bottom panel is their <strong>sum</strong> — what your ear
+      actually receives when both play at once. Notice the sum's height swells and shrinks: that slow rise and fall
+      of loudness is the <strong>beat</strong>. Press <strong>🔊 Listen</strong> to hear it (the tones are shifted up
+      to an audible pitch while keeping their difference the same).
+
+      <h3>Why the loudness pulses</h3>
+      When the two waves are momentarily <strong>in step</strong>, their crests line up and add — the sound is
+      loud. A moment later, because one wave cycles slightly faster, they slip <strong>out of step</strong>, crest
+      meets trough, and they cancel — silence. This alternation repeats over and over. The maths makes it exact:
+      adding two equal cosines factors into a fast <strong>carrier</strong> wave riding inside a slow
+      <strong>envelope</strong>:
+      <div class="eq">cos(2πf₁t) + cos(2πf₂t) = 2 cos(2π·Δf/2·t) · cos(2π·f̄·t)</div>
+      The carrier oscillates at the average frequency f̄ = (f₁+f₂)/2 (the pitch you hear), while the envelope
+      2cos(2π·Δf/2·t) slowly grows and fades. Each time the envelope passes through zero the sound momentarily
+      vanishes — those are the gold dots on the plot.
+
+      <h3>The beat frequency</h3>
+      The envelope reaches full loudness <strong>twice</strong> per envelope cycle (once for each hump, positive or
+      negative), so the loudness pulses arrive at exactly the <strong>difference</strong> of the two frequencies:
+      <div class="eq">f_beat = |f₁ − f₂|</div>
+      Bring the two frequencies together and the beats slow down and stretch out; when they match exactly the beats
+      vanish entirely. This is precisely how musicians <strong>tune by ear</strong>: they adjust a string against a
+      reference note until the beats slow to a standstill, meaning the frequencies are identical.
+
+      <h3>Things to try</h3>
+      Start with f₁ = 10 and f₂ = 12 for a clear 2 Hz throb, then slide f₂ toward f₁ and watch the beats get slower
+      and the envelope stretch out until, at f₂ = f₁, they disappear. Press Listen and do the same by ear — sliding
+      into tune is unmistakable.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={f1:10, f2:12, amp:70, paused:false};
+const TWIN=2.2;              // seconds shown across the width
+let tG=0;
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H);
+  const x0=44, x1=W-16, span=x1-x0;
+  const A=(st.amp/100);
+  const df=Math.abs(st.f1-st.f2);
+  // lane A: the two component waves
+  const ay=H*0.26, aA=H*0.15;
+  laneAxis(x0,x1,ay,'wave 1 + wave 2');
+  wave(x0,x1,ay,aA*A, tt=>Math.cos(2*Math.PI*st.f1*tt),'rgba(124,196,255,.85)',2);
+  wave(x0,x1,ay,aA*A, tt=>Math.cos(2*Math.PI*st.f2*tt),'rgba(255,138,91,.85)',2);
+  // lane B: the sum + envelope
+  const by=H*0.68, bA=H*0.20;
+  laneAxis(x0,x1,by,'sum (what you hear)');
+  // envelope (dashed gold): ±2A cos(π Δf t)
+  ctx.setLineDash([5,5]);
+  for(const sgn of [1,-1]){ ctx.strokeStyle='rgba(255,210,122,.6)'; ctx.lineWidth=1.4; ctx.beginPath();
+    for(let i=0;i<=300;i++){ const x=x0+span*i/300, tt=tG+(i/300)*TWIN; const y=by - sgn*bA*A*2*Math.cos(Math.PI*df*tt);
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); }
+  ctx.setLineDash([]);
+  // sum
+  ctx.save(); ctx.shadowColor='rgba(180,210,255,.5)'; ctx.shadowBlur=6;
+  ctx.strokeStyle='#eef4fb'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=600;i++){ const x=x0+span*i/600, tt=tG+(i/600)*TWIN;
+    const y=by - bA*A*(Math.cos(2*Math.PI*st.f1*tt)+Math.cos(2*Math.PI*st.f2*tt));
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);} ctx.stroke(); ctx.restore();
+  // silence points (envelope zeros) within window
+  ctx.fillStyle='#ffd27a';
+  if(df>1e-3){ const t0=tG, t1=tG+TWIN;
+    for(let k=Math.ceil((df*t0-0.5)); (k+0.5)/df<=t1; k++){ const ts=(k+0.5)/df; if(ts<t0)continue;
+      const x=x0+span*(ts-t0)/TWIN; ctx.beginPath();ctx.arc(x,by,3,0,7);ctx.fill(); } }
+  // loudness meter (right side of lane B) based on envelope at right edge time
+  const tE=tG+TWIN, loud=Math.abs(2*Math.cos(Math.PI*df*tE));
+  ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fillRect(x1-2,by-bA,6,2*bA);
+  ctx.fillStyle='#62d2a2'; const lh=(loud/2)*2*bA; ctx.fillRect(x1-2,by+bA-lh,6,lh);
+  requestAnimationFrame(()=>{});
+}
+function laneAxis(x0,x1,y,label){
+  ctx.strokeStyle='rgba(140,160,220,.18)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke();
+  ctx.fillStyle='rgba(154,178,204,.65)'; ctx.font='11px Inter'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillText(label, x0, y-(label.includes('sum')? 44 : 40));
+}
+function wave(x0,x1,y,A,fn,col,w){
+  const span=x1-x0; ctx.strokeStyle=col; ctx.lineWidth=w; ctx.beginPath();
+  for(let i=0;i<=500;i++){ const x=x0+span*i/500, tt=tG+(i/500)*TWIN; const yy=y-A*fn(tt); i?ctx.lineTo(x,yy):ctx.moveTo(x,yy); }
+  ctx.stroke();
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; if(!st.paused) tG+=dt; draw(); requestAnimationFrame(loop); }
+
+function updateStats(){
+  const df=Math.abs(st.f1-st.f2);
+  document.getElementById('sBf').textContent=df.toFixed(1)+' Hz';
+  document.getElementById('sBp').textContent= df>1e-3? (1/df).toFixed(2)+' s' : '∞';
+  document.getElementById('sCar').textContent=((st.f1+st.f2)/2).toFixed(1)+' Hz';
+  const ve=document.getElementById('verdict');
+  ve.textContent= df<0.05? 'The frequencies match — no beats. This is "in tune".'
+    : `Two waves ${df.toFixed(1)} Hz apart → ${df.toFixed(1)} loudness pulses per second.`;
+  if(audio.on) setAudioFreq();
+}
+
+// ── optional audio ──
+const audio={ctx:null,o1:null,o2:null,g:null,on:false,OFF:430};
+function startAudio(){
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return false;
+  try{
+    audio.ctx=new AC(); audio.g=audio.ctx.createGain(); audio.g.gain.value=0.09; audio.g.connect(audio.ctx.destination);
+    audio.o1=audio.ctx.createOscillator(); audio.o2=audio.ctx.createOscillator();
+    audio.o1.type='sine'; audio.o2.type='sine'; audio.o1.connect(audio.g); audio.o2.connect(audio.g);
+    setAudioFreq(); audio.o1.start(); audio.o2.start(); return true;
+  }catch(e){ return false; }
+}
+function setAudioFreq(){ if(audio.o1){ audio.o1.frequency.value=st.f1+audio.OFF; audio.o2.frequency.value=st.f2+audio.OFF; } }
+function stopAudio(){ try{ if(audio.o1)audio.o1.stop(); if(audio.o2)audio.o2.stop(); if(audio.ctx)audio.ctx.close(); }catch(e){} audio.o1=audio.o2=audio.ctx=null; }
+
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('f1','f1N','f1','f1V',v=>(+v).toFixed(1)+' Hz');
+bind('f2','f2N','f2','f2V',v=>(+v).toFixed(1)+' Hz');
+bind('amp','ampN','amp','aV',v=>v+'%');
+document.getElementById('listen').addEventListener('click',()=>{
+  const b=document.getElementById('listen');
+  if(audio.on){ audio.on=false; stopAudio(); b.classList.remove('on'); b.textContent='🔊 Listen'; }
+  else { const ok=startAudio(); if(ok){ audio.on=true; b.classList.add('on'); b.textContent='🔊 Stop'; } }
+});
+document.getElementById('pause').addEventListener('click',()=>{st.paused=!st.paused; document.getElementById('pause').textContent=st.paused?'Play ▶':'Pause ⏸';});
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

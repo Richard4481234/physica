@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atwood Machine · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  #graph{margin-top:12px}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  button.act.play{background:linear-gradient(135deg,#8fd0ff,#5aa8ee);color:#06203a;border-color:transparent}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Experiment</div>
+    <h1>The Atwood Machine</h1>
+    <p>Two masses hang from a string over a pulley. The heavier one falls, dragging the lighter one up — but
+       gently, because both masses share the same acceleration. A classic way to "slow down" gravity.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas><canvas id="graph"></canvas>
+      <div class="leg"><span><i style="background:#ffd27a"></i>tension T</span><span><i style="background:#9ab2cc"></i>weight mg</span><span><i style="background:#67e8a0"></i>velocity</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Mass 1 (left) <span class="val" id="m1V">6.0 kg</span></label>
+        <div class="row"><input type="range" id="m1" min="1" max="10" step="0.5" value="6"><input type="number" id="m1N" min="1" max="10" step="0.5" value="6"></div></div>
+      <div class="ctl"><label>Mass 2 (right) <span class="val" id="m2V">4.0 kg</span></label>
+        <div class="row"><input type="range" id="m2" min="1" max="10" step="0.5" value="4"><input type="number" id="m2N" min="1" max="10" step="0.5" value="4"></div></div>
+      <div class="ctl"><label>Pulley mass <span class="val" id="mpV">0.0 kg</span></label>
+        <div class="row"><input type="range" id="mp" min="0" max="8" step="0.5" value="0"><input type="number" id="mpN" min="0" max="8" step="0.5" value="0"></div></div>
+      <div class="btns"><button class="act play" id="play">Release ▶</button><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Acceleration a</span><span id="sA">1.96 m/s²</span></div>
+        <div class="s"><span>Tension T₁ (left)</span><span id="sT1">47.0 N</span></div>
+        <div class="s"><span>Tension T₂ (right)</span><span id="sT2">47.0 N</span></div>
+        <div class="s"><span>Speed</span><span id="sV">0.0 m/s</span></div>
+        <div class="s"><span>Elapsed</span><span id="sTt">0.0 s</span></div>
+      </div>
+      <div class="verdict" id="verdict">The heavier mass falls; both share the same acceleration.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      Two masses, <strong>m₁</strong> and <strong>m₂</strong>, hang from the ends of a single string that runs
+      over a pulley. Because the string can't stretch, the two masses always move together — as one goes down, the
+      other comes up by the same amount, at the same speed and the same acceleration. Release them and the heavier
+      side wins.
+
+      <h3>Finding the acceleration</h3>
+      Apply Newton's second law to each mass. For the falling mass, gravity beats the tension; for the rising
+      mass, tension beats gravity. Writing both and eliminating the tension gives the acceleration of the whole
+      system (for a light, frictionless pulley):
+      <div class="eq">a = (m₁ − m₂) g / (m₁ + m₂)</div>
+      Notice what this says: if the masses are equal, a = 0 and nothing moves; if they are very different, a
+      approaches g. The Atwood machine "dilutes" gravity — the tiny difference (m₁ − m₂) does the pulling, but the
+      whole combined mass (m₁ + m₂) has to be accelerated. That is exactly why George Atwood built it in 1784: it
+      let him measure g accurately with slow, easily-timed motion.
+
+      <h3>The tension in the string</h3>
+      With a massless pulley the string tension is the same on both sides:
+      <div class="eq">T = 2 m₁ m₂ g / (m₁ + m₂)</div>
+      This tension sits <em>between</em> the two weights — bigger than the light weight (so it accelerates
+      upward) and smaller than the heavy weight (so it accelerates downward).
+
+      <h3>Giving the pulley mass</h3>
+      A real pulley has to be spun up too. Turn up the <strong>pulley mass</strong> and it adds rotational inertia
+      (for a uniform disc, I = ½M_p r²), so the system accelerates more slowly:
+      <div class="eq">a = (m₁ − m₂) g / (m₁ + m₂ + ½M_p)</div>
+      Now the pulley needs a net torque to spin, which means the two tensions are <strong>no longer equal</strong> —
+      T₁ (heavy side) exceeds T₂ (light side), and their difference (T₁ − T₂) is exactly what angularly accelerates
+      the wheel. Watch the two tension readouts split apart as you add pulley mass.
+
+      <h3>Things to try</h3>
+      Set the masses nearly equal for a slow, stately fall; make them very different to approach free-fall. Then
+      add pulley mass and watch the acceleration drop and the two tensions separate. Use slow-motion to read the
+      motion, and the velocity graph to confirm the speed climbs in a straight line — constant acceleration.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const gc=document.getElementById('graph'), gx=gc.getContext('2d');
+let W=900,H=560,dpr=1,GW=900,GH=130;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.64);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  GW=gc.clientWidth; GH=Math.round(GW*0.16); gc.width=GW*dpr; gc.height=GH*dpr; gc.style.height=GH+'px'; gx.setTransform(dpr,0,0,dpr,0,0);
+}
+const G=9.8, PXM=52;
+const st={m1:6, m2:4, mp:0};
+let s=0, v=0, t=0, playing=false, samples=[];
+function accel(){ return (st.m1-st.m2)*G/(st.m1+st.m2+0.5*st.mp); } // m/s², +s = m1 down
+function tensions(){ const a=accel(); return {a, T1:st.m1*(G-a), T2:st.m2*(G+a)}; }
+
+// geometry
+let cx,pulleyY,Rp,floorY,ceilY,lL0,sMaxPx;
+function geo(){
+  cx=W*0.5; ceilY=H*0.06; pulleyY=H*0.20; floorY=H*0.94;
+  Rp=24+st.mp*2;
+  const hangSpan=floorY-(pulleyY+Rp);
+  lL0=hangSpan*0.42;                 // initial hang length (both equal at start)
+  // limits: heavier mass reaches floor OR lighter reaches pulley
+  const hm=mh(Math.max(st.m1,st.m2));
+  sMaxPx=Math.min(hangSpan-lL0-hm-6, lL0-10);
+}
+function mh(m){ return 30+3.2*Math.cbrt(m)*2; }   // mass block height (px)
+function mw(m){ return 40+3.2*Math.cbrt(m)*3; }
+
+function step(dt){
+  if(!playing) return;
+  const a=accel()*PXM;          // px/s²
+  v+=a*dt; s+=v*dt; t+=dt;
+  if(s>=sMaxPx){ s=sMaxPx; v=0; playing=false; endMsg(); }
+  if(s<=-sMaxPx){ s=-sMaxPx; v=0; playing=false; endMsg(); }
+  samples.push([t,Math.abs(v)/PXM]); if(samples.length>1600)samples.shift();
+}
+function endMsg(){ document.getElementById('play').textContent='Release ▶'; }
+
+function arrow(x,y,ux,uy,len,col,w){const m=Math.hypot(ux,uy)||1,dx=ux/m,dy=uy/m;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx*len,y+dy*len);ctx.stroke();const ex=x+dx*len,ey=y+dy*len,a=Math.atan2(dy,dx);
+  ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-8*Math.cos(a-0.4),ey-8*Math.sin(a-0.4));ctx.lineTo(ex-8*Math.cos(a+0.4),ey-8*Math.sin(a+0.4));ctx.closePath();ctx.fill();}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a1424'; ctx.fillRect(0,0,W,H); geo();
+  const {a,T1,T2}=tensions();
+  // ceiling beam + support
+  ctx.fillStyle='rgba(120,140,175,.35)'; ctx.fillRect(cx-90,ceilY,180,12);
+  ctx.strokeStyle='rgba(150,180,210,.5)'; ctx.lineWidth=2; ctx.strokeRect(cx-90,ceilY,180,12);
+  for(let i=-80;i<=80;i+=16){ ctx.strokeStyle='rgba(150,180,210,.25)'; ctx.beginPath();ctx.moveTo(cx+i,ceilY);ctx.lineTo(cx+i-8,ceilY-8);ctx.stroke(); }
+  ctx.strokeStyle='rgba(150,180,210,.5)'; ctx.lineWidth=3; ctx.beginPath();ctx.moveTo(cx,ceilY+12);ctx.lineTo(cx,pulleyY-Rp);ctx.stroke();
+
+  // string over pulley (top arc) + two vertical segments
+  const lLx=cx-Rp, rLx=cx+Rp;
+  const lL=lL0+s, lR=lL0-s;                       // hang lengths (px)
+  const m1TopY=pulleyY+Rp+lL, m2TopY=pulleyY+Rp+lR;
+  ctx.strokeStyle='rgba(210,220,240,.85)'; ctx.lineWidth=2.4; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(cx,pulleyY,Rp,Math.PI,0,false); ctx.stroke();  // over the top
+  ctx.beginPath();ctx.moveTo(lLx,pulleyY);ctx.lineTo(lLx,m1TopY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rLx,pulleyY);ctx.lineTo(rLx,m2TopY);ctx.stroke();
+
+  // pulley wheel (rotates)
+  const phi=s/Rp;
+  ctx.save(); ctx.translate(cx,pulleyY); ctx.rotate(phi);
+  const pg=ctx.createRadialGradient(-Rp*0.3,-Rp*0.3,Rp*0.2,0,0,Rp);
+  pg.addColorStop(0,'rgba(150,190,230,.5)'); pg.addColorStop(1,'rgba(90,120,160,.5)');
+  ctx.fillStyle=pg; ctx.beginPath();ctx.arc(0,0,Rp,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(190,215,240,.85)'; ctx.lineWidth=3; ctx.beginPath();ctx.arc(0,0,Rp,0,7);ctx.stroke();
+  ctx.strokeStyle='rgba(220,235,255,.7)'; ctx.lineWidth=2;
+  for(let k=0;k<4;k++){ const ang=k*Math.PI/2; ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(ang)*Rp*0.8,Math.sin(ang)*Rp*0.8);ctx.stroke(); }
+  ctx.fillStyle='#0a1424'; ctx.beginPath();ctx.arc(0,0,Rp*0.16,0,7);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='rgba(150,180,210,.6)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText('pulley '+(st.mp>0?st.mp+'kg':'ideal'), cx, pulleyY+Rp+0);
+
+  // masses
+  drawMass(lLx, m1TopY, st.m1, '#7cc4ff', '#bfe3ff', 'm₁', T1, a>0);
+  drawMass(rLx, m2TopY, st.m2, '#b89bff', '#d6c6ff', 'm₂', T2, a<0);
+
+  // floor
+  ctx.strokeStyle='rgba(98,210,162,.5)'; ctx.lineWidth=2; ctx.beginPath();ctx.moveTo(0,floorY);ctx.lineTo(W,floorY);ctx.stroke();
+  ctx.textAlign='left';
+  drawGraph();
+  requestAnimationFrame(()=>{});
+}
+function drawMass(cxp, topY, m, fill, stroke, lab, T, movingDown){
+  const w=mw(m), h=mh(m), x=cxp-w/2, y=topY;
+  // hook
+  ctx.strokeStyle='rgba(210,220,240,.8)'; ctx.lineWidth=2; ctx.beginPath();ctx.arc(cxp,y-3,3,0,7);ctx.stroke();
+  ctx.fillStyle=fill; ctx.strokeStyle=stroke; ctx.lineWidth=2; roundRect(x,y,w,h,7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#06203a'; ctx.font='bold 12px JetBrains Mono'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(lab+' '+m+'kg', cxp, y+h/2); ctx.textBaseline='alphabetic';
+  // tension arrow (up)
+  arrow(cxp, y-8, 0,-1, Math.min(70,18+T*0.6), '#ffd27a', 2.6);
+  ctx.fillStyle='#ffd27a'; ctx.font='10px JetBrains Mono'; ctx.fillText('T '+T.toFixed(0), cxp+24, y-30);
+  // weight arrow (down)
+  arrow(cxp, y+h+8, 0,1, Math.min(70,18+m*G*0.09), 'rgba(154,178,204,.9)', 2.4);
+  ctx.fillStyle='rgba(154,178,204,.9)'; ctx.fillText('mg '+(m*G).toFixed(0), cxp+26, y+h+34);
+  // velocity arrow
+  if(playing && Math.abs(v)>2){ const dir=movingDown?1:-1; arrow(cxp-w/2-14, y+h/2, 0,dir, Math.min(46,10+Math.abs(v)*0.12), '#67e8a0', 2.4); }
+}
+function drawGraph(){
+  gx.clearRect(0,0,GW,GH);
+  const x0=40,x1=GW-10,y0=GH-18,y1=8;
+  gx.strokeStyle='rgba(140,180,220,.3)'; gx.lineWidth=1; gx.beginPath();gx.moveTo(x0,y1);gx.lineTo(x0,y0);gx.lineTo(x1,y0);gx.stroke();
+  gx.fillStyle='rgba(154,178,204,.7)'; gx.font='10px JetBrains Mono'; gx.textAlign='right'; gx.textBaseline='middle';
+  gx.fillText('v', x0-6, (y0+y1)/2); gx.textAlign='center'; gx.textBaseline='top'; gx.fillText('time', (x0+x1)/2, GH-9);
+  if(samples.length<2) return;
+  const tMax=Math.max(2,samples[samples.length-1][0]); let vMax=0.5; for(const p of samples)vMax=Math.max(vMax,p[1]); vMax*=1.15;
+  const X=tt=>x0+tt/tMax*(x1-x0), Y=vv=>y0-vv/vMax*(y0-y1);
+  gx.strokeStyle='#67e8a0'; gx.lineWidth=2; gx.beginPath();
+  samples.forEach((p,i)=>{const px=X(p[0]),py=Y(p[1]);i?gx.lineTo(px,py):gx.moveTo(px,py);}); gx.stroke();
+}
+function updateStats(){
+  const {a,T1,T2}=tensions();
+  document.getElementById('sA').textContent=Math.abs(a).toFixed(2)+' m/s²';
+  document.getElementById('sT1').textContent=T1.toFixed(1)+' N';
+  document.getElementById('sT2').textContent=T2.toFixed(1)+' N';
+  document.getElementById('sV').textContent=(Math.abs(v)/PXM).toFixed(2)+' m/s';
+  document.getElementById('sTt').textContent=t.toFixed(1)+' s';
+  const ve=document.getElementById('verdict');
+  if(Math.abs(st.m1-st.m2)<1e-6) ve.textContent='Equal masses → a = 0. The system is balanced and stays put.';
+  else if(st.mp>0) ve.textContent=`${st.m1>st.m2?'m₁':'m₂'} falls at a = ${Math.abs(a).toFixed(2)} m/s². The pulley's inertia splits the tensions: T₁ ≠ T₂.`;
+  else ve.textContent=`${st.m1>st.m2?'m₁':'m₂'} falls; both share a = ${Math.abs(a).toFixed(2)} m/s². Ideal pulley → T₁ = T₂.`;
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.04,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; step(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+
+function bind(sl,nu,key,labId,fmt){const s2=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s2.min),Math.min(parseFloat(s2.max),x));if(isNaN(x))return;st[key]=x;s2.value=x;n.value=x;lab.textContent=fmt(x); resetMotion();}
+  s2.addEventListener('input',()=>set(parseFloat(s2.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('m1','m1N','m1','m1V',v=>(+v).toFixed(1)+' kg');
+bind('m2','m2N','m2','m2V',v=>(+v).toFixed(1)+' kg');
+bind('mp','mpN','mp','mpV',v=>(+v).toFixed(1)+' kg');
+function resetMotion(){ s=0; v=0; t=0; samples=[]; playing=false; document.getElementById('play').textContent='Release ▶'; }
+document.getElementById('play').addEventListener('click',()=>{
+  const b=document.getElementById('play');
+  if(playing){ playing=false; b.textContent='Release ▶'; }
+  else { if(Math.abs(s)>=sMaxPx-0.5) resetMotion(); playing=true; b.textContent='Pause ⏸'; }
+});
+document.getElementById('reset').addEventListener('click',resetMotion);
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

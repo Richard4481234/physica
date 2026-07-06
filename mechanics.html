@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mechanical · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2;
+    --r:20px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.12), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.09), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;
+  }
+  a{text-decoration:none; color:inherit}
+
+  .nav{max-width:1140px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:17px; letter-spacing:.02em}
+  .brand .mark{width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#5aa8ee); box-shadow:0 6px 18px -6px rgba(124,196,255,.8);}
+  .brand .mark svg{display:block}
+  .nav .links{margin-left:auto; display:flex; gap:26px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  @media (max-width:640px){.nav .links{display:none}}
+
+  .hero{max-width:1140px; margin:0 auto; padding:40px 28px 26px; text-align:center}
+  .hero .kicker{font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  .hero h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(36px,6vw,60px);
+    line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;}
+  .hero h1 em{font-style:italic; color:var(--accent)}
+  .hero p{max-width:580px; margin:20px auto 0; color:var(--muted); font-size:17px; line-height:1.6;}
+  .hero .cta{display:inline-flex; align-items:center; gap:9px; margin-top:28px; padding:14px 26px;
+    border-radius:13px; font-weight:600; font-size:15px; color:#08111e;
+    background:linear-gradient(135deg,#8fd0ff,#5aa8ee);
+    box-shadow:0 12px 30px -10px rgba(124,196,255,.7); transition:transform .15s ease,filter .15s ease;}
+  .hero .cta:hover{transform:translateY(-2px); filter:brightness(1.06)}
+
+  .sec{max-width:1140px; margin:0 auto; padding:34px 28px 60px}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:22px}
+  .sec-head h2{font-family:'Fraunces',serif; font-weight:500; font-size:24px; margin:0}
+  .sec-head span{color:var(--faint); font-size:13px; font-family:'JetBrains Mono',monospace}
+  .sec-head .rule{flex:1; height:1px; background:var(--glass-line)}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:20px}
+  .card{position:relative; display:flex; flex-direction:column; overflow:hidden;
+    background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+  .card.live{cursor:pointer}
+  .card.live:hover{transform:translateY(-4px); border-color:rgba(124,196,255,.45);
+    box-shadow:0 28px 60px -28px rgba(0,0,0,.9), 0 0 30px -10px rgba(124,196,255,.4);}
+  .card .art{height:148px; position:relative; border-bottom:1px solid var(--glass-line); overflow:hidden}
+  .card .art svg{position:absolute; inset:0; width:100%; height:100%}
+  .card .body{padding:18px 20px 20px}
+  .badge{position:absolute; top:13px; right:13px; z-index:2;
+    font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; padding:5px 10px; border-radius:99px;}
+  .badge.live{color:#06241a; background:linear-gradient(135deg,#8fe7c2,#4fc99a)}
+  .badge.concept{color:#2a1d06; background:linear-gradient(135deg,#ffe0a3,#ffc46b)}
+  .card h3{font-family:'Fraunces',serif; font-weight:500; font-size:21px; margin:0 0 6px}
+  .card .tags{display:flex; gap:7px; margin:2px 0 11px; flex-wrap:wrap}
+  .tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--accent);
+    background:rgba(124,196,255,.1); padding:3px 8px; border-radius:6px}
+  .card p{color:var(--muted); font-size:13.5px; line-height:1.55; margin:0}
+  .card .go{display:inline-flex; align-items:center; gap:7px; margin-top:14px; font-size:13.5px; font-weight:600; color:var(--accent);}
+
+  footer{max-width:1140px; margin:0 auto; padding:20px 28px 50px; color:var(--faint);
+    font-size:13px; border-top:1px solid var(--glass-line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+</style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <span class="mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6.2" stroke="#08111e" stroke-width="1.6"/>
+          <circle cx="8" cy="8" r="1.7" fill="#08111e"/>
+          <ellipse cx="8" cy="8" rx="6.2" ry="2.6" stroke="#08111e" stroke-width="1.2" transform="rotate(35 8 8)"/>
+        </svg>
+      </span>
+      Physica
+    </a>
+    <div class="links">
+      <a href="index.html">← All fields</a>
+      <a href="#experiments">Experiments</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="kicker">Field · Mechanical</div>
+    <h1>Classical <em>Mechanics</em></h1>
+    <p>Motion, forces, momentum and gravity — hands-on simulations that turn the formulas of
+       classical mechanics into something you can launch, tune, and explore in real time.</p>
+    <a class="cta" href="projectile_simulator.html">Open Projectile Motion →</a>
+  </header>
+
+  <section class="sec" id="experiments">
+    <div class="sec-head">
+      <h2>Experiments</h2>
+      <span>23 sims + 1 concept · all systems go</span>
+      <div class="rule"></div>
+    </div>
+
+    <div class="grid">
+
+      <!-- LIVE: Projectile -->
+      <a class="card live" href="projectile_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#161e40"/><stop offset="1" stop-color="#243463"/>
+              </linearGradient>
+              <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#8fd0ff"/><stop offset="1" stop-color="#5aa8ee"/>
+              </linearGradient>
+            </defs>
+            <rect width="300" height="148" fill="url(#sky)"/>
+            <line x1="20" y1="128" x2="285" y2="128" stroke="#62d2a2" stroke-width="2" opacity=".7"/>
+            <path d="M28 128 Q150 6 272 128" fill="none" stroke="url(#arc)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M28 128 Q150 6 272 128" fill="none" stroke="#7cc4ff" stroke-width="3" stroke-dasharray="3 6" opacity=".3"/>
+            <circle cx="150" cy="20" r="3.4" fill="#ffd27a"/>
+            <circle cx="200" cy="74" r="6" fill="#ff8a5b"/>
+            <circle cx="200" cy="74" r="13" fill="#ff8a5b" opacity=".22"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Projectile Motion</h3>
+          <div class="tags"><span class="tag">kinematics</span><span class="tag">gravity</span></div>
+          <p>Launch a ball, rocket, comet or dart. Tune velocity, angle, height and gravity, then probe any point of the arc for its exact coordinates.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Newton's First Law -->
+      <a class="card live" href="newton_first_law.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="0" y1="104" x2="300" y2="104" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <rect x="128" y="74" width="44" height="30" rx="6" fill="#7cc4ff"/>
+            <g stroke="#67e8a0" stroke-width="2" opacity=".7"><line x1="96" y1="80" x2="118" y2="80"/><line x1="84" y1="89" x2="118" y2="89"/><line x1="96" y1="98" x2="118" y2="98"/></g>
+            <path d="M182 89 l26 0" stroke="#67e8a0" stroke-width="2.4"/><path d="M208 89 l-7 -4 v8 z" fill="#67e8a0"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Newton's First Law</h3>
+          <div class="tags"><span class="tag">inertia</span><span class="tag">friction</span></div>
+          <p>Give a puck a push and see it coast. On ice or in space, with no net force, it glides on forever — the law of inertia made plain.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Newton's Second Law -->
+      <a class="card live" href="newton_second_law.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="0" y1="104" x2="300" y2="104" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <rect x="96" y="68" width="48" height="36" rx="6" fill="#7cc4ff"/>
+            <path d="M144 86 l52 0" stroke="#ffd27a" stroke-width="3.4"/><path d="M196 86 l-9 -5 v10 z" fill="#ffd27a"/>
+            <text x="120" y="132" font-size="15" fill="#9ab2cc" text-anchor="middle" font-family="monospace">a = F/m</text>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Newton's Second Law</h3>
+          <div class="tags"><span class="tag">F = ma</span><span class="tag">acceleration</span></div>
+          <p>Apply a force to a mass and watch it accelerate. Bigger force, faster pickup; heavier mass, slower — with a live velocity graph.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Newton's Third Law -->
+      <a class="card live" href="newton_third_law.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="0" y1="104" x2="300" y2="104" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <rect x="104" y="74" width="40" height="30" rx="6" fill="#7cc4ff"/>
+            <rect x="156" y="70" width="46" height="34" rx="6" fill="#ff9a4d"/>
+            <path d="M150 60 l-26 0" stroke="#ff8a8a" stroke-width="3"/><path d="M124 60 l8 -4 v8 z" fill="#ff8a8a"/>
+            <path d="M156 60 l26 0" stroke="#67e8a0" stroke-width="3"/><path d="M182 60 l-8 -4 v8 z" fill="#67e8a0"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Newton's Third Law</h3>
+          <div class="tags"><span class="tag">action–reaction</span><span class="tag">momentum</span></div>
+          <p>Release two carts on a compressed spring and watch them recoil with equal, opposite forces — the lighter one flying off faster.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Atwood machine -->
+      <a class="card live" href="atwood_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <rect x="60" y="20" width="180" height="8" fill="#5a6e8c" opacity=".6"/>
+            <line x1="150" y1="28" x2="150" y2="44" stroke="#9ab2cc" stroke-width="2"/>
+            <circle cx="150" cy="54" r="12" fill="none" stroke="#bfe3ff" stroke-width="3"/>
+            <line x1="138" y1="54" x2="138" y2="96" stroke="#d2dcf0" stroke-width="2"/>
+            <line x1="162" y1="54" x2="162" y2="74" stroke="#d2dcf0" stroke-width="2"/>
+            <rect x="122" y="96" width="32" height="26" rx="5" fill="#7cc4ff"/>
+            <rect x="148" y="74" width="28" height="22" rx="5" fill="#b89bff"/>
+            <path d="M138 132 l0 8" stroke="#67e8a0" stroke-width="2"/><path d="M138 140 l-3 -6 h6 z" fill="#67e8a0"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Atwood Machine</h3>
+          <div class="tags"><span class="tag">pulley</span><span class="tag">tension</span></div>
+          <p>Hang two masses over a pulley and watch the heavier one fall gently — a = (m₁−m₂)g/(m₁+m₂). Add pulley mass and the tensions split.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Double pendulum -->
+      <a class="card live" href="double_pendulum_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M150 30 C 210 60, 90 90, 200 120 S 120 150, 250 110" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".4"/>
+            <circle cx="150" cy="30" r="4" fill="#9ab2cc"/>
+            <line x1="150" y1="30" x2="196" y2="78" stroke="#d2dcf0" stroke-width="3"/>
+            <line x1="196" y1="78" x2="168" y2="126" stroke="#d2dcf0" stroke-width="3"/>
+            <circle cx="196" cy="78" r="8" fill="#7cc4ff"/>
+            <circle cx="168" cy="126" r="8" fill="#b89bff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Double Pendulum</h3>
+          <div class="tags"><span class="tag">chaos</span><span class="tag">butterfly effect</span></div>
+          <p>One pendulum on the end of another — deterministic rules, wildly unpredictable motion. Turn on the chaos twin and watch them diverge.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Standing waves -->
+      <a class="card live" href="standing_wave_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <rect x="30" y="54" width="8" height="40" fill="#5a6e8c"/><rect x="262" y="54" width="8" height="40" fill="#5a6e8c"/>
+            <path d="M38 74 Q 94 34 150 74 T 262 74" fill="none" stroke="#7cc4ff" stroke-width="3"/>
+            <path d="M38 74 Q 94 114 150 74 T 262 74" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".35"/>
+            <circle cx="38" cy="74" r="3.5" fill="#ffd27a"/><circle cx="150" cy="74" r="3.5" fill="#ffd27a"/><circle cx="262" cy="74" r="3.5" fill="#ffd27a"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Standing Waves on a String</h3>
+          <div class="tags"><span class="tag">harmonics</span><span class="tag">resonance</span></div>
+          <p>Clamp a string at both ends and see the harmonics — nodes, antinodes, and how two travelling waves add up to a standing one.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Projectile with air drag -->
+      <a class="card live" href="projectile_drag_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="0" y1="124" x2="300" y2="124" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <path d="M26 124 Q150 8 274 124" fill="none" stroke="#9ab2cc" stroke-width="1.6" stroke-dasharray="5 6" opacity=".6"/>
+            <path d="M26 124 Q120 30 190 124" fill="none" stroke="#7cc4ff" stroke-width="2.6"/>
+            <circle cx="150" cy="55" r="6" fill="#8fd0ff"/>
+            <path d="M150 55 l16 -10" stroke="#67e8a0" stroke-width="2"/><path d="M150 55 l-14 9" stroke="#ff8a5b" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Projectile with Air Drag</h3>
+          <div class="tags"><span class="tag">air resistance</span><span class="tag">terminal velocity</span></div>
+          <p>Compare the ideal vacuum parabola with the real, drag-shortened path — lower, shorter, and steeper on the way down.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Doppler effect -->
+      <a class="card live" href="doppler_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <circle cx="180" cy="74" r="18" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".8"/>
+            <circle cx="172" cy="74" r="38" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".55"/>
+            <circle cx="160" cy="74" r="60" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".35"/>
+            <circle cx="196" cy="74" r="7" fill="#ffd27a"/>
+            <path d="M204 74 l22 0" stroke="#ffd27a" stroke-width="2"/><path d="M226 74 l-6 -4 v8 z" fill="#ffd27a"/>
+            <circle cx="276" cy="74" r="5" fill="#67e8a0"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>The Doppler Effect</h3>
+          <div class="tags"><span class="tag">sound</span><span class="tag">sonic boom</span></div>
+          <p>Move a source and watch its wavefronts bunch ahead and stretch behind — the siren effect, right up to the Mach-cone sonic boom.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Beats -->
+      <a class="card live" href="beats_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M20 74 Q40 40 60 74 T100 74 T140 74 T180 74 T220 74 T260 74 T300 74" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".5"/>
+            <path d="M20 100 C 80 40, 80 40, 150 100 S 220 160, 280 100" fill="none" stroke="#ffd27a" stroke-width="1.2" stroke-dasharray="4 4" opacity=".6"/>
+            <path d="M20 100 q10 -30 20 0 t20 0 t20 0 t20 -8 t20 8 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#eef4fb" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Beats</h3>
+          <div class="tags"><span class="tag">superposition</span><span class="tag">tuning</span></div>
+          <p>Play two close frequencies and hear the loudness throb at their difference — the effect musicians use to tune by ear.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Pendulum -->
+      <a class="card live" href="pendulum_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="118" y1="20" x2="182" y2="20" stroke="#3b4670" stroke-width="4"/>
+            <path d="M150 20 a96 96 0 0 1 56 100" fill="none" stroke="#7cc4ff" stroke-width="1.5" stroke-dasharray="3 6" opacity=".45"/>
+            <path d="M150 20 a96 96 0 0 0 -56 100" fill="none" stroke="#7cc4ff" stroke-width="1.5" stroke-dasharray="3 6" opacity=".25"/>
+            <line x1="150" y1="20" x2="206" y2="120" stroke="#cfe8ff" stroke-width="2.5"/>
+            <circle cx="150" cy="20" r="3.5" fill="#9aa6cc"/>
+            <circle cx="206" cy="120" r="15" fill="#7cc4ff"/>
+            <circle cx="206" cy="120" r="22" fill="#7cc4ff" opacity=".18"/>
+            <circle cx="201" cy="115" r="4" fill="#ffffff" opacity=".8"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Pendulum</h3>
+          <div class="tags"><span class="tag">oscillation</span><span class="tag">energy</span></div>
+          <p>Swing a bob through small or wide arcs, add damping, and watch the period shift and energy trade between motion and height.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Spring (SHM) -->
+      <a class="card live" href="spring_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <rect x="24" y="50" width="10" height="48" fill="#9aa6cc" opacity=".5"/>
+            <path d="M34 74 h14 l8 -12 l12 24 l12 -24 l12 24 l12 -24 l12 24 l8 -12 h14" fill="none" stroke="#cfe8ff" stroke-width="2.2"/>
+            <rect x="172" y="54" width="40" height="40" rx="6" fill="#5aa8ee"/>
+            <rect x="172" y="54" width="40" height="40" rx="6" fill="#7cc4ff" opacity=".25"/>
+            <line x1="232" y1="74" x2="264" y2="74" stroke="#ff8a5b" stroke-width="2.5"/>
+            <path d="M264 74 l-7 -4 v8 z" fill="#ff8a5b"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Mass on a Spring</h3>
+          <div class="tags"><span class="tag">oscillation</span><span class="tag">SHM</span></div>
+          <p>Pull a mass on a spring and release it — explore simple harmonic motion, damping, period, and the kinetic–potential energy exchange.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Energy conservation -->
+      <a class="card live" href="energy_conservation_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M10 40 Q80 150 150 96 Q220 50 290 40" fill="none" stroke="#cfe8ff" stroke-width="2.5"/>
+            <line x1="10" y1="44" x2="290" y2="44" stroke="#ffd27a" stroke-width="1.4" stroke-dasharray="6 6" opacity=".6"/>
+            <circle cx="40" cy="62" r="9" fill="#5aa8ee"/>
+            <circle cx="40" cy="62" r="15" fill="#7cc4ff" opacity=".22"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Conservation of Energy</h3>
+          <div class="tags"><span class="tag">energy</span><span class="tag">KE ↔ PE</span></div>
+          <p>Release a ball on a hilly track and watch kinetic and potential energy trade while the total stays fixed — until friction turns it to heat.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Circular motion -->
+      <a class="card live" href="circular_motion_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <circle cx="150" cy="74" r="50" fill="none" stroke="#7cc4ff" stroke-width="1.5" stroke-dasharray="5 7" opacity=".5"/>
+            <circle cx="150" cy="74" r="4" fill="#9aa6cc"/>
+            <line x1="150" y1="74" x2="200" y2="74" stroke="#cfe8ff" stroke-width="1.6"/>
+            <circle cx="200" cy="74" r="10" fill="#5aa8ee"/>
+            <line x1="200" y1="74" x2="200" y2="40" stroke="#ff8a5b" stroke-width="2.5"/>
+            <path d="M200 40 l-4 7 h8 z" fill="#ff8a5b"/>
+            <line x1="200" y1="74" x2="172" y2="74" stroke="#ffd27a" stroke-width="2.5"/>
+            <path d="M172 74 l7 -4 v8 z" fill="#ffd27a"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Circular Motion</h3>
+          <div class="tags"><span class="tag">centripetal</span><span class="tag">dynamics</span></div>
+          <p>Whirl a mass in a circle to see the inward centripetal force — then cut the string and watch it fly off along the tangent.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Rolling without slipping -->
+      <a class="card live" href="rolling_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M40 34 L250 118 L40 118 Z" fill="rgba(124,196,255,.08)" stroke="#7cc4ff" stroke-width="2" opacity=".7"/>
+            <line x1="30" y1="118" x2="285" y2="118" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <g transform="rotate(22 150 86)">
+              <circle cx="150" cy="74" r="17" fill="#7cc4ff"/>
+              <circle cx="150" cy="74" r="22" fill="#7cc4ff" opacity=".2"/>
+              <line x1="150" y1="74" x2="150" y2="59" stroke="#08111e" stroke-width="2.2"/>
+              <line x1="150" y1="74" x2="165" y2="74" stroke="#08111e" stroke-width="2.2"/>
+            </g>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Rolling Without Slipping</h3>
+          <div class="tags"><span class="tag">rotation</span><span class="tag">moment of inertia</span></div>
+          <p>Roll spheres, discs and hoops down a ramp and race them — which wins depends only on how the mass is distributed, not on size or weight.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Angular momentum -->
+      <a class="card live" href="angular_momentum_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <circle cx="150" cy="74" r="38" fill="rgba(124,196,255,.12)" stroke="#7cc4ff" stroke-width="2"/>
+            <line x1="92" y1="74" x2="208" y2="74" stroke="#9aa6cc" stroke-width="3"/>
+            <circle cx="92" cy="74" r="11" fill="#ffd27a"/><circle cx="208" cy="74" r="11" fill="#ffd27a"/>
+            <path d="M150 30 a44 44 0 0 1 38 22" fill="none" stroke="#62d2a2" stroke-width="2" opacity=".7"/>
+            <path d="M188 52 l2 -8 l-8 3 z" fill="#62d2a2"/>
+            <circle cx="150" cy="74" r="5" fill="#eef1fb"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Angular Momentum</h3>
+          <div class="tags"><span class="tag">conservation</span><span class="tag">rotation</span></div>
+          <p>Pull spinning weights inward and watch the platform whirl faster — the skater effect, with L = Iω held constant.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Orbits -->
+      <a class="card live" href="orbital_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#0e1430"/>
+            <ellipse cx="166" cy="74" rx="100" ry="52" fill="none" stroke="#7cc4ff" stroke-width="1.5" stroke-dasharray="5 6" opacity=".55"/>
+            <ellipse cx="150" cy="74" rx="60" ry="34" fill="none" stroke="#9aa6cc" stroke-width="1.2" opacity=".3"/>
+            <circle cx="118" cy="74" r="12" fill="#ffd27a"/>
+            <circle cx="118" cy="74" r="20" fill="#ffd27a" opacity=".22"/>
+            <circle cx="266" cy="74" r="6" fill="#cfe8ff"/>
+            <circle cx="266" cy="74" r="11" fill="#7cc4ff" opacity=".25"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Orbital Mechanics</h3>
+          <div class="tags"><span class="tag">gravitation</span><span class="tag">two-body</span></div>
+          <p>Launch a satellite around a star and shape its orbit — circle, ellipse, or escape — while Kepler's laws play out before you.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Gravitation -->
+      <a class="card live" href="gravitation_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#0e1430"/>
+            <circle cx="96" cy="74" r="16" fill="#7cc4ff"/><circle cx="96" cy="74" r="24" fill="#7cc4ff" opacity=".2"/>
+            <circle cx="208" cy="74" r="12" fill="#b89bff"/><circle cx="208" cy="74" r="19" fill="#b89bff" opacity=".2"/>
+            <path d="M120 74 h34" stroke="#ffd27a" stroke-width="2.5"/><path d="M154 74 l-7 -4 v8 z" fill="#ffd27a"/>
+            <path d="M184 74 h-34" stroke="#ffd27a" stroke-width="2.5"/><path d="M150 74 l7 -4 v8 z" fill="#ffd27a"/>
+            <path d="M40 120 q70 -54 220 0" fill="none" stroke="#7cc4ff" stroke-width="1.4" opacity=".5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Gravity: Force &amp; Energy</h3>
+          <div class="tags"><span class="tag">gravitation</span><span class="tag">potential energy</span></div>
+          <p>Two masses attract with F = Gm₁m₂/r². Explore the potential well U(r) and release them to watch energy convert and conserve.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <!-- CONCEPT: Kepler's Laws -->
+      <a class="card live" href="kepler_laws.html">
+        <span class="badge concept">Concept</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#0e1430"/>
+            <ellipse cx="160" cy="74" rx="104" ry="50" fill="none" stroke="#7cc4ff" stroke-width="1.5" opacity=".5"/>
+            <circle cx="112" cy="74" r="11" fill="#ffd27a"/>
+            <circle cx="112" cy="74" r="18" fill="#ffd27a" opacity=".22"/>
+            <path d="M112 74 L60 74 L70 50 Z" fill="#7cc4ff" opacity=".3"/>
+            <path d="M112 74 L255 90 L258 66 Z" fill="#ff8a5b" opacity=".3"/>
+            <circle cx="64" cy="62" r="5" fill="#cfe8ff"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Kepler's Three Laws</h3>
+          <div class="tags"><span class="tag">ellipses</span><span class="tag">equal areas</span><span class="tag">T²∝a³</span></div>
+          <p>One animated visual for each of Kepler's laws — the ellipse and its foci, equal areas in equal times, and the harmonic law.</p>
+          <span class="go">Open visuals →</span>
+        </div>
+      </a>
+
+      <!-- LIVE: Collisions -->
+      <a class="card live" href="collision_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="14" y1="110" x2="286" y2="110" stroke="#62d2a2" stroke-width="2" opacity=".6"/>
+            <circle cx="112" cy="92" r="16" fill="#7cc4ff"/>
+            <circle cx="112" cy="92" r="24" fill="#7cc4ff" opacity=".18"/>
+            <circle cx="196" cy="86" r="22" fill="#ff8a5b"/>
+            <circle cx="196" cy="86" r="31" fill="#ff8a5b" opacity=".16"/>
+            <path d="M133 70 h22" stroke="#7cc4ff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M155 70 l-6 -3 v6 z" fill="#7cc4ff"/>
+            <path d="M174 64 h-20" stroke="#ff8a5b" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M154 64 l6 -3 v6 z" fill="#ff8a5b"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Collisions</h3>
+          <div class="tags"><span class="tag">momentum</span><span class="tag">energy</span></div>
+          <p>Send two bodies at each other and compare elastic, inelastic and perfectly inelastic impacts — watch momentum hold while energy is lost.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <a class="card live" href="torque_lever_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="45" y1="66" x2="255" y2="86" stroke="#eef4fb" stroke-width="5"/>
+            <path d="M150 76 L128 122 L172 122 Z" fill="rgba(124,196,255,.3)" stroke="#7cc4ff" stroke-width="1.6"/>
+            <rect x="58" y="38" width="30" height="24" fill="#7cc4ff"/>
+            <rect x="216" y="52" width="42" height="30" fill="#ffd27a"/>
+            <line x1="0" y1="124" x2="300" y2="124" stroke="#3a527a" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Torque &amp; Levers</h3>
+          <div class="tags"><span class="tag">equilibrium</span><span class="tag">τ = F·d</span></div>
+          <p>Balance a seesaw by trading mass for distance — find the exact spot where m₁d₁ = m₂d₂ and the beam floats level.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <a class="card live" href="driven_oscillator_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M20 120 C70 118 100 110 130 60 C140 40 150 40 160 60 C190 110 230 118 280 120" fill="none" stroke="#67e8a0" stroke-width="2.4"/>
+            <line x1="145" y1="128" x2="145" y2="30" stroke="#ffd27a" stroke-width="1" stroke-dasharray="3 4"/>
+            <circle cx="145" cy="47" r="5" fill="#ffd27a"/>
+            <text x="145" y="140" font-size="10" fill="#ffd27a" text-anchor="middle" font-family="monospace">f₀</text>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Driven Oscillator &amp; Resonance</h3>
+          <div class="tags"><span class="tag">resonance</span><span class="tag">A(ω)</span></div>
+          <p>Push a spring-mass at different rhythms and sweep across the towering resonance peak — the mechanical twin of the RLC circuit.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <a class="card live" href="friction_incline_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <path d="M30 124 L270 124 L30 34 Z" fill="rgba(124,196,255,.12)" stroke="#7cc4ff" stroke-width="1.8"/>
+            <rect x="95" y="47" width="40" height="27" fill="#7cc4ff" transform="rotate(20.5 115 60)"/>
+            <path d="M118 78 l-26 -10" stroke="#ffd27a" stroke-width="2.4"/>
+            <path d="M118 82 l20 8" stroke="#ff8a5b" stroke-width="2"/>
+            <path d="M115 80 l0 34" stroke="#9ab2cc" stroke-width="2"/>
+            <text x="238" y="116" font-size="11" fill="#ffd27a" font-family="monospace">θ</text>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Friction on an Incline</h3>
+          <div class="tags"><span class="tag">static vs kinetic</span><span class="tag">tanθ = μs</span></div>
+          <p>Tilt the ramp degree by degree until static friction snaps at the critical angle — then watch weaker kinetic friction take over.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+      <a class="card live" href="center_of_mass_simulator.html">
+        <span class="badge live">Live</span>
+        <div class="art">
+          <svg viewBox="0 0 300 148" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="148" fill="#141a36"/>
+            <line x1="20" y1="90" x2="280" y2="58" stroke="#ffd27a" stroke-width="1.6" stroke-dasharray="6 5"/>
+            <circle cx="70" cy="55" r="13" fill="#7cc4ff"/>
+            <circle cx="215" cy="105" r="17" fill="#ff8a5b"/>
+            <path d="M143 66 l12 12 M155 66 l-12 12" stroke="#ffd27a" stroke-width="2.4"/>
+            <path d="M83 62 q30 22 46 12" fill="none" stroke="rgba(124,196,255,.5)" stroke-width="1.4"/>
+            <path d="M198 98 q-28 -18 -44 -14" fill="none" stroke="rgba(255,138,91,.5)" stroke-width="1.4"/>
+          </svg>
+        </div>
+        <div class="body">
+          <h3>Center of Mass</h3>
+          <div class="tags"><span class="tag">momentum</span><span class="tag">collisions</span></div>
+          <p>Collide or explode two bodies and watch the gold × of their center of mass sail on in a straight line, untouched by the chaos.</p>
+          <span class="go">Open simulator →</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>Physica · Mechanical — built for curiosity.</span>
+    <span><a href="index.html" style="color:var(--accent)">← Back to all fields</a></span>
+  </footer>
+
+</body>
+</html>

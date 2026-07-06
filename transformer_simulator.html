@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformer · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Transformer</h1>
+    <p>Two coils share one iron core, coupled only by magnetic flux. The turns ratio sets the voltage ratio —
+       step it up or step it down — while the power flowing through stays the same.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#cdb6ff"></i>primary V₁ (N₁ turns)</span><span><i style="background:#67e8a0"></i>secondary V₂ (N₂ turns)</span><span><i style="background:#ffd27a"></i>shared flux Φ in the core</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Primary turns N₁ <span class="val" id="n1V">100 turns</span></label>
+        <div class="row"><input type="range" id="n1" min="20" max="400" step="10" value="100"><input type="number" id="n1N" min="20" max="400" step="10" value="100"></div></div>
+      <div class="ctl"><label>Secondary turns N₂ <span class="val" id="n2V">200 turns</span></label>
+        <div class="row"><input type="range" id="n2" min="20" max="400" step="10" value="200"><input type="number" id="n2N" min="20" max="400" step="10" value="200"></div></div>
+      <div class="ctl"><label>Source voltage V₁ (peak) <span class="val" id="v1V">6.0 V</span></label>
+        <div class="row"><input type="range" id="v1" min="1" max="12" step="0.5" value="6"><input type="number" id="v1N" min="1" max="12" step="0.5" value="6"></div></div>
+      <div class="ctl"><label>Load resistance <span class="val" id="rV">100 Ω</span></label>
+        <div class="row"><input type="range" id="r" min="20" max="500" step="10" value="100"><input type="number" id="rN" min="20" max="500" step="10" value="100"></div></div>
+      <div class="stats">
+        <div class="s"><span>Turns ratio N₂/N₁</span><span id="sRatio">—</span></div>
+        <div class="s"><span>Output V₂ = (N₂/N₁)·V₁</span><span id="sV2">—</span></div>
+        <div class="s"><span>Currents I₁ / I₂</span><span id="sI">—</span></div>
+        <div class="s"><span>Power in = power out</span><span id="sP">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Step-up ×2.00: V₂ = (N₂/N₁)·V₁ — but the primary draws 2× the current. Power in = power out.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      An iron core links two separate coils: the violet <strong>primary</strong> (driven by an AC source) and the
+      green <strong>secondary</strong> (feeding a load). No wire connects them — only the gold magnetic flux
+      circulating in the core. The graph tracks the two voltages in real time.
+
+      <h3>How flux coupling works</h3>
+      The AC current in the primary magnetizes the core, and the iron guides almost all of that flux Φ through the
+      secondary too. Faraday's law then acts on each coil in proportion to its turns:
+      <div class="eq">V₁ = N₁·dΦ/dt&nbsp;&nbsp;&nbsp;V₂ = N₂·dΦ/dt</div>
+      Same dΦ/dt for both — so dividing the equations kills it:
+      <div class="eq">V₂ / V₁ = N₂ / N₁</div>
+      More secondary turns than primary and the voltage is <strong>stepped up</strong>; fewer and it's
+      <strong>stepped down</strong>. Notice this only works because the flux keeps changing — feed a transformer
+      DC and dΦ/dt = 0: nothing comes out (and the primary overheats).
+
+      <h3>No free lunch: the current trades the other way</h3>
+      An ideal transformer passes power straight through, so what the voltage gains the current must lose:
+      <div class="eq">V₁·I₁ = V₂·I₂&nbsp;&nbsp;⇒&nbsp;&nbsp;I₂ / I₁ = N₁ / N₂</div>
+      Step 6 V up to 12 V and the secondary delivers only half the current the primary draws. The stats panel
+      shows both sides of the ledger balancing exactly.
+
+      <h3>Why the grid depends on this</h3>
+      Transmission losses go as I²R in the cables — so the grid steps voltage <strong>up</strong> (hundreds of kV)
+      to push the same power with tiny current over long lines, then steps it back <strong>down</strong> near your
+      home. This single trick — and the fact that transformers need AC — is the main reason the power grid is AC.
+
+      <h3>Things to try</h3>
+      Set N₂ = N₁ for a 1:1 isolation transformer. Slide N₂ up and watch V₂ grow while I₁ climbs to pay for it.
+      Halve the load resistance and both currents double while the voltages stand still — the transformer passes
+      through whatever power the load demands.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={N1:100, N2:200, V1:6, R:100};
+let ph=0, t=0, samples=[];
+const CYC=2.2;                 // seconds per displayed AC cycle
+function ratio(){ return st.N2/st.N1; }
+function V2pk(){ return st.V1*ratio(); }
+function I2pk(){ return V2pk()/st.R; }
+function I1pk(){ return I2pk()*ratio(); }
+function update(dt){
+  ph+=dt*2*Math.PI/CYC; t+=dt;
+  samples.push({t, v1:st.V1*Math.sin(ph), v2:V2pk()*Math.sin(ph)});
+  if(samples.length>4000)samples.shift();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  drawCore(16,16,W*0.46,H-32);
+  drawGraph(W*0.50,20,W-20-W*0.50,H-44);
+  requestAnimationFrame(()=>{});
+}
+function coilTurns(N){ return Math.max(3, Math.min(14, Math.round(N/30))); }
+function drawCore(x,y,wd,ht){
+  const cx=x+wd/2, cy=y+ht*0.47;
+  const cw=wd*0.52, chh=ht*0.56, thick=Math.min(26, cw*0.16);
+  const L=cx-cw/2, R=cx+cw/2, T=cy-chh/2, B=cy+chh/2;
+  // laminated core: outer & inner rectangles
+  ctx.strokeStyle='rgba(179,170,204,.55)'; ctx.lineWidth=2;
+  ctx.fillStyle='rgba(120,110,160,.12)';
+  ctx.beginPath(); ctx.rect(L,T,cw,chh); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#0a0918';
+  ctx.beginPath(); ctx.rect(L+thick,T+thick,cw-2*thick,chh-2*thick); ctx.fill(); ctx.stroke();
+  // circulating flux arrows in the core, animated with Φ sign
+  const fluxAmp=Math.cos(ph);      // V = sin ⇒ Φ ∝ −cos (up to sign; arrows show alternation)
+  const dir=fluxAmp>=0?1:-1, glow=0.25+0.55*Math.abs(fluxAmp);
+  ctx.strokeStyle='rgba(255,210,122,'+glow+')'; ctx.fillStyle='rgba(255,210,122,'+glow+')'; ctx.lineWidth=1.8;
+  const mid=thick/2;
+  const path=[[L+mid,cy],[L+mid,T+mid],[cx,T+mid],[R-mid,T+mid],[R-mid,cy],[R-mid,B-mid],[cx,B-mid],[L+mid,B-mid]];
+  for(let i=0;i<8;i+=2){
+    const p=path[i], q=path[(i+1)%8];
+    const mxx=(p[0]+q[0])/2, myy=(p[1]+q[1])/2;
+    let ddx=q[0]-p[0], ddy=q[1]-p[1]; const mm=Math.hypot(ddx,ddy)||1; ddx/=mm; ddy/=mm;
+    if(dir<0){ddx=-ddx;ddy=-ddy;}
+    ctx.beginPath(); ctx.moveTo(mxx-ddx*9,myy-ddy*9); ctx.lineTo(mxx+ddx*9,myy+ddy*9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mxx+ddx*13,myy+ddy*13);
+    ctx.lineTo(mxx+ddx*5-ddy*4.5,myy+ddy*5+ddx*4.5);
+    ctx.lineTo(mxx+ddx*5+ddy*4.5,myy+ddy*5-ddx*4.5); ctx.closePath(); ctx.fill();
+  }
+  ctx.font='10.5px JetBrains Mono'; ctx.textAlign='center'; ctx.fillStyle='rgba(255,210,122,.85)';
+  ctx.fillText('shared flux Φ', cx, T-8);
+  // primary coil (left limb)
+  drawCoil(L+mid, cy, chh*0.44, coilTurns(st.N1), '#cdb6ff', Math.sin(ph));
+  // secondary coil (right limb)
+  drawCoil(R-mid, cy, chh*0.44, coilTurns(st.N2), '#67e8a0', Math.sin(ph));
+  ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillStyle='#cdb6ff'; ctx.fillText('N₁ = '+st.N1, L+mid, B+24);
+  ctx.fillStyle='#67e8a0'; ctx.fillText('N₂ = '+st.N2, R-mid, B+24);
+  // AC source label (left) and load (right)
+  ctx.fillStyle='rgba(184,155,255,.9)'; ctx.fillText('~ '+st.V1.toFixed(1)+' V', L+mid, T-24);
+  ctx.fillStyle='rgba(103,232,162,.9)'; ctx.fillText('load '+st.R.toFixed(0)+' Ω', R-mid, T-24);
+  // step badge
+  const r=ratio();
+  ctx.font='12px JetBrains Mono'; ctx.fillStyle='#ffd27a';
+  ctx.fillText(r>1?('step-up ×'+r.toFixed(2)):r<1?('step-down ×'+r.toFixed(2)):'1 : 1', cx, B+24);
+}
+function drawCoil(x,cy,halfH,n,col,exc){
+  ctx.strokeStyle=col; ctx.lineWidth=2.2;
+  const h2=halfH, step=2*h2/n, r=9;
+  for(let i=0;i<n;i++){
+    const yy=cy-h2+step*(i+0.5);
+    ctx.beginPath(); ctx.ellipse(x,yy,r,step*0.38,0,0,2*Math.PI); ctx.stroke();
+  }
+  // faint excitation glow
+  ctx.save(); ctx.globalAlpha=0.18+0.3*Math.abs(exc);
+  ctx.beginPath(); ctx.rect(x-r-4, cy-h2-6, 2*r+8, 2*h2+12); ctx.strokeStyle=col; ctx.lineWidth=1; ctx.stroke();
+  ctx.restore();
+}
+function drawGraph(x,y,wd,ht){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,wd,ht);
+  const x0=x+40,x1=x+wd-8,y0=y+ht-24,y1=y+12, ym=(y0+y1)/2;
+  const pk=Math.max(st.V1, V2pk())*1.15;
+  const win=3*CYC;
+  const X=tt=>x1-(t-tt)/win*(x1-x0), Y=vv=>ym-(vv/pk)*(y0-y1)/2;
+  ctx.strokeStyle='rgba(170,160,220,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.strokeStyle='rgba(170,160,220,.25)'; ctx.beginPath();ctx.moveTo(x0,ym);ctx.lineTo(x1,ym);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('time →',(x0+x1)/2,y0+6);
+  let s0=false;
+  ctx.strokeStyle='#cdb6ff'; ctx.lineWidth=2; ctx.beginPath();
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=Y(s.v1); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+  s0=false; ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2; ctx.beginPath();
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=Y(s.v2); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+  ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#cdb6ff'; ctx.fillText('V₁',x0+4,y1+10);
+  ctx.fillStyle='#67e8a0'; ctx.fillText('V₂',x0+26,y1+10);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); requestAnimationFrame(loop); }
+function updateStats(){
+  document.getElementById('sRatio').textContent=(st.N2/st.N1).toFixed(2)+' : 1';
+  document.getElementById('sV2').textContent=V2pk().toFixed(1)+' V pk ('+(V2pk()/Math.SQRT2).toFixed(1)+' rms)';
+  document.getElementById('sI').textContent=(I1pk()*1e3).toFixed(0)+' / '+(I2pk()*1e3).toFixed(0)+' mA pk';
+  const P=0.5*V2pk()*I2pk();
+  document.getElementById('sP').textContent=P.toFixed(2)+' W = '+(0.5*st.V1*I1pk()).toFixed(2)+' W';
+  const ve=document.getElementById('verdict'), r=ratio();
+  if(Math.abs(r-1)<1e-9) ve.textContent='1:1 — voltage passes through unchanged; this isolation transformer just breaks the direct connection.';
+  else if(r>1) ve.textContent='Step-up ×'+r.toFixed(2)+': V₂ = (N₂/N₁)·V₁ = '+V2pk().toFixed(1)+' V — but the primary draws '+r.toFixed(2)+'× the current. Power in = power out.';
+  else ve.textContent='Step-down ×'+(1/r).toFixed(2)+': V₂ falls to '+V2pk().toFixed(1)+' V while the secondary can supply '+(1/r).toFixed(2)+'× the current — same power, repackaged.';
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('n1','n1N','N1','n1V',v=>Math.round(v)+' turns');
+bind('n2','n2N','N2','n2V',v=>Math.round(v)+' turns');
+bind('v1','v1N','V1','v1V',v=>(+v).toFixed(1)+' V');
+bind('r','rN','R','rV',v=>Math.round(v)+' Ω');
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

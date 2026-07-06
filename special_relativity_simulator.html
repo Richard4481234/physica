@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Relativity · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#081512; --bg-1:#0d2020;
+    --glass:rgba(26,44,40,0.55); --glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3; --muted:#9accb6; --faint:#6b9a86;
+    --accent:#62d2a2; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(98,210,162,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 6px 18px -6px rgba(98,210,162,.8); color:#06241a; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#06140f}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(98,210,162,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:72px; background:rgba(6,18,14,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px}
+  .seg button{flex:1; background:rgba(6,18,14,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(98,210,162,.2); border-color:rgba(98,210,162,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(98,210,162,.12); border:1px solid rgba(98,210,162,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(98,210,162,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(6,18,14,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="modern.html">← Modern</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Modern · Experiment</div>
+    <h1>Special Relativity</h1>
+    <p>Because the speed of light is the same for everyone, a moving clock must tick slower and a moving object
+       must shrink along its motion. Speed the ship toward light speed and watch both effects take hold.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <div class="leg">
+        <span><i style="background:#ffd27a"></i>light pulse (always travels at c)</span>
+        <span><i style="background:#62d2a2"></i>moving ship's clock</span>
+        <span><i style="background:#7cc4ff"></i>stationary lab clock</span>
+        <span><i style="background:#b89bff"></i>rest length outline</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Speed of ship <span class="val" id="bV">0.80 c</span></label>
+        <div class="row"><input type="range" id="b" min="0" max="0.99" step="0.005" value="0.80">
+          <input type="number" id="bN" min="0" max="0.99" step="0.01" value="0.80"></div>
+      </div>
+      <div class="ctl">
+        <label>Show</label>
+        <div class="seg"><button id="tRest" class="on">Rest outline</button><button id="tTrail" class="on">Light paths</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset clocks</button></div>
+      <div class="stats">
+        <div class="s"><span>Speed v</span><span id="sV">0.80 c</span></div>
+        <div class="s"><span>Lorentz factor γ</span><span id="sG">1.667</span></div>
+        <div class="s"><span>Moving clock rate</span><span id="sRate">0.600×</span></div>
+        <div class="s"><span>Length L / L₀</span><span id="sLen">0.600</span></div>
+        <div class="s"><span>Lab clock</span><span id="sLab">0.0 s</span></div>
+        <div class="s"><span>Ship clock (proper)</span><span id="sShip">0.0 s</span></div>
+        <div class="s"><span>Relativistic Doppler</span><span id="sDop">3.00×</span></div>
+      </div>
+      <div class="verdict" id="verdict">At v = 0.80c the ship's clock ticks at 60% of the lab's rate.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      Two identical <strong>light clocks</strong>: one sits still in the laboratory (lower, blue) and one rides
+      a spaceship moving to the right (upper, green). A light clock ticks each time a pulse of light bounces
+      between two mirrors. Because the bounce relies only on the speed of light — which Einstein took to be the
+      same for every observer — comparing the two clocks reveals how time and space themselves must change.
+
+      <h3>Einstein's two postulates</h3>
+      Special relativity (1905) rests on two ideas: the laws of physics are the same in every
+      <strong>inertial frame</strong>, and the <strong>speed of light c is the same for all observers</strong>,
+      no matter how fast the source or observer moves. That second postulate is the strange one, and everything
+      else follows from it.
+
+      <h3>Time dilation</h3>
+      In the ship's own frame the pulse goes straight up and down. But in the lab frame the ship is moving, so the
+      same pulse must travel a longer <strong>diagonal</strong> path between bounces. Since its speed is still
+      exactly c, a longer path means a longer time — the moving clock <strong>ticks slower</strong>. Working out
+      the geometry gives the Lorentz factor:
+      <div class="eq">γ = 1 / √(1 − v²/c²)&nbsp;&nbsp;→&nbsp;&nbsp;Δt_lab = γ · Δt_ship</div>
+      The ship's clock runs at 1/γ of the lab rate. Watch the tick counters drift apart, and the two running
+      clocks diverge — at 0.8c the ship ages only 60% as fast.
+
+      <h3>Length contraction</h3>
+      Distances along the direction of motion shrink by the same factor. The ship's length measured in the lab is
+      <div class="eq">L = L₀ / γ = L₀ √(1 − v²/c²)</div>
+      shown against the dashed <strong>rest-length outline</strong>. Heights (perpendicular to motion) are
+      unchanged. This is why fast-moving muons created high in the atmosphere reach the ground — in their frame the
+      atmosphere is contracted, in ours their clock is dilated; both pictures agree.
+
+      <h3>The cosmic speed limit</h3>
+      As v approaches c, γ shoots toward infinity (see the curve): clocks nearly freeze, lengths nearly vanish, and
+      the energy needed to accelerate diverges. Nothing with mass can reach c. Push the speed slider toward 0.99c
+      and watch γ climb steeply. The same factor governs relativistic energy, E = γmc², whose v = 0 limit is the
+      famous E₀ = mc².
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=520,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.56);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={b:0.80, rest:true, trail:true};
+const gamma=()=>1/Math.sqrt(1-st.b*st.b);
+
+const C=78;            // px/s — the speed of light in this view (same for both clocks!)
+const H_MIR=96;        // mirror separation (perpendicular, never contracts)
+const L0=150;          // ship rest length (px)
+
+let labT=0, mTicks=0, sTicks=0;
+// moving clock
+let shipCx, mPhX, mPhY, mPhVY, mTrail=[];
+// stationary clock
+let sX, sPhY, sPhVY, sTrail=[];
+let mTopY, sTopY;
+
+function layout(){
+  mTopY=H*0.12; sTopY=H*0.56;
+}
+function initClocks(){
+  layout();
+  shipCx=L0; mPhY=mTopY; mPhVY=+1; mTrail=[];
+  sX=W*0.16; sPhY=sTopY; sPhVY=+1; sTrail=[];
+  labT=0; mTicks=0; sTicks=0;
+}
+
+function update(dt){
+  layout();
+  const g=gamma();
+  const vx=st.b*C;                 // ship horizontal speed
+  const mVy=C/g;                   // moving clock vertical component (so |v|=C)
+  // ship moves
+  shipCx += vx*dt;
+  if(shipCx > W-20){ shipCx=L0*0.5+20; mTrail=[]; }
+  // moving photon bounces between mTopY and mTopY+H_MIR
+  mPhY += mPhVY*mVy*dt;
+  if(mPhY> mTopY+H_MIR){ mPhY=mTopY+H_MIR; mPhVY=-1; mTicks++; }
+  if(mPhY< mTopY){ mPhY=mTopY; mPhVY=+1; mTicks++; }
+  mPhX=shipCx;
+  if(st.trail){ mTrail.push([mPhX,mPhY]); if(mTrail.length>90)mTrail.shift(); }
+  // stationary photon bounces, vertical, speed C
+  sPhY += sPhVY*C*dt;
+  if(sPhY> sTopY+H_MIR){ sPhY=sTopY+H_MIR; sPhVY=-1; sTicks++; }
+  if(sPhY< sTopY){ sPhY=sTopY; sPhVY=+1; sTicks++; }
+  if(st.trail){ sTrail.push([sX,sPhY]); if(sTrail.length>40)sTrail.shift(); }
+  labT += dt;
+}
+
+function shipDraw(){
+  const g=gamma(), w=L0/g, x0=shipCx-w/2, x1=shipCx+w/2;
+  // rest-length outline
+  if(st.rest){
+    ctx.strokeStyle='rgba(184,155,255,.5)'; ctx.lineWidth=1.4; ctx.setLineDash([5,4]);
+    ctx.strokeRect(shipCx-L0/2, mTopY-14, L0, H_MIR+28); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(184,155,255,.6)'; ctx.font='10px JetBrains Mono';
+    ctx.fillText('rest length L₀', shipCx-L0/2, mTopY-18);
+  }
+  // ship body
+  ctx.fillStyle='rgba(98,210,162,.10)'; ctx.strokeStyle='rgba(98,210,162,.7)'; ctx.lineWidth=2;
+  roundRect(x0, mTopY-14, w, H_MIR+28, 10); ctx.fill(); ctx.stroke();
+  // mirrors
+  ctx.strokeStyle='rgba(180,240,210,.9)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(x0+6,mTopY); ctx.lineTo(x1-6,mTopY); ctx.moveTo(x0+6,mTopY+H_MIR); ctx.lineTo(x1-6,mTopY+H_MIR); ctx.stroke();
+  // light path trail (zigzag in lab frame)
+  if(st.trail && mTrail.length>1){ ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.lineWidth=1.4; ctx.beginPath();
+    mTrail.forEach((p,i)=> i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke(); }
+  // photon
+  ctx.fillStyle='#ffd27a'; ctx.beginPath(); ctx.arc(mPhX,mPhY,5,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,210,122,.3)'; ctx.beginPath(); ctx.arc(mPhX,mPhY,9,0,7); ctx.fill();
+  // label
+  ctx.fillStyle='rgba(98,210,162,.85)'; ctx.font='12px Inter';
+  ctx.fillText('moving clock — ticks: '+mTicks, shipCx-L0/2, mTopY+H_MIR+34);
+}
+function statDraw(){
+  const x0=sX-40, w=80;
+  ctx.fillStyle='rgba(124,196,255,.08)'; ctx.strokeStyle='rgba(124,196,255,.6)'; ctx.lineWidth=2;
+  roundRect(x0, sTopY-14, w, H_MIR+28, 10); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle='rgba(190,225,255,.9)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(x0+6,sTopY); ctx.lineTo(x0+w-6,sTopY); ctx.moveTo(x0+6,sTopY+H_MIR); ctx.lineTo(x0+w-6,sTopY+H_MIR); ctx.stroke();
+  if(st.trail && sTrail.length>1){ ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.lineWidth=1.4; ctx.beginPath();
+    sTrail.forEach((p,i)=> i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke(); }
+  ctx.fillStyle='#ffd27a'; ctx.beginPath(); ctx.arc(sX,sPhY,5,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,210,122,.3)'; ctx.beginPath(); ctx.arc(sX,sPhY,9,0,7); ctx.fill();
+  ctx.fillStyle='rgba(124,196,255,.85)'; ctx.font='12px Inter';
+  ctx.fillText('stationary clock — ticks: '+sTicks, x0-6, sTopY+H_MIR+34);
+}
+
+function gammaCurve(){
+  const w=W*0.30, h=H*0.26, x0=W-w-18, y0=H-22, y1=y0-h;
+  ctx.fillStyle='rgba(6,18,14,.5)'; roundRect(x0-6,y1-14,w+12,h+26,8); ctx.fill();
+  ctx.strokeStyle='rgba(140,210,180,.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(x0,y1); ctx.lineTo(x0,y0); ctx.lineTo(x0+w,y0); ctx.stroke();
+  ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='9.5px JetBrains Mono';
+  ctx.fillText('γ', x0-2, y1-3); ctx.fillText('v/c', x0+w-18, y0+12); ctx.fillText('0', x0-7, y0+10); ctx.fillText('1', x0+w-4, y0+12);
+  const gMax=7.2;
+  ctx.strokeStyle='#62d2a2'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<=120;i++){ const bb=i/120*0.99; const gg=1/Math.sqrt(1-bb*bb); const X=x0+bb*w, Y=y0-Math.min(gg,gMax)/gMax*h; i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); }
+  ctx.stroke();
+  const gg=Math.min(gamma(),gMax), X=x0+st.b*w, Y=y0-gg/gMax*h;
+  ctx.fillStyle='#ffd27a'; ctx.beginPath(); ctx.arc(X,Y,4,0,7); ctx.fill();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#06140f'; ctx.fillRect(0,0,W,H);
+  // starfield-ish faint
+  shipDraw(); statDraw(); gammaCurve();
+  // big clock readouts
+  ctx.fillStyle='rgba(234,247,243,.9)'; ctx.font='13px JetBrains Mono';
+  ctx.fillText('lab time '+labT.toFixed(1)+' s', 16, 22);
+  ctx.fillText('ship time '+(labT/gamma()).toFixed(1)+' s', 16, 40);
+  requestAnimationFrame(()=>{});
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+function updateStats(){
+  const g=gamma();
+  document.getElementById('sV').textContent=st.b.toFixed(2)+' c';
+  document.getElementById('sG').textContent=g.toFixed(3);
+  document.getElementById('sRate').textContent=(1/g).toFixed(3)+'×';
+  document.getElementById('sLen').textContent=(1/g).toFixed(3);
+  document.getElementById('sDop').textContent=Math.sqrt((1+st.b)/(1-st.b)).toFixed(2)+'×';
+  document.getElementById('verdict').textContent=`At v = ${st.b.toFixed(2)}c the ship's clock ticks at ${(100/g).toFixed(0)}% of the lab's rate, and its length shrinks to ${(100/g).toFixed(0)}%.`;
+}
+function tickReadouts(){ document.getElementById('sLab').textContent=labT.toFixed(1)+' s'; document.getElementById('sShip').textContent=(labT/gamma()).toFixed(1)+' s'; }
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); tickReadouts(); requestAnimationFrame(loop); }
+
+function bind(){
+  const s=document.getElementById('b'), n=document.getElementById('bN');
+  function set(v){ v=Math.max(0,Math.min(0.99,v)); if(isNaN(v))return; st.b=v; s.value=v; n.value=v;
+    document.getElementById('bV').textContent=v.toFixed(2)+' c'; updateStats(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+}
+bind();
+function tog(id,key){const b=document.getElementById(id); b.addEventListener('click',()=>{st[key]=!st[key]; b.classList.toggle('on',st[key]);});}
+tog('tRest','rest'); tog('tTrail','trail');
+document.getElementById('reset').addEventListener('click',()=>{ initClocks(); });
+
+window.addEventListener('resize',()=>{fit(); initClocks();});
+fit(); initClocks(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(26,44,40,0.85)',color:'#eef8f3',border:'1px solid rgba(140,210,180,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

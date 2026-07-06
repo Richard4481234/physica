@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase Changes &amp; Latent Heat · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#160c08;--bg-1:#1d130d;--glass:rgba(48,32,24,0.55);--glass-line:rgba(220,150,110,0.16);
+    --ink:#fbeee8;--muted:#d0b3a2;--faint:#a07f6c;--accent:#ff8a5b;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(255,138,91,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.06),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#ffb083,#ff8a5b);box-shadow:0 6px 18px -6px rgba(255,138,91,.8);color:#2a1206;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#120a07}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(255,138,91,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(30,18,12,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(30,18,12,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(255,138,91,.2);border-color:rgba(255,138,91,.5);color:var(--ink)}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(255,138,91,.14);border:1px solid rgba(255,138,91,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(255,138,91,.24)}
+  button.act.play{background:linear-gradient(135deg,#ffb083,#ff8a5b);color:#2a1206;border-color:transparent}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(30,18,12,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="thermal.html">← Thermal</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Thermal · Experiment</div>
+    <h1>Phase Changes &amp; Latent Heat</h1>
+    <p>Heat ice steadily and its temperature climbs — until it hits 0 °C, where it stalls. All the incoming energy
+       goes into melting, not warming. Those flat plateaus are latent heat.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas></div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Substance</label>
+        <div class="seg"><button data-s="water" class="on">Water</button><button data-s="ethanol">Ethanol</button><button data-s="iron">Iron</button></div></div>
+      <div class="ctl"><label>Mass <span class="val" id="mV">1.0 g</span></label>
+        <div class="row"><input type="range" id="m" min="0.5" max="5" step="0.5" value="1"><input type="number" id="mN" min="0.5" max="5" step="0.5" value="1"></div></div>
+      <div class="ctl"><label>Heater power <span class="val" id="pV">80 W</span></label>
+        <div class="row"><input type="range" id="p" min="20" max="400" step="10" value="80"><input type="number" id="pN" min="20" max="400" step="10" value="80"></div></div>
+      <div class="btns"><button class="act play" id="play">Heat ▶</button><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Phase</span><span id="sPhase">solid</span></div>
+        <div class="s"><span>Temperature</span><span id="sT">−20 °C</span></div>
+        <div class="s"><span>Heat added</span><span id="sQ">0 J</span></div>
+        <div class="s"><span>Latent heat (fusion)</span><span id="sLf">334 J/g</span></div>
+        <div class="s"><span>Latent heat (vaporisation)</span><span id="sLv">2260 J/g</span></div>
+      </div>
+      <div class="verdict" id="verdict">Heating solid ice — temperature rising toward the melting point.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A sample is heated at a steady rate by the burner below. The beaker shows its state (solid, liquid, gas), the
+      thermometer shows its temperature, and the graph plots <strong>temperature against the heat you've poured
+      in</strong>. The striking feature is the two <strong>flat plateaus</strong> — stretches where you keep adding
+      energy but the temperature refuses to rise.
+
+      <h3>Two ways heat is used</h3>
+      Within a single phase, added heat raises the temperature. How much depends on the <strong>specific heat
+      capacity</strong> c:
+      <div class="eq">Q = m c ΔT&nbsp;&nbsp;(sloped parts of the curve)</div>
+      But at a phase change, the heat goes into <strong>breaking bonds</strong> rather than speeding molecules up,
+      so the temperature holds steady while the substance converts. The energy per gram to do this is the
+      <strong>latent heat</strong> L:
+      <div class="eq">Q = m L&nbsp;&nbsp;(the flat plateaus)</div>
+      Melting needs the <strong>latent heat of fusion</strong> L_f; boiling needs the <strong>latent heat of
+      vaporisation</strong> L_v.
+
+      <h3>Why the plateaus differ in length</h3>
+      For water, L_f = 334 J/g but L_v = 2260 J/g — so the <strong>boiling plateau is far longer</strong> than the
+      melting one. It takes far more energy to tear molecules completely apart into a gas than merely to loosen
+      them from a solid into a liquid. That huge vaporisation energy is why steam burns are so severe and why
+      sweating cools you so effectively.
+
+      <h3>Reading the curve</h3>
+      Notice the sloped segments even have different steepness: ice, liquid water and steam have different specific
+      heats (2.09, 4.18 and 2.01 J/g°C), so the same heat raises their temperatures by different amounts — liquid
+      water warms the slowest. Switch substances to see how the melting and boiling points, and the plateau lengths,
+      change with the material.
+
+      <h3>Things to try</h3>
+      Heat water from ice all the way to steam and watch the temperature stall twice. Compare the short melting
+      plateau with the long boiling one. Turn up the power to move faster, or add mass to lengthen every stage
+      proportionally. Switch to iron and see melting and boiling points in the thousands of degrees.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=480,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.54);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const SUB={
+  water:{name:'Water',cs:2.09,cl:4.18,cg:2.01,Lf:334,Lv:2260,Tm:0,Tb:100,T0:-20,Tmax:140,liq:'#7cc4ff',ice:'#bfe3ff'},
+  ethanol:{name:'Ethanol',cs:1.2,cl:2.44,cg:1.4,Lf:108,Lv:846,Tm:-114,Tb:78,T0:-140,Tmax:120,liq:'#9bd0f5',ice:'#d6ecff'},
+  iron:{name:'Iron',cs:0.45,cl:0.82,cg:0.45,Lf:247,Lv:6090,Tm:1538,Tb:2862,T0:25,Tmax:2960,liq:'#ff9d6b',ice:'#c9b6a8'}
+};
+const st={sub:'water', m:1, power:80};
+let Q=0, playing=false, t=0;
+function S(){return SUB[st.sub]||SUB.water;}
+function stages(){ const s=S(),m=st.m;
+  const E1=m*s.cs*(s.Tm-s.T0), E2=m*s.Lf, E3=m*s.cl*(s.Tb-s.Tm), E4=m*s.Lv, E5=m*s.cg*(s.Tmax-s.Tb);
+  return {E1,E2,E3,E4,E5,total:E1+E2+E3+E4+E5}; }
+function stateAt(q){ const s=S(),m=st.m,st2=stages(); const {E1,E2,E3,E4}=st2;
+  if(q<E1) return {T:s.T0+q/(m*s.cs), phase:'solid', frac:0};
+  if(q<E1+E2) return {T:s.Tm, phase:'melting', frac:(q-E1)/E2};
+  if(q<E1+E2+E3) return {T:s.Tm+(q-E1-E2)/(m*s.cl), phase:'liquid', frac:0};
+  if(q<E1+E2+E3+E4) return {T:s.Tb, phase:'boiling', frac:(q-E1-E2-E3)/E4};
+  return {T:Math.min(s.Tmax,s.Tb+(q-E1-E2-E3-E4)/(m*s.cg)), phase:'gas', frac:1};
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts;
+  if(playing){ Q+=st.power*dt*2.5; const tot=stages().total; if(Q>=tot){Q=tot; playing=false; document.getElementById('play').textContent='Heat ▶';} t+=dt; }
+  draw(); updateStats(); requestAnimationFrame(loop);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#120a07'; ctx.fillRect(0,0,W,H);
+  const s=S(), cur=stateAt(Q);
+  // ── left: beaker + thermometer ──
+  const bx=40, bw=110, bTop=48, bBot=H-70, bh=bBot-bTop;
+  // burner flames if heating
+  if(playing){ for(let i=0;i<7;i++){ const fx=bx+18+i*(bw-30)/6, fh=14+8*Math.sin(t*8+i);
+    const g=ctx.createLinearGradient(0,bBot+24,0,bBot+24-fh); g.addColorStop(0,'#ff5b3b'); g.addColorStop(1,'rgba(255,210,122,0)');
+    ctx.fillStyle=g; ctx.beginPath();ctx.moveTo(fx-5,bBot+24);ctx.quadraticCurveTo(fx,bBot+24-fh,fx+5,bBot+24);ctx.fill(); } }
+  // beaker
+  ctx.strokeStyle='rgba(200,220,240,.5)'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(bx,bTop);ctx.lineTo(bx,bBot);ctx.lineTo(bx+bw,bBot);ctx.lineTo(bx+bw,bTop);ctx.stroke();
+  // contents
+  const fillH=bh*0.62;
+  if(cur.phase==='solid'){ ctx.fillStyle=s.ice; ctx.fillRect(bx+2,bBot-fillH,bw-4,fillH);
+    ctx.strokeStyle='rgba(255,255,255,.25)'; for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(bx+2,bBot-fillH*i/4);ctx.lineTo(bx+bw-2,bBot-fillH*i/4);ctx.stroke();} }
+  else if(cur.phase==='melting'){ const wl=fillH*cur.frac; ctx.fillStyle=s.liq; ctx.fillRect(bx+2,bBot-wl,bw-4,wl);
+    ctx.fillStyle=s.ice; ctx.fillRect(bx+2,bBot-fillH,bw-4,fillH-wl); }
+  else if(cur.phase==='liquid'){ ctx.fillStyle=s.liq; ctx.fillRect(bx+2,bBot-fillH,bw-4,fillH); }
+  else if(cur.phase==='boiling'){ const wl=fillH*(1-cur.frac*0.85); ctx.fillStyle=s.liq; ctx.fillRect(bx+2,bBot-wl,bw-4,wl);
+    for(let i=0;i<12;i++){ const bxp=bx+8+Math.random()*(bw-16), byp=bBot-Math.random()*wl; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.beginPath();ctx.arc(bxp,byp,1.5+Math.random()*2,0,7);ctx.fill(); }
+    for(let i=0;i<8;i++){ const sxp=bx+10+Math.random()*(bw-20); ctx.fillStyle='rgba(207,224,255,'+(0.15).toFixed(2)+')'; ctx.beginPath();ctx.arc(sxp,bTop+Math.random()*40,4+Math.random()*4,0,7);ctx.fill(); } }
+  else { for(let i=0;i<16;i++){ const sxp=bx+8+Math.random()*(bw-16), syp=bTop+Math.random()*(bh); ctx.fillStyle='rgba(207,224,255,.14)'; ctx.beginPath();ctx.arc(sxp,syp,4+Math.random()*5,0,7);ctx.fill(); } }
+  ctx.fillStyle='rgba(208,179,162,.85)'; ctx.font='12px Inter'; ctx.textAlign='center';
+  ctx.fillText(s.name+' · '+cur.phase, bx+bw/2, bBot+22);
+  // thermometer
+  const tx=bx+bw+46, tTop=bTop, tBot=bBot;
+  ctx.strokeStyle='rgba(220,150,110,.4)'; ctx.lineWidth=2; ctx.beginPath();ctx.roundRect?ctx.roundRect(tx-7,tTop,14,tBot-tTop,7):ctx.rect(tx-7,tTop,14,tBot-tTop);ctx.stroke();
+  const Tmin=s.T0, Tmax=s.Tmax; const frac=(cur.T-Tmin)/(Tmax-Tmin);
+  const merc = tBot-6 - (tBot-tTop-12)*Math.max(0,Math.min(1,frac));
+  ctx.fillStyle='#ff5b3b'; ctx.fillRect(tx-4,merc,8,tBot-6-merc); ctx.beginPath();ctx.arc(tx,tBot,10,0,7);ctx.fill();
+  ctx.fillStyle='rgba(208,179,162,.85)'; ctx.font='12px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText(cur.T.toFixed(0)+' °C', tx+14, merc);
+  // ── right: heating curve ──
+  drawCurve(W*0.42, 40, W-24-(W*0.42), H-80, cur);
+}
+function drawCurve(gx,gy,gw,gh,cur){
+  const s=S(), st2=stages(); const x0=gx+34,x1=gx+gw-8,y0=gy+gh-24,y1=gy+6;
+  ctx.fillStyle='rgba(20,12,8,.5)'; ctx.fillRect(gx,gy,gw,gh);
+  const Qtot=st2.total, Tmin=s.T0, Tmax=s.Tmax;
+  const X=q=>x0+q/Qtot*(x1-x0), Y=T=>y0-(T-Tmin)/(Tmax-Tmin)*(y0-y1);
+  // axes
+  ctx.strokeStyle='rgba(220,150,110,.3)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(208,179,162,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('heat added Q →',(x0+x1)/2,y0+6);
+  ctx.save();ctx.translate(gx+12,(y0+y1)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText('temperature (°C)',0,0);ctx.restore();
+  // Tm, Tb gridlines
+  ctx.setLineDash([3,4]); ctx.strokeStyle='rgba(124,196,255,.25)';
+  [s.Tm,s.Tb].forEach(TT=>{ ctx.beginPath();ctx.moveTo(x0,Y(TT));ctx.lineTo(x1,Y(TT));ctx.stroke(); });
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(124,196,255,.6)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='right';
+  ctx.fillText(s.Tm+'° melt', x1, Y(s.Tm)-2); ctx.fillText(s.Tb+'° boil', x1, Y(s.Tb)-2); ctx.textAlign='left';
+  // full curve
+  ctx.strokeStyle='#ff8a5b'; ctx.lineWidth=2.4; ctx.beginPath();
+  for(let i=0;i<=300;i++){ const q=Qtot*i/300, T=stateAt(q).T; const px=X(q),py=Y(T); i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.stroke();
+  // progress so far (bright)
+  ctx.strokeStyle='#ffd27a'; ctx.lineWidth=3; ctx.beginPath(); let started=false;
+  for(let i=0;i<=300;i++){ const q=Qtot*i/300; if(q>Q)break; const T=stateAt(q).T; const px=X(q),py=Y(T); started?ctx.lineTo(px,py):(ctx.moveTo(px,py),started=true); } if(started)ctx.stroke();
+  // current point
+  ctx.fillStyle='#fff'; ctx.save();ctx.shadowColor='#ffd27a';ctx.shadowBlur=10; ctx.beginPath();ctx.arc(X(Q),Y(cur.T),5,0,7);ctx.fill();ctx.restore();
+  // plateau labels
+  ctx.fillStyle='rgba(255,210,122,.7)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText('melting', X(st2.E1+st2.E2/2), Y(s.Tm)+12);
+  ctx.fillText('boiling', X(st2.E1+st2.E2+st2.E3+st2.E4/2), Y(s.Tb)+12);
+  ctx.textAlign='left';
+}
+function updateStats(){
+  const s=S(), cur=stateAt(Q);
+  document.getElementById('sPhase').textContent=cur.phase + ((cur.phase==='melting'||cur.phase==='boiling')?' ('+(cur.frac*100).toFixed(0)+'%)':'');
+  document.getElementById('sT').textContent=cur.T.toFixed(0)+' °C';
+  document.getElementById('sQ').textContent=Q.toFixed(0)+' J';
+  document.getElementById('sLf').textContent=s.Lf+' J/g';
+  document.getElementById('sLv').textContent=s.Lv+' J/g';
+  const ve=document.getElementById('verdict');
+  const msg={solid:'Heating the solid — temperature climbing toward the melting point.',
+    melting:'At the melting point: all heat is breaking the solid apart — temperature frozen (latent heat of fusion).',
+    liquid:'Heating the liquid — climbing toward the boiling point.',
+    boiling:'At the boiling point: heat is tearing molecules into gas — a long plateau (latent heat of vaporisation).',
+    gas:'Fully vaporised — heating the gas.'}[cur.phase];
+  ve.textContent=msg;
+}
+function setSub(sub){ if(!SUB[sub])return; st.sub=sub; document.querySelectorAll('.seg button[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===sub));
+  Q=0; playing=false; document.getElementById('play').textContent='Heat ▶'; updateStats(); }
+document.querySelectorAll('.seg button[data-s]').forEach(b=>b.addEventListener('click',()=>setSub(b.dataset.s)));
+document.getElementById('m').addEventListener('input',e=>{st.m=parseFloat(e.target.value);document.getElementById('mV').textContent=st.m.toFixed(1)+' g'; updateStats();});
+document.getElementById('mN').addEventListener('change',e=>{st.m=Math.max(0.5,Math.min(5,parseFloat(e.target.value)||1));document.getElementById('m').value=st.m;document.getElementById('mV').textContent=st.m.toFixed(1)+' g';updateStats();});
+document.getElementById('p').addEventListener('input',e=>{st.power=parseFloat(e.target.value);document.getElementById('pV').textContent=st.power+' W';});
+document.getElementById('pN').addEventListener('change',e=>{st.power=Math.max(20,Math.min(400,parseFloat(e.target.value)||80));document.getElementById('p').value=st.power;document.getElementById('pV').textContent=st.power+' W';});
+document.getElementById('play').addEventListener('click',()=>{const b=document.getElementById('play');
+  if(playing){playing=false;b.textContent='Heat ▶';} else { if(Q>=stages().total-1)Q=0; playing=true;b.textContent='Pause ⏸';}});
+document.getElementById('reset').addEventListener('click',()=>{Q=0;playing=false;document.getElementById('play').textContent='Heat ▶';updateStats();});
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(48,32,24,0.85)',color:'#fbeee8',border:'1px solid rgba(220,150,110,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

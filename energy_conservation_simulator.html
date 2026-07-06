@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conservation of Energy · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --accent-soft:#3b6ea8; --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2; --heat:#ff6b6b;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:33px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:64px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px; outline:none; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(124,196,255,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .actions{display:flex; gap:10px; margin-top:6px}
+  .btn{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#08111e; background:linear-gradient(135deg,#8fd0ff,#5aa8ee); box-shadow:0 8px 24px -8px rgba(124,196,255,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:20px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.green::before{background:var(--green)} .stat.ember::before{background:var(--ember)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08)); border:1px solid rgba(124,196,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--gold)} .ex-body .heat{color:var(--heat)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="mechanics.html" class="back">← Mechanical</a>
+    <div class="kicker">Conservation Laws</div>
+    <h1>Conservation of Energy</h1>
+  </div>
+  <div class="sub">A ball on a frictionless track trades height for speed — but its total energy never changes.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Setup</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Drop height</span>
+        <span class="val"><input id="hNum" class="num" type="number" min="0.6" max="3.4" step="0.1" value="3"><em>m</em></span></div>
+      <input id="h0" type="range" min="0.6" max="3.4" step="0.1" value="3">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Friction</span>
+        <span class="val"><input id="fNum" class="num" type="number" min="0" max="0.25" step="0.01" value="0"></span></div>
+      <input id="fric" type="range" min="0" max="0.25" step="0.01" value="0">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Mass m</span>
+        <span class="val"><input id="mNum" class="num" type="number" min="0.5" max="5" step="0.5" value="1"><em>kg</em></span></div>
+      <input id="mass" type="range" min="0.5" max="5" step="0.5" value="1">
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="play">Release ▶</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      With no friction the ball rises to exactly its starting height on the far side — never higher, never
+      lower. Add friction and energy bleeds away as heat, so it can't climb as high.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--gold)"></i>Potential energy (height)</span>
+      <span><i class="dot" style="background:var(--accent)"></i>Kinetic energy (speed)</span>
+      <span><i class="dot" style="background:var(--heat)"></i>Lost to heat (friction)</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat gold"><div class="k">Potential PE</div><div class="v"><span id="sPE">0</span><em>J</em></div></div>
+      <div class="stat"><div class="k">Kinetic KE</div><div class="v"><span id="sKE">0</span><em>J</em></div></div>
+      <div class="stat green"><div class="k">Total energy</div><div class="v"><span id="sE">0</span><em>J</em></div></div>
+      <div class="stat ember"><div class="k">Speed</div><div class="v"><span id="sV">0</span><em>m/s</em></div></div>
+    </div>
+
+    <div class="formula">
+      <b>E</b> = KE + PE = ½·m·v² + m·g·h &nbsp;&nbsp;=&nbsp;&nbsp; constant (no friction)
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A ball is released from rest on a curved track and slides under gravity. As it drops into a valley it
+           speeds up; as it climbs a hill it slows down. Energy is constantly converting between two forms, but
+           — with no friction — the <b>total never changes</b>. The bar at the top splits the energy into its
+           parts so you can watch the trade happen.</p>
+
+        <h4>Two forms of mechanical energy</h4>
+        <ul>
+          <li><b class="gold">Gravitational potential energy</b> <span class="mono">PE = m·g·h</span> — stored by
+            virtue of height. Highest at the tops of hills.</li>
+          <li><b class="accent">Kinetic energy</b> <span class="mono">KE = ½·m·v²</span> — the energy of motion.
+            Highest at the bottoms of valleys, where the ball moves fastest.</li>
+        </ul>
+
+        <h4>The conservation principle</h4>
+        <p>Energy is never created or destroyed, only transformed. For a frictionless system the mechanical
+           energy is conserved:</p>
+        <div class="ex-eq">
+          ½·m·v² + m·g·h = E = constant <span class="lbl">conservation of mechanical energy</span>
+        </div>
+        <p>This is why the ball climbs to <b>exactly</b> its starting height on the other side and no higher —
+           all the kinetic energy it gains falling is precisely enough to lift it back up. The dashed line marks
+           the highest level the ball can reach.</p>
+
+        <h4>Where friction fits in</h4>
+        <p>Friction doesn't destroy energy either — it converts mechanical energy into <b class="heat">heat</b>.
+           Turn up the friction and watch the red slice of the bar grow as the ball's swings get smaller and
+           smaller, until it finally settles at the bottom of a valley. The <i>total</i> of motion, height, and
+           heat is still conserved — it's just no longer all available as motion.</p>
+
+        <h4>Things to try</h4>
+        <p>With friction at zero, release from the top and confirm the ball returns to the dashed line every
+           time. Then add a little friction and watch the reachable height ratchet downward, lap by lap, as
+           energy turns to heat.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={h0:$('h0'),fric:$('fric'),mass:$('mass'),hNum:$('hNum'),fNum:$('fNum'),mNum:$('mNum'),
+  sPE:$('sPE'),sKE:$('sKE'),sE:$('sE'),sV:$('sV'),play:$('play'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value); if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+
+const g=9.8, Wm=8, Hmax=3.8;
+// track height (metres) vs horizontal position x (metres): bowl + central bump
+function H(x){ const u=x/Wm; return 3.6*(2*u-1)*(2*u-1) + 1.0*Math.exp(-Math.pow((u-0.5)/0.07,2)); }
+function Hp(x){ const e=0.004; return (H(x+e)-H(x-e))/(2*e); }
+
+function P(){return {h0:clampNum(els.hNum), mu:clampNum(els.fNum), m:clampNum(els.mass)};}
+let x=1, u=0, Et=0, playing=false, raf=null, last=null;   // u = signed speed along track; Et = target total energy
+
+function placeLeft(h0){ // left descending branch, bump negligible there
+  const uu=(1-Math.sqrt(Math.max(0,Math.min(1,h0/3.6))))/2; return Math.max(0.05, uu*Wm);
+}
+function initState(){ const p=P(); x=placeLeft(p.h0); u=0; Et=p.m*g*H(x); }
+function Enow(){ const p=P(); return 0.5*p.m*u*u + p.m*g*H(x); }   // current total energy
+
+function step(dt){
+  const p=P();
+  const hp=Hp(x), denom=Math.sqrt(1+hp*hp);
+  // tangential gravity kick — sets the direction and starts it from rest
+  u += (-g*hp/denom)*dt;
+  // friction drains the *target* energy (so frictionless stays exactly conserved)
+  if(p.mu>0) Et=Math.max(p.m*g*H(x), Et - p.mu*p.m*g/denom*Math.abs(u)*dt);
+  x += (u/denom)*dt;
+  if(x<0.04){x=0.04; u=Math.abs(u);} if(x>Wm-0.04){x=Wm-0.04; u=-Math.abs(u);}
+  // re-derive speed from the target energy → exact conservation, correct turning points
+  let ke=Et - p.m*g*H(x); if(ke<0) ke=0;
+  u=(u>=0?1:-1)*Math.sqrt(2*ke/p.m);
+}
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.56);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function rrect(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  const bg=ctx.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#131934'); bg.addColorStop(1,'#1b2348');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+  const p=P();
+  // energy bar
+  drawEbar(w,p);
+
+  const padL=40,padR=24, plotW=w-padL-padR, groundY=h-30, topY=58;
+  const vscale=(groundY-topY)/Hmax;
+  const SX=xx=>padL+(xx/Wm)*plotW, SY=hh=>groundY-hh*vscale;
+
+  // max-reachable-height line (E/mg)
+  const Ecur=Enow(), hReach=Ecur/(p.m*g);
+  ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.lineWidth=1.4; ctx.setLineDash([6,6]);
+  ctx.beginPath();ctx.moveTo(padL,SY(hReach));ctx.lineTo(w-padR,SY(hReach));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,210,122,.85)'; ctx.font='11px JetBrains Mono, monospace'; ctx.textAlign='right'; ctx.textBaseline='bottom';
+  ctx.fillText('max height '+hReach.toFixed(2)+' m', w-padR, SY(hReach)-3);
+
+  // track (filled hill ground + rail)
+  ctx.beginPath(); ctx.moveTo(SX(0),SY(H(0)));
+  for(let xx=0;xx<=Wm+1e-6;xx+=Wm/240){ ctx.lineTo(SX(xx),SY(H(xx))); }
+  ctx.lineTo(SX(Wm),h); ctx.lineTo(SX(0),h); ctx.closePath();
+  const tg=ctx.createLinearGradient(0,topY,0,h); tg.addColorStop(0,'rgba(124,196,255,.10)'); tg.addColorStop(1,'rgba(124,196,255,.02)');
+  ctx.fillStyle=tg; ctx.fill();
+  ctx.strokeStyle='rgba(207,232,255,.6)'; ctx.lineWidth=2.5; ctx.beginPath();
+  for(let xx=0;xx<=Wm+1e-6;xx+=Wm/240){ const X=SX(xx),Y=SY(H(xx)); xx===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y); }
+  ctx.stroke();
+
+  // ball
+  const bx=SX(x), by=SY(H(x)), bs=8+3*Math.cbrt(p.m);
+  const vs=Math.abs(u);
+  const halo=ctx.createRadialGradient(bx,by-bs,1,bx,by-bs,bs*2.2); halo.addColorStop(0,'rgba(124,196,255,.4)'); halo.addColorStop(1,'rgba(124,196,255,0)');
+  ctx.fillStyle=halo; ctx.beginPath();ctx.arc(bx,by-bs,bs*2.2,0,7);ctx.fill();
+  const gr=ctx.createRadialGradient(bx-bs*0.35,by-bs-bs*0.35,bs*0.1,bx,by-bs,bs); gr.addColorStop(0,'#ffffff'); gr.addColorStop(.4,'#9bd0f5'); gr.addColorStop(1,'#5aa8ee');
+  ctx.save();ctx.shadowColor='rgba(124,196,255,.6)';ctx.shadowBlur=15;
+  ctx.fillStyle=gr; ctx.beginPath();ctx.arc(bx,by-bs,bs,0,7);ctx.fill();ctx.restore();
+  // velocity arrow along track
+  if(vs>0.1){ const vdir=u>=0?1:-1, hp=Hp(x), denom=Math.sqrt(1+hp*hp), tx=vdir/denom, ty=-vdir*hp/denom, L=Math.min(54,12+vs*6);
+    ctx.strokeStyle='#ff8a5b'; ctx.fillStyle='#ff8a5b'; ctx.lineWidth=2.4; ctx.lineCap='round';
+    const ax=bx, ay=by-bs; const ex=ax+tx*L, ey=ay+ty*L;
+    ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();
+    const aa=Math.atan2(ey-ay,ex-ax);
+    ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-8*Math.cos(aa-0.45),ey-8*Math.sin(aa-0.45));ctx.lineTo(ex-8*Math.cos(aa+0.45),ey-8*Math.sin(aa+0.45));ctx.closePath();ctx.fill(); }
+}
+
+function drawEbar(w,p){
+  const x0=24,y0=18,bw=w-48,bh=14;
+  const h=H(x), PE=p.m*g*h, E=Enow(), KE=Math.max(0,E-PE), E0=p.m*g*p.h0, heat=Math.max(0,E0-E);
+  ctx.fillStyle='rgba(255,255,255,.05)'; rrect(ctx,x0,y0,bw,bh,7); ctx.fill();
+  const sc=bw/Math.max(1e-6,E0);
+  let cx=x0;
+  ctx.fillStyle='#ffd27a'; rrect(ctx,cx,y0,PE*sc,bh,0); ctx.fill(); cx+=PE*sc;        // PE gold
+  ctx.fillStyle='#7cc4ff'; ctx.fillRect(cx,y0,KE*sc,bh); cx+=KE*sc;                    // KE blue
+  ctx.fillStyle='rgba(255,107,107,.85)'; ctx.fillRect(cx,y0,heat*sc,bh);              // heat red
+  // rounded mask ends
+  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1; rrect(ctx,x0,y0,bw,bh,7); ctx.stroke();
+  ctx.fillStyle='rgba(154,166,204,.75)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('PE '+PE.toFixed(1)+'  ·  KE '+KE.toFixed(1)+(heat>0.05?('  ·  heat '+heat.toFixed(1)):'')+' J', x0, y0-3);
+  ctx.textAlign='right'; ctx.fillText('total available '+(E).toFixed(1)+' / '+E0.toFixed(1)+' J', x0+bw, y0-3);
+}
+
+function meters(){
+  const p=P(), h=H(x), PE=p.m*g*h, E=Enow(), KE=Math.max(0,E-PE), vs=Math.abs(u);
+  els.sPE.textContent=PE.toFixed(1); els.sKE.textContent=KE.toFixed(1);
+  els.sE.textContent=E.toFixed(1); els.sV.textContent=vs.toFixed(2);
+}
+
+function loop(ts){
+  if(last==null)last=ts; let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  if(playing){ const sub=8; for(let i=0;i<sub;i++) step(dt/sub); }
+  render(); meters();
+  raf=requestAnimationFrame(loop);
+}
+function play(){ playing=!playing; els.play.textContent= playing?'Pause ⏸':'Release ▶'; }
+function reset(){ playing=false; els.play.textContent='Release ▶'; initState(); }
+
+// ── controls ──
+function changed(){ if(!playing){initState();} }
+function linkSlider(slider,num){slider.addEventListener('input',()=>{num.value=slider.value;changed();});}
+function linkNum(num,slider){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value); if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v)); changed();});
+  num.addEventListener('change',()=>{num.value=clampNum(num); slider.value=num.value; changed();});
+}
+linkSlider(els.h0,els.hNum); linkSlider(els.fric,els.fNum); linkSlider(els.mass,els.mNum);
+linkNum(els.hNum,els.h0); linkNum(els.fNum,els.fric); linkNum(els.mNum,els.mass);
+els.play.addEventListener('click',play);
+els.reset.addEventListener('click',reset);
+window.addEventListener('resize',render);
+
+initState();
+raf=requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

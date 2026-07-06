@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackbody Radiation · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#160c08;--bg-1:#1d130d;--glass:rgba(48,32,24,0.55);--glass-line:rgba(220,150,110,0.16);
+    --ink:#fbeee8;--muted:#d0b3a2;--faint:#a07f6c;--accent:#ff8a5b;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(255,138,91,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(255,210,122,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#ffb083,#ff8a5b);box-shadow:0 6px 18px -6px rgba(255,138,91,.8);color:#2a1206;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#120a07}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,#ff5b3b,#ffd27a,#8fd0ff);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:74px;background:rgba(30,18,12,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .pre{display:flex;gap:6px;margin-top:2px;flex-wrap:wrap}
+  .pre button{flex:1;min-width:60px;background:rgba(30,18,12,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:11px;padding:7px 4px;border-radius:8px;cursor:pointer}
+  .pre button:hover{border-color:rgba(255,138,91,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(30,18,12,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="thermal.html">← Thermal</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Thermal · Experiment</div>
+    <h1>Blackbody Radiation</h1>
+    <p>Every warm object glows. The hotter it gets, the more it radiates and the bluer that glow becomes — a
+       universal curve that connects a dying ember, the Sun, and the physics that launched the quantum era.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas></div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Temperature <span class="val" id="tV">5778 K</span></label>
+        <div class="row"><input type="range" id="t" min="800" max="12000" step="10" value="5778"><input type="number" id="tN" min="800" max="12000" step="10" value="5778"></div></div>
+      <div class="ctl"><label>Presets</label>
+        <div class="pre"><button data-t="1000">Ember 1000K</button><button data-t="3000">Bulb 3000K</button><button data-t="5778">Sun 5778K</button><button data-t="10000">Blue star 10000K</button></div></div>
+      <div class="stats">
+        <div class="s"><span>Peak wavelength (Wien)</span><span id="sPk">501 nm</span></div>
+        <div class="s"><span>Peak lies in</span><span id="sBand">visible (green)</span></div>
+        <div class="s"><span>Total power ∝ T⁴</span><span id="sPow">1.0 × Sun</span></div>
+        <div class="s"><span>Apparent colour</span><span id="sCol">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">The Sun peaks in the visible — no coincidence, our eyes evolved for its light.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A "blackbody" is an ideal object that absorbs all light falling on it and, when warm, re-radiates a glow that
+      depends <strong>only on its temperature</strong>. The curve shows how much energy it gives off at each
+      wavelength; the swatch on the left is the colour your eye would actually see. Drag the temperature and watch
+      the whole curve transform.
+
+      <h3>The Planck curve</h3>
+      Classical physics predicted this glow should blow up to infinity at short wavelengths — the "ultraviolet
+      catastrophe". In 1900 Max Planck fixed it by assuming energy comes in discrete <strong>quanta</strong>, and
+      out fell the exact law:
+      <div class="eq">B(λ,T) = (2hc²/λ⁵) · 1/(e^(hc/λkT) − 1)</div>
+      That single bold assumption — energy in lumps — was the birth of quantum theory. The curve rises, peaks, and
+      falls, with no catastrophe.
+
+      <h3>Two rules you can watch</h3>
+      <strong>Wien's law</strong> — the peak wavelength moves inversely with temperature, so hotter means bluer:
+      <div class="eq">λ_peak = b / T&nbsp;&nbsp;(b = 2.90 × 10⁻³ m·K)</div>
+      Cool objects peak in the infrared (a warm body, an ember), the Sun peaks in the visible, and very hot stars
+      peak in the ultraviolet. <strong>The Stefan–Boltzmann law</strong> — the total energy radiated (the whole
+      area under the curve) climbs as the <strong>fourth power</strong> of temperature:
+      <div class="eq">P_total ∝ T⁴</div>
+      Double the temperature and the object radiates <strong>sixteen times</strong> as much. That is why the power
+      readout rockets up as you heat it.
+
+      <h3>Why things glow the colours they do</h3>
+      As you raise the temperature the glow marches through the spectrum: dull red → orange → yellow-white →
+      blue-white. "Red hot" and "white hot" are literally different points on this curve, and astronomers read a
+      star's temperature straight from its colour.
+
+      <h3>Things to try</h3>
+      Step through the presets — ember, bulb, Sun, blue star — and watch the peak sweep left and the area explode.
+      Notice the Sun's peak sits right in the middle of the visible band. Push to the maximum and see the peak
+      cross into the ultraviolet while the visible glow turns icy blue.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=480,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.54);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={T:5778};
+const h=6.626e-34,c=3e8,kB=1.381e-23, bWien=2.898e-3, Tsun=5778;
+function Bof(lnm,T){ const l=lnm*1e-9; return (1/Math.pow(l,5))/(Math.exp(h*c/(l*kB*T))-1); } // relative (drop 2hc²)
+function wlColor(nm){ // visible spectral colour
+  if(nm<380||nm>780) return null;
+  let r=0,g=0,b=0;
+  if(nm<440){r=-(nm-440)/60;b=1;} else if(nm<490){g=(nm-440)/50;b=1;}
+  else if(nm<510){g=1;b=-(nm-510)/20;} else if(nm<580){r=(nm-510)/70;g=1;}
+  else if(nm<645){r=1;g=-(nm-645)/65;} else {r=1;}
+  return [r*255|0,g*255|0,b*255|0];
+}
+function tempColor(T){ // approximate blackbody colour (Tanner Helland)
+  const t=T/100; let r,g,b;
+  if(t<=66){ r=255; g=99.47*Math.log(t)-161.1; } else { r=329.7*Math.pow(t-60,-0.1332); g=288.1*Math.pow(t-60,-0.0755); }
+  if(t>=66) b=255; else if(t<=19) b=0; else b=138.5*Math.log(t-10)-305.0;
+  const cl=x=>Math.max(0,Math.min(255,x))|0; return [cl(r),cl(g),cl(b)];
+}
+let last=0;
+function loop(ts){ last=ts; draw(); requestAnimationFrame(loop); }
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#120a07'; ctx.fillRect(0,0,W,H);
+  const T=st.T;
+  // layout: object swatch left, plot right
+  const objX=W*0.13, objY=H*0.42, objR=Math.min(W,H)*0.11;
+  // plot area
+  const gx=W*0.30, gy=30, gw=W-gx-24, gh=H-90;
+  const x0=gx, x1=gx+gw, y0=gy+gh, y1=gy;
+  const lamMax=3000; // nm x-axis
+  const X=nm=>x0+nm/lamMax*(x1-x0);
+  // find current curve peak for y-scale
+  let ymax=1e-300; for(let nm=20;nm<=lamMax;nm+=10) ymax=Math.max(ymax,Bof(nm,T));
+  const Y=v=>y0 - v/ymax*(y0-y1);
+  // visible band shading
+  for(let nm=380;nm<=740;nm+=2){ const col=wlColor(nm); if(!col)continue; ctx.fillStyle='rgba('+col[0]+','+col[1]+','+col[2]+',.16)'; ctx.fillRect(X(nm),y1,X(nm+2)-X(nm)+0.6,y0-y1); }
+  ctx.fillStyle='rgba(208,179,162,.5)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('visible', (X(380)+X(740))/2, y1+2);
+  // axes
+  ctx.strokeStyle='rgba(220,150,110,.3)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(208,179,162,.7)'; ctx.fillText('wavelength (nm) →',(x0+x1)/2,y0+18);
+  for(let nm=0;nm<=lamMax;nm+=500){ ctx.fillStyle='rgba(208,179,162,.5)'; ctx.fillText(nm+'', X(nm), y0+4); }
+  ctx.save();ctx.translate(x0-14,(y0+y1)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle='rgba(208,179,162,.7)';ctx.fillText('spectral intensity',0,0);ctx.restore();
+  // Planck curve (filled)
+  const tc=tempColor(T);
+  ctx.beginPath(); ctx.moveTo(x0,y0);
+  for(let nm=5;nm<=lamMax;nm+=5){ ctx.lineTo(X(nm),Y(Bof(nm,T))); }
+  ctx.lineTo(x1,y0); ctx.closePath();
+  const gg=ctx.createLinearGradient(0,y1,0,y0); gg.addColorStop(0,'rgba('+tc[0]+','+tc[1]+','+tc[2]+',.4)'); gg.addColorStop(1,'rgba('+tc[0]+','+tc[1]+','+tc[2]+',.05)');
+  ctx.fillStyle=gg; ctx.fill();
+  ctx.strokeStyle='rgb('+tc[0]+','+tc[1]+','+tc[2]+')'; ctx.lineWidth=2.4; ctx.beginPath();
+  for(let nm=5;nm<=lamMax;nm+=5){ const x=X(nm),y=Y(Bof(nm,T)); nm===5?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.stroke();
+  // Wien peak marker
+  const pk=bWien/T*1e9;
+  if(pk<=lamMax){ ctx.strokeStyle='rgba(255,210,122,.7)'; ctx.setLineDash([4,4]); ctx.beginPath();ctx.moveTo(X(pk),y0);ctx.lineTo(X(pk),Y(Bof(pk,T)));ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#ffd27a'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('peak '+pk.toFixed(0)+'nm', X(pk), Y(Bof(pk,T))-4); }
+  else { ctx.fillStyle='rgba(160,120,255,.8)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('peak '+pk.toFixed(0)+'nm (in UV, off-scale)', x0+8, y1+14); }
+  // glowing object
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  const halo=ctx.createRadialGradient(objX,objY,objR*0.3,objX,objY,objR*2.4);
+  halo.addColorStop(0,'rgba('+tc[0]+','+tc[1]+','+tc[2]+',.5)'); halo.addColorStop(1,'rgba('+tc[0]+','+tc[1]+','+tc[2]+',0)');
+  ctx.fillStyle=halo; ctx.beginPath();ctx.arc(objX,objY,objR*2.4,0,7);ctx.fill(); ctx.restore();
+  const og=ctx.createRadialGradient(objX-objR*0.3,objY-objR*0.3,objR*0.1,objX,objY,objR);
+  og.addColorStop(0,'#fff'); og.addColorStop(.5,'rgb('+tc[0]+','+tc[1]+','+tc[2]+')'); og.addColorStop(1,'rgb('+(tc[0]*0.7|0)+','+(tc[1]*0.7|0)+','+(tc[2]*0.7|0)+')');
+  ctx.fillStyle=og; ctx.beginPath();ctx.arc(objX,objY,objR,0,7);ctx.fill();
+  ctx.fillStyle='rgba(208,179,162,.85)'; ctx.font='12px JetBrains Mono'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(T+' K', objX, objY+objR+14);
+  requestAnimationFrame(()=>{});
+}
+function bandOf(pk){ if(pk<380)return 'ultraviolet'; if(pk>740)return 'infrared';
+  const c=wlColor(pk); if(!c)return 'visible'; if(pk<490)return 'visible (blue)'; if(pk<560)return 'visible (green)'; if(pk<590)return 'visible (yellow)'; if(pk<640)return 'visible (orange)'; return 'visible (red)'; }
+function updateStats(){
+  const T=st.T, pk=bWien/T*1e9, pow=Math.pow(T/Tsun,4), tc=tempColor(T);
+  document.getElementById('sPk').textContent=pk.toFixed(0)+' nm';
+  document.getElementById('sBand').textContent=bandOf(pk);
+  document.getElementById('sPow').textContent= pow>=1? pow.toFixed(pow<10?2:0)+' × Sun' : pow.toExponential(2)+' × Sun';
+  document.getElementById('sCol').textContent='rgb('+tc[0]+','+tc[1]+','+tc[2]+')';
+  const ve=document.getElementById('verdict');
+  if(pk>740) ve.textContent='Cool object — its peak is in the infrared, felt as heat more than seen as light.';
+  else if(pk<380) ve.textContent='Very hot — the peak is in the ultraviolet and the glow looks blue-white.';
+  else if(T>4800&&T<6800) ve.textContent='Sun-like — peaks in the visible; our eyes evolved for exactly this light.';
+  else ve.textContent='Hotter means bluer and far brighter — peak at '+pk.toFixed(0)+' nm, power '+pow.toFixed(2)+'× the Sun.';
+}
+function setT(v){ v=Math.max(800,Math.min(12000,v)); if(isNaN(v))return; st.T=v;
+  document.getElementById('t').value=v; document.getElementById('tN').value=v; document.getElementById('tV').textContent=v+' K'; updateStats(); }
+document.getElementById('t').addEventListener('input',e=>setT(parseFloat(e.target.value)));
+document.getElementById('tN').addEventListener('change',e=>setT(parseFloat(e.target.value)));
+document.querySelectorAll('.pre button').forEach(b=>b.addEventListener('click',()=>setT(+b.dataset.t)));
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

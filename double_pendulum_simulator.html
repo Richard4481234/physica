@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Double Pendulum · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#070d1a}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:14px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:60px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12.5px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2);border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  button.act.play{background:linear-gradient(135deg,#8fd0ff,#5aa8ee);color:#06203a;border-color:transparent}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Experiment</div>
+    <h1>The Double Pendulum</h1>
+    <p>Hang one pendulum from the end of another and the tidy, predictable swing gives way to wild, unrepeatable
+       motion — the textbook example of deterministic chaos.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas></div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Upper arm L₁ <span class="val" id="l1V">1.0</span></label>
+        <div class="row"><input type="range" id="l1" min="0.5" max="1.5" step="0.05" value="1"><input type="number" id="l1N" min="0.5" max="1.5" step="0.05" value="1"></div></div>
+      <div class="ctl"><label>Lower arm L₂ <span class="val" id="l2V">1.0</span></label>
+        <div class="row"><input type="range" id="l2" min="0.5" max="1.5" step="0.05" value="1"><input type="number" id="l2N" min="0.5" max="1.5" step="0.05" value="1"></div></div>
+      <div class="ctl"><label>Mass m₁ <span class="val" id="m1V">1.0</span></label>
+        <div class="row"><input type="range" id="m1" min="0.5" max="4" step="0.1" value="1"><input type="number" id="m1N" min="0.5" max="4" step="0.1" value="1"></div></div>
+      <div class="ctl"><label>Mass m₂ <span class="val" id="m2V">1.0</span></label>
+        <div class="row"><input type="range" id="m2" min="0.5" max="4" step="0.1" value="1"><input type="number" id="m2N" min="0.5" max="4" step="0.1" value="1"></div></div>
+      <div class="ctl"><label>Start angle <span class="val" id="a0V">120°</span></label>
+        <div class="row"><input type="range" id="a0" min="20" max="175" step="1" value="120"><input type="number" id="a0N" min="20" max="175" step="1" value="120"></div></div>
+      <div class="ctl"><label>Damping <span class="val" id="dpV">0.00</span></label>
+        <div class="row"><input type="range" id="dp" min="0" max="0.4" step="0.01" value="0"><input type="number" id="dpN" min="0" max="0.4" step="0.01" value="0"></div></div>
+      <div class="ctl"><label>Show</label>
+        <div class="seg"><button id="tTrace" class="on">Trace</button><button id="tTwin">Chaos twin</button></div></div>
+      <div class="btns"><button class="act play" id="play">Release ▶</button><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Energy (should hold)</span><span id="sE">—</span></div>
+        <div class="s"><span>Tip speed</span><span id="sV">0.0</span></div>
+        <div class="s" id="divRow" style="display:none"><span>Twin separation</span><span id="sDiv">0.00</span></div>
+      </div>
+      <div class="verdict" id="verdict">Set a start angle and press Release. Watch how it never repeats.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A second pendulum hangs from the bob of the first. Each arm pulls on the other, and the result is motion
+      that swings, flips, and loops in a way that looks random — even though the rules are completely fixed and
+      the system has no randomness in it at all. The glowing trail is the path traced by the lower bob.
+
+      <h3>Deterministic, but chaotic</h3>
+      The double pendulum obeys exact equations derived from Newton's laws (via the Lagrangian). Given the arms'
+      lengths, the masses, and the starting angles, its future is <strong>completely determined</strong>. Yet it
+      is the classic example of <strong>chaos</strong>: it shows <strong>sensitive dependence on initial
+      conditions</strong>. Two double pendulums released from <em>almost</em> the same angle stay together for a
+      moment, then diverge and end up doing utterly different things — the "butterfly effect." Turn on the
+      <strong>chaos twin</strong> (a faint copy started just half a degree off) and watch the two separate.
+      <div class="eq">tiny difference now → huge difference later</div>
+      This is why the long-term motion is unpredictable in practice, even though it is perfectly deterministic in
+      principle. The single pendulum is regular; adding just one more joint is enough to unleash chaos.
+
+      <h3>Energy is still conserved</h3>
+      With no damping, the total mechanical energy — kinetic plus gravitational potential — stays
+      <strong>constant</strong> the whole time; the motion just shuffles it endlessly between the two arms. The
+      "Energy" readout barely budges, confirming the simulation is faithful (it uses a 4th-order Runge–Kutta
+      integrator). Add a little <strong>damping</strong> and the energy bleeds away, the chaos calms, and the
+      pendulum eventually settles straight down.
+
+      <h3>Things to try</h3>
+      Release from a large angle for the wildest behaviour; from a small angle it stays comparatively tame. Make
+      the lower arm heavier or longer and the character of the motion changes completely. Above all, switch on the
+      chaos twin and release — the moment the two copies peel apart is the whole idea of chaos in one picture.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=620,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.68);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const G=9.8;
+const st={L1:1,L2:1,m1:1,m2:1,a0:120,damp:0, trace:true, twin:false};
+let A=null, B=null, trail=[], playing=false;
+function makeState(off){ const a=st.a0*Math.PI/180 + (off||0); return [a, a, 0, 0]; } // [θ1,θ2,ω1,ω2]
+function reset(){ A=makeState(0); B=makeState(0.5*Math.PI/180); trail=[]; playing=false; document.getElementById('play').textContent='Release ▶'; }
+
+function deriv(s){
+  const [t1,t2,w1,w2]=s, m1=st.m1,m2=st.m2,L1=st.L1,L2=st.L2;
+  const d=t1-t2, den=2*m1+m2-m2*Math.cos(2*t1-2*t2);
+  const a1=(-G*(2*m1+m2)*Math.sin(t1) - m2*G*Math.sin(t1-2*t2) - 2*Math.sin(d)*m2*(w2*w2*L2 + w1*w1*L1*Math.cos(d)))/(L1*den);
+  const a2=(2*Math.sin(d)*(w1*w1*L1*(m1+m2) + G*(m1+m2)*Math.cos(t1) + w2*w2*L2*m2*Math.cos(d)))/(L2*den);
+  return [w1,w2,a1,a2];
+}
+function rk4(s,h){
+  const k1=deriv(s), s2=s.map((x,i)=>x+h/2*k1[i]), k2=deriv(s2), s3=s.map((x,i)=>x+h/2*k2[i]), k3=deriv(s3), s4=s.map((x,i)=>x+h*k3[i]), k4=deriv(s4);
+  const o=s.map((x,i)=>x+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]));
+  if(st.damp>0){ o[2]*=(1-st.damp*h); o[3]*=(1-st.damp*h); }
+  return o;
+}
+function energy(s){
+  const [t1,t2,w1,w2]=s, m1=st.m1,m2=st.m2,L1=st.L1,L2=st.L2;
+  const KE=0.5*m1*(L1*w1)**2 + 0.5*m2*((L1*w1)**2+(L2*w2)**2+2*L1*L2*w1*w2*Math.cos(t1-t2));
+  const U=-(m1+m2)*G*L1*Math.cos(t1)-m2*G*L2*Math.cos(t2);
+  return KE+U;
+}
+function step(dt){
+  if(!playing) return;
+  const N=8, h=dt/N;
+  for(let i=0;i<N;i++){ A=rk4(A,h); if(st.twin) B=rk4(B,h); }
+}
+
+let SC=120, px0=0, py0=0;
+function bobPos(s){
+  const x1=px0+Math.sin(s[0])*st.L1*SC, y1=py0+Math.cos(s[0])*st.L1*SC;
+  const x2=x1+Math.sin(s[1])*st.L2*SC, y2=y1+Math.cos(s[1])*st.L2*SC;
+  return {x1,y1,x2,y2};
+}
+function draw(){
+  // fade trails
+  ctx.fillStyle='rgba(7,13,26,0.16)'; ctx.fillRect(0,0,W,H);
+  px0=W*0.5; py0=H*0.34;
+  SC=(Math.min(W,H)*0.44)/(st.L1+st.L2);   // fit both arms
+  const p=bobPos(A);
+  // record trail
+  if(playing && st.trace){ trail.push([p.x2,p.y2]); if(trail.length>900)trail.shift(); }
+  // draw trail (hue-shifting glow)
+  if(st.trace && trail.length>1){
+    ctx.save(); ctx.globalCompositeOperation='lighter'; ctx.lineCap='round';
+    for(let i=1;i<trail.length;i++){ const a=i/trail.length; const hue=200+80*a;
+      ctx.strokeStyle='hsla('+hue+',90%,65%,'+(0.5*a).toFixed(3)+')'; ctx.lineWidth=0.5+2.4*a;
+      ctx.beginPath();ctx.moveTo(trail[i-1][0],trail[i-1][1]);ctx.lineTo(trail[i][0],trail[i][1]);ctx.stroke(); }
+    ctx.restore();
+  }
+  // twin (faint)
+  if(st.twin){ const q=bobPos(B); drawArm(px0,py0,q.x1,q.y1,q.x2,q.y2,'rgba(255,138,91,.5)','rgba(255,138,91,.7)',st.m1,st.m2,true); }
+  // pivot
+  ctx.fillStyle='rgba(150,180,210,.8)'; ctx.beginPath();ctx.arc(px0,py0,5,0,7);ctx.fill();
+  drawArm(px0,py0,p.x1,p.y1,p.x2,p.y2,'rgba(200,215,245,.9)','#7cc4ff',st.m1,st.m2,false);
+  updateStats(p);
+  requestAnimationFrame(()=>{});
+}
+function drawArm(ox,oy,x1,y1,x2,y2,rodCol,bobCol,m1,m2,faint){
+  ctx.strokeStyle=rodCol; ctx.lineWidth=faint?2:3.4; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  bob(x1,y1,7+3*Math.cbrt(m1), faint?'#ff8a5b':'#7cc4ff', faint);
+  bob(x2,y2,7+3*Math.cbrt(m2), faint?'#ff8a5b':'#b89bff', faint);
+}
+function bob(x,y,r,col,faint){
+  if(!faint){ ctx.save();ctx.globalCompositeOperation='lighter';
+    ctx.fillStyle=col; ctx.globalAlpha=.22; ctx.beginPath();ctx.arc(x,y,r*2.1,0,7);ctx.fill(); ctx.restore(); }
+  const g=ctx.createRadialGradient(x-r*0.35,y-r*0.35,r*0.1,x,y,r);
+  g.addColorStop(0,'#ffffff'); g.addColorStop(.4,col); g.addColorStop(1,col);
+  ctx.save(); if(!faint){ctx.shadowColor=col;ctx.shadowBlur=12;} ctx.fillStyle=g; ctx.globalAlpha=faint?0.6:1;
+  ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill(); ctx.restore();
+}
+function updateStats(p){
+  document.getElementById('sE').textContent=energy(A).toFixed(2)+' J';
+  const tipV=Math.hypot((p.x2-(updateStats._px||p.x2)),(p.y2-(updateStats._py||p.y2)));
+  updateStats._px=p.x2; updateStats._py=p.y2;
+  document.getElementById('sV').textContent=(tipV*60/SC).toFixed(2)+' m/s';
+  const dr=document.getElementById('divRow');
+  if(st.twin){ dr.style.display='flex'; const dd=Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1]);
+    document.getElementById('sDiv').textContent=dd.toFixed(3)+' rad';
+    document.getElementById('verdict').textContent= dd>0.3? 'The twin has completely diverged — sensitive dependence on initial conditions (chaos).' : 'The two copies still overlap… wait for them to peel apart.';
+  } else { dr.style.display='none';
+    if(playing) document.getElementById('verdict').textContent='Deterministic yet unpredictable — energy stays constant while the motion never repeats.';
+  }
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.03,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; step(dt); draw(); requestAnimationFrame(loop); }
+
+function bind(sl,nu,key,labId,fmt,re){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); if(re)reset();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('l1','l1N','L1','l1V',v=>(+v).toFixed(2),true);
+bind('l2','l2N','L2','l2V',v=>(+v).toFixed(2),true);
+bind('m1','m1N','m1','m1V',v=>(+v).toFixed(1),true);
+bind('m2','m2N','m2','m2V',v=>(+v).toFixed(1),true);
+bind('a0','a0N','a0','a0V',v=>Math.round(v)+'°',true);
+bind('dp','dpN','damp','dpV',v=>(+v).toFixed(2),false);
+function tog(id,key){const b=document.getElementById(id);b.addEventListener('click',()=>{st[key]=!st[key];b.classList.toggle('on',st[key]); if(key==='twin')reset();});}
+tog('tTrace','trace'); tog('tTwin','twin');
+document.getElementById('play').addEventListener('click',()=>{const b=document.getElementById('play');
+  if(playing){playing=false;b.textContent='Release ▶';} else {playing=true;b.textContent='Pause ⏸';}});
+document.getElementById('reset').addEventListener('click',reset);
+window.addEventListener('resize',fit);
+fit(); reset(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(24,38,62,0.85)',color:'#eef4fb',border:'1px solid rgba(140,180,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

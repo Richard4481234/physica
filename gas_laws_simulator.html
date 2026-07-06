@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gas Laws · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#160c08;--bg-1:#1d130d;--glass:rgba(48,32,24,0.55);--glass-line:rgba(220,150,110,0.16);
+    --ink:#fbeee8;--muted:#d0b3a2;--faint:#a07f6c;--accent:#ff8a5b;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(255,138,91,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(255,210,122,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#ffb083,#ff8a5b);box-shadow:0 6px 18px -6px rgba(255,138,91,.8);color:#2a1206;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#160d09}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(255,138,91,.25));outline:none}
+  input[type=range]:disabled{opacity:.4}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff0e8;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(30,18,12,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:66px;background:rgba(30,18,12,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:11.5px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(255,138,91,.2);border-color:rgba(255,138,91,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(30,18,12,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="thermal.html">← Thermal</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Thermal · Experiment</div>
+    <h1>The Gas Laws</h1>
+    <p>Squeeze a gas, heat it, add more of it — pressure, volume, temperature and amount all trade off through one
+       tidy relationship: the ideal gas law, PV = NkT.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas></div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Law</label>
+        <div class="seg"><button data-mode="boyle" class="on">Boyle</button><button data-mode="charles">Charles</button><button data-mode="gay">Gay-Lussac</button></div></div>
+      <div class="ctl"><label><span id="freeLbl">Volume V</span> <span class="val" id="freeV">3.0 L</span></label>
+        <div class="row"><input type="range" id="free" min="1.5" max="6" step="0.05" value="3"></div>
+        <div style="font-size:11px;color:var(--faint);margin-top:5px" id="held">holding T and N constant</div></div>
+      <div class="ctl"><label>Amount N <span class="val" id="nV">1.0 mol</span></label>
+        <div class="row"><input type="range" id="n" min="0.5" max="2" step="0.1" value="1"></div></div>
+      <div class="stats">
+        <div class="s"><span>Pressure P</span><span id="sP">100 kPa</span></div>
+        <div class="s"><span>Volume V</span><span id="sV">3.0 L</span></div>
+        <div class="s"><span>Temperature T</span><span id="sT">300 K</span></div>
+        <div class="s"><span>PV / NT (const)</span><span id="sC">1.00</span></div>
+      </div>
+      <div class="verdict" id="verdict">Boyle's law: at fixed temperature, squeezing the gas raises its pressure — P ∝ 1/V.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A gas sealed in a cylinder by a sliding piston. The dots are molecules; they drum against the walls and the
+      piston, and that constant bombardment is the <strong>pressure</strong>. How hard and how often they hit
+      depends on how fast they move (temperature), how crowded they are (volume), and how many there are (amount).
+      The graph on the right traces the law you've selected.
+
+      <h3>One law behind them all</h3>
+      Everything here follows from the <strong>ideal gas law</strong>:
+      <div class="eq">P V = N k T</div>
+      Pressure P, volume V, amount N and absolute temperature T are locked together. Hold two of them fixed and the
+      other two must trade off — and each choice is one of the classic named laws:
+      <h3>Boyle's law (constant T)</h3>
+      Shrink the volume and the same molecules hit the walls more often, so pressure rises:
+      <div class="eq">P ∝ 1 / V&nbsp;&nbsp;(T, N fixed)</div>
+      The P–V graph is a hyperbola. Halve the volume, double the pressure.
+      <h3>Charles's law (constant P)</h3>
+      Heat the gas at fixed pressure and the piston is pushed out — volume grows in direct proportion to absolute
+      temperature:
+      <div class="eq">V ∝ T&nbsp;&nbsp;(P, N fixed)</div>
+      The V–T graph is a straight line through the origin. This is why a hot-air balloon rises and why a sealed bag
+      puffs up in the sun.
+      <h3>Gay-Lussac's law (constant V)</h3>
+      Heat the gas in a rigid container and, with nowhere to expand, the pressure climbs instead:
+      <div class="eq">P ∝ T&nbsp;&nbsp;(V, N fixed)</div>
+      A straight line through the origin again — the reason an aerosol can warns against heat.
+
+      <h3>Things to try</h3>
+      Switch laws and drag the free variable; watch the point ride along the predicted curve while the combination
+      <span style="font-family:monospace">PV/NT</span> stays pinned at a constant. Change the amount N and see every
+      curve rescale. Notice the molecules speed up and glow hotter as T rises — temperature really is just their
+      average energy.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+// units: P (kPa) = N*T/V with our scaling; base point N=1,T=300,V=3 -> P=100
+const st={mode:'boyle', N:1, free:3};
+const T0=300, P0=100, V0=3;   // held reference values
+function stateVals(){
+  let P,V,T; const N=st.N;
+  if(st.mode==='boyle'){ T=T0; V=st.free; P=N*T/V; }
+  else if(st.mode==='charles'){ P=P0; T=st.free; V=N*T/P; }
+  else { V=V0; T=st.free; P=N*T/V; }
+  return {P,V,T,N};
+}
+let parts=[];
+function initParts(){ parts=[]; for(let i=0;i<60;i++) parts.push({x:Math.random(),y:Math.random(),vx:(Math.random()-0.5),vy:(Math.random()-0.5)}); }
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; draw(dt); requestAnimationFrame(loop); }
+function draw(dt){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#160d09'; ctx.fillRect(0,0,W,H);
+  const v=stateVals();
+  // layout: cylinder left, graph right
+  const cyl={x:24, y:40, w:W*0.50-24, h:H-90};
+  // volume maps piston position: V in [1.5,6] -> fraction of cylinder
+  const vfrac=(v.V-1.2)/(6.2-1.2);
+  const gasW=Math.max(30, cyl.w*Math.min(1,Math.max(0.12,vfrac)));
+  // cylinder body
+  ctx.strokeStyle='rgba(220,150,110,.5)'; ctx.lineWidth=2;
+  ctx.strokeRect(cyl.x,cyl.y,cyl.w,cyl.h);
+  // gas region
+  ctx.fillStyle='rgba(255,138,91,.06)'; ctx.fillRect(cyl.x,cyl.y,gasW,cyl.h);
+  // particles (speed ∝ √T)
+  const sp=0.6*Math.sqrt(v.T/300);
+  const tHot=Math.min(1,(v.T-150)/350);
+  for(const p of parts){ p.x+=p.vx*sp*dt*2; p.y+=p.vy*sp*dt*2;
+    if(p.x<0){p.x=0;p.vx=Math.abs(p.vx);} if(p.x>1){p.x=1;p.vx=-Math.abs(p.vx);}
+    if(p.y<0){p.y=0;p.vy=Math.abs(p.vy);} if(p.y>1){p.y=1;p.vy=-Math.abs(p.vy);}
+    const px=cyl.x+4+p.x*(gasW-8), py=cyl.y+4+p.y*(cyl.h-8);
+    ctx.fillStyle='rgb(255,'+(190-90*tHot|0)+','+(120-90*tHot|0)+')'; ctx.beginPath();ctx.arc(px,py,3.2,0,7);ctx.fill();
+  }
+  // piston
+  const pistonX=cyl.x+gasW;
+  ctx.fillStyle='rgba(150,120,100,.65)'; ctx.fillRect(pistonX,cyl.y-6,10,cyl.h+12);
+  ctx.strokeStyle='rgba(220,180,150,.8)'; ctx.strokeRect(pistonX,cyl.y-6,10,cyl.h+12);
+  ctx.fillStyle='rgba(150,120,100,.5)'; ctx.fillRect(pistonX+10,cyl.y+cyl.h/2-4,30,8);
+  // pressure gauge arrows on piston (∝P)
+  const pf=Math.min(1,v.P/220);
+  ctx.strokeStyle='#ff8a5b'; ctx.lineWidth=2;
+  for(let yy=cyl.y+14; yy<cyl.y+cyl.h; yy+=26){ const L=8+pf*22; ctx.beginPath();ctx.moveTo(pistonX-4,yy);ctx.lineTo(pistonX-4-L,yy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pistonX-4-L,yy);ctx.lineTo(pistonX-4-L+5,yy-3);ctx.lineTo(pistonX-4-L+5,yy+3);ctx.closePath();ctx.fillStyle='#ff8a5b';ctx.fill(); }
+  ctx.fillStyle='rgba(208,179,162,.8)'; ctx.font='11px Inter'; ctx.textAlign='center';
+  ctx.fillText('gas · V = '+v.V.toFixed(1)+' L', cyl.x+gasW/2, cyl.y+cyl.h+18);
+  ctx.fillText('T = '+v.T.toFixed(0)+' K   P = '+v.P.toFixed(0)+' kPa', cyl.x+cyl.w/2, cyl.y-14);
+  ctx.textAlign='left';
+  drawGraph(v, W*0.54, 40, W-24-(W*0.54), H-90);
+}
+function drawGraph(v, gx,gy,gw,gh){
+  ctx.fillStyle='rgba(20,12,8,.5)'; ctx.fillRect(gx,gy,gw,gh);
+  ctx.strokeStyle='rgba(220,150,110,.3)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(gx+30,gy+6);ctx.lineTo(gx+30,gy+gh-24);ctx.lineTo(gx+gw-8,gy+gh-24);ctx.stroke();
+  const x0=gx+30, x1=gx+gw-8, y0=gy+gh-24, y1=gy+6;
+  ctx.fillStyle='rgba(208,179,162,.75)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  let xlab,ylab, curve, xmax, ymax, cx, cyv;
+  if(st.mode==='boyle'){ xlab='V (L)'; ylab='P'; xmax=6.4; ymax=st.N*T0/1.5*1.1;
+    curve=V=>st.N*T0/V; cx=v.V; cyv=v.P;
+  } else if(st.mode==='charles'){ xlab='T (K)'; ylab='V'; xmax=520; ymax=st.N*520/P0*1.1;
+    curve=T=>st.N*T/P0; cx=v.T; cyv=v.V;
+  } else { xlab='T (K)'; ylab='P'; xmax=520; ymax=st.N*520/V0*1.1;
+    curve=T=>st.N*T/V0; cx=v.T; cyv=v.P; }
+  ctx.fillText(xlab, (x0+x1)/2, y0+6);
+  ctx.save();ctx.translate(gx+10,(y0+y1)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(ylab,0,0);ctx.restore();
+  const X=x=>x0+ x/xmax*(x1-x0), Y=y=>y0 - y/ymax*(y0-y1);
+  const xlo = st.mode==='boyle'?1.5:150;
+  ctx.strokeStyle='#ffd27a'; ctx.lineWidth=2.2; ctx.beginPath();
+  for(let i=0;i<=120;i++){ const x=xlo+(xmax*0.98-xlo)*i/120; const y=curve(x); const px=X(x),py=Y(y); i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.stroke();
+  // current point
+  ctx.fillStyle='#ff8a5b'; ctx.save(); ctx.shadowColor='#ff8a5b'; ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(X(cx),Y(cyv),5,0,7);ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,210,122,.85)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='left'; ctx.textBaseline='top';
+  const eq={boyle:'P ∝ 1/V',charles:'V ∝ T',gay:'P ∝ T'}[st.mode];
+  ctx.fillText(eq, x0+6, y1);
+}
+function updateStats(){
+  const v=stateVals();
+  document.getElementById('sP').textContent=v.P.toFixed(0)+' kPa';
+  document.getElementById('sV').textContent=v.V.toFixed(1)+' L';
+  document.getElementById('sT').textContent=v.T.toFixed(0)+' K';
+  document.getElementById('sC').textContent=(v.P*v.V/(v.N*v.T)).toFixed(2);
+  const txt={boyle:"Boyle's law: at fixed temperature, squeezing the gas raises its pressure — P ∝ 1/V.",
+    charles:"Charles's law: at fixed pressure, heating the gas expands it — V ∝ T.",
+    gay:"Gay-Lussac's law: in a rigid container, heating the gas raises its pressure — P ∝ T."}[st.mode];
+  document.getElementById('verdict').textContent=txt;
+}
+function setMode(mode){
+  st.mode=mode;
+  document.querySelectorAll('.seg button[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
+  const f=document.getElementById('free'), lbl=document.getElementById('freeLbl'), held=document.getElementById('held');
+  if(mode==='boyle'){ lbl.textContent='Volume V'; f.min=1.5;f.max=6;f.step=0.05; st.free=3; held.textContent='holding T = 300 K and N constant'; }
+  else if(mode==='charles'){ lbl.textContent='Temperature T'; f.min=150;f.max=500;f.step=5; st.free=300; held.textContent='holding P = 100 kPa and N constant'; }
+  else { lbl.textContent='Temperature T'; f.min=150;f.max=500;f.step=5; st.free=300; held.textContent='holding V = 3 L and N constant'; }
+  f.value=st.free; document.getElementById('freeV').textContent = mode==='boyle'? st.free.toFixed(1)+' L' : st.free.toFixed(0)+' K';
+  updateStats();
+}
+document.querySelectorAll('.seg button[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+document.getElementById('free').addEventListener('input',e=>{ st.free=parseFloat(e.target.value);
+  document.getElementById('freeV').textContent = st.mode==='boyle'? st.free.toFixed(1)+' L' : st.free.toFixed(0)+' K'; updateStats(); });
+document.getElementById('n').addEventListener('input',e=>{ st.N=parseFloat(e.target.value); document.getElementById('nV').textContent=st.N.toFixed(1)+' mol'; updateStats(); });
+window.addEventListener('resize',fit);
+fit(); initParts(); setMode('boyle'); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(48,32,24,0.85)',color:'#fbeee8',border:'1px solid rgba(220,150,110,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

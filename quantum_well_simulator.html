@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Well · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#081512; --bg-1:#0d2020;
+    --glass:rgba(26,44,40,0.55); --glass-line:rgba(140,210,180,0.16);
+    --ink:#eef8f3; --muted:#9accb6; --faint:#6b9a86;
+    --accent:#62d2a2; --gold:#ffd27a; --viol:#b89bff; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(98,210,162,0.15), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(184,155,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#8fe7c2,#62d2a2); box-shadow:0 6px 18px -6px rgba(98,210,162,.8); color:#06241a; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#06140f}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(98,210,162,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#eafff5; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:70px; background:rgba(6,18,14,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:30px; background:rgba(6,18,14,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(98,210,162,.2); border-color:rgba(98,210,162,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(98,210,162,.12); border:1px solid rgba(98,210,162,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(98,210,162,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:10px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(6,18,14,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="modern.html">← Modern</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Modern · Experiment</div>
+    <h1>The Quantum Well</h1>
+    <p>Trap a particle between two walls and quantum mechanics takes over: it can only hold certain discrete
+       energies, and at each one it spreads out as a standing wave rather than sitting at a point.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <div class="leg">
+        <span><i style="background:#62d2a2"></i>wavefunction / probability</span>
+        <span><i style="background:#b89bff"></i>imaginary part</span>
+        <span><i style="background:#ffd27a"></i>selected energy level</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Quantum number n <span class="val" id="nV">2</span></label>
+        <div class="seg" id="nseg"></div>
+      </div>
+      <div class="ctl">
+        <label>Well width L <span class="val" id="lV">1.0 nm</span></label>
+        <div class="row"><input type="range" id="l" min="0.3" max="3" step="0.05" value="1.0">
+          <input type="number" id="lN" min="0.3" max="3" step="0.05" value="1.0"></div>
+      </div>
+      <div class="ctl">
+        <label>Particle mass <span class="val" id="mV">1.0 mₑ</span></label>
+        <div class="row"><input type="range" id="m" min="0.2" max="5" step="0.1" value="1.0">
+          <input type="number" id="mN" min="0.2" max="5" step="0.1" value="1.0"></div>
+      </div>
+      <div class="ctl">
+        <label>Display</label>
+        <div class="seg"><button id="mProb" class="on">|ψ|² density</button><button id="mPsi">Re ψ wave</button></div>
+      </div>
+      <div class="ctl">
+        <label>Superposition</label>
+        <div class="seg"><button id="sSingle" class="on">Single state</button><button id="sSuper">n &amp; n+1</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Energy E<sub>n</sub></span><span id="sEn">1.50 eV</span></div>
+        <div class="s"><span>Ground state E₁</span><span id="sE1">0.38 eV</span></div>
+        <div class="s"><span>Gap to E<sub>n+1</sub></span><span id="sGap">— eV</span></div>
+        <div class="s"><span>Nodes inside well</span><span id="sNodes">1</span></div>
+        <div class="s"><span>de Broglie λ = 2L/n</span><span id="sLam">1.00 nm</span></div>
+      </div>
+      <div class="verdict" id="verdict">Confinement quantizes energy: only whole half-waves fit, so E grows as n².</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A single particle (say an electron) is trapped in a one-dimensional <strong>box</strong> — a region of
+      width L bounded by walls so high the particle cannot escape (an "infinite square well"). On the left is the
+      <strong>energy ladder</strong> of states the particle is allowed to occupy; on the right is the
+      <strong>wavefunction</strong> for the level you select, drawn across the well. The green curve is either the
+      probability density |ψ|² (where you would be likely to find the particle) or the wave ψ itself.
+
+      <h3>Why the energy is quantized</h3>
+      In quantum mechanics a particle is described by a wave. To fit inside the box the wave must vanish at both
+      walls — exactly like a guitar string clamped at both ends. Only whole numbers of half-wavelengths fit:
+      <div class="eq">L = n · λ/2&nbsp;&nbsp;(n = 1, 2, 3, …)</div>
+      Because momentum is tied to wavelength (de Broglie, p = h/λ), allowing only certain wavelengths allows only
+      certain energies:
+      <div class="eq">E<sub>n</sub> = n² h² / (8 m L²)</div>
+      The energies are <strong>discrete</strong> and grow as n² — the gaps get wider as you climb. The particle
+      <strong>cannot have just any energy</strong>, and it can never be perfectly at rest: even the lowest state
+      n = 1 has a non-zero <strong>zero-point energy</strong>, a direct consequence of the uncertainty principle.
+
+      <h3>Standing waves and nodes</h3>
+      Each state ψ<sub>n</sub>(x) = √(2/L)·sin(nπx/L) is a standing wave with <strong>n − 1 nodes</strong> — points
+      inside the well where the particle is never found. The square |ψ<sub>n</sub>|² gives the probability of
+      finding the particle at each position, replacing the classical idea of a definite location with a spread-out
+      cloud of likelihood.
+
+      <h3>Confinement and time</h3>
+      Squeeze the well (smaller L) or lighten the particle and every energy <strong>shoots up</strong> — tighter
+      confinement costs more energy, which is why electrons in small atoms and quantum dots have large, well-spaced
+      levels. A single energy state is "stationary": its |ψ|² does not move in time. But switch on
+      <strong>superposition</strong> (mixing n and n+1) and the probability cloud <strong>sloshes back and forth</strong>,
+      oscillating at a frequency set by the energy gap, (E<sub>n+1</sub> − E<sub>n</sub>)/h — the only way the
+      particle's position can actually change in time.
+
+      <h3>Things to try</h3>
+      Step through the quantum numbers and count the bumps and nodes. Narrow the well and watch the energy ladder
+      stretch upward. Switch to "Re ψ" to see the wave oscillate in time (the rotating quantum phase), and turn on
+      superposition to watch the probability cloud slosh from wall to wall. Use slow motion to follow it.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=480,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.52);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={n:2, L:1.0, m:1.0, prob:true, sup:false};
+const NMAX=8;
+const E1const=0.3761; // eV for electron, L=1nm
+const E1=()=>E1const/(st.m*st.L*st.L);
+const En=(n)=>E1()*n*n;
+
+// build n buttons
+const nseg=document.getElementById('nseg');
+for(let i=1;i<=NMAX;i++){ const b=document.createElement('button'); b.textContent=i; b.dataset.n=i; if(i===st.n)b.classList.add('on');
+  b.addEventListener('click',()=>{ st.n=i; [...nseg.children].forEach(c=>c.classList.toggle('on',+c.dataset.n===i)); document.getElementById('nV').textContent=i; updateStats(); }); nseg.appendChild(b); }
+
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#06140f'; ctx.fillRect(0,0,W,H);
+
+  // layout: energy ladder left, wave panel right
+  const ladX0=14, ladX1=W*0.24, padT=24, padB=40;
+  const wx0=W*0.30, wx1=W-22;
+  const y0=H-padB, y1=padT;
+
+  // ----- energy ladder -----
+  const Emax=En(NMAX)*1.04;
+  const eY=E=>y0-(E/Emax)*(y0-y1);
+  ctx.strokeStyle='rgba(140,210,180,.3)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(ladX0,y0); ctx.lineTo(ladX0,y1); ctx.stroke();
+  ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='10.5px JetBrains Mono';
+  ctx.save(); ctx.translate(ladX0-2,(y0+y1)/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('energy (eV)',0,-2); ctx.restore();
+  const lv=[st.n]; if(st.sup && st.n<NMAX) lv.push(st.n+1);
+  for(let n=1;n<=NMAX;n++){
+    const y=eY(En(n)), on=lv.includes(n);
+    ctx.strokeStyle= on? 'rgba(255,210,122,.95)':'rgba(140,210,180,.28)';
+    ctx.lineWidth= on?2.2:1; ctx.beginPath(); ctx.moveTo(ladX0,y); ctx.lineTo(ladX1,y); ctx.stroke();
+    if(on || n<=3 || n===NMAX){ ctx.fillStyle= on?'#ffd27a':'rgba(154,204,182,.6)'; ctx.font='10.5px JetBrains Mono';
+      ctx.fillText('n='+n+'  '+En(n).toFixed(2), ladX1+4, y+3.5); }
+  }
+
+  // ----- well + wavefunction -----
+  const cy=(y0+y1)/2 + 6;
+  // walls (infinite)
+  ctx.fillStyle='rgba(140,210,180,.07)';
+  ctx.fillRect(wx0-16,y1,16,y0-y1); ctx.fillRect(wx1,y1,16,y0-y1);
+  ctx.strokeStyle='rgba(140,210,180,.7)'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(wx0,y1-6); ctx.lineTo(wx0,y0+6); ctx.moveTo(wx1,y1-6); ctx.lineTo(wx1,y0+6); ctx.stroke();
+  // baseline
+  ctx.strokeStyle='rgba(140,210,180,.25)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(wx0,cy); ctx.lineTo(wx1,cy); ctx.stroke();
+  ctx.fillStyle='rgba(154,204,182,.6)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText('0', wx0, y0+22); ctx.fillText('L = '+st.L.toFixed(2)+' nm', (wx0+wx1)/2, y0+22); ctx.fillText('x', wx1, y0+22);
+  ctx.textAlign='left';
+
+  // coefficients
+  const comps = st.sup && st.n<NMAX ? [{n:st.n,c:Math.SQRT1_2},{n:st.n+1,c:Math.SQRT1_2}] : [{n:st.n,c:1}];
+  // relative phases ~ (E_n/E_1) = n^2
+  const omega=1.1;
+  const N=240, half=(y0-y1)/2*0.86;
+  // amplitude normalization
+  const ampScale = st.prob ? half/ (st.sup?2.0:1.0) : half/ (st.sup?1.45:1.0);
+
+  function reim(frac){
+    let re=0,im=0;
+    for(const cc of comps){ const phi=Math.sin(cc.n*Math.PI*frac); const ph=cc.n*cc.n*omega*t;
+      re+=cc.c*phi*Math.cos(ph); im+=cc.c*phi*-Math.sin(ph); }
+    return [re,im];
+  }
+
+  if(st.prob){
+    // |psi|^2 filled
+    ctx.beginPath(); ctx.moveTo(wx0,cy);
+    for(let i=0;i<=N;i++){ const frac=i/N, x=wx0+frac*(wx1-wx0); const [re,im]=reim(frac); const p=re*re+im*im; ctx.lineTo(x, cy-p*ampScale); }
+    ctx.lineTo(wx1,cy); ctx.closePath();
+    ctx.fillStyle='rgba(98,210,162,.22)'; ctx.fill();
+    ctx.strokeStyle='#62d2a2'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='11px Inter'; ctx.fillText('|ψ|²  (probability density)', wx0+6, y1+12);
+  } else {
+    // Re psi and Im psi about baseline
+    ctx.strokeStyle='rgba(184,155,255,.55)'; ctx.lineWidth=1.4; ctx.beginPath();
+    for(let i=0;i<=N;i++){ const frac=i/N, x=wx0+frac*(wx1-wx0); const [re,im]=reim(frac); if(i===0)ctx.moveTo(x,cy-im*ampScale); else ctx.lineTo(x,cy-im*ampScale); }
+    ctx.stroke();
+    ctx.strokeStyle='#62d2a2'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(let i=0;i<=N;i++){ const frac=i/N, x=wx0+frac*(wx1-wx0); const [re,im]=reim(frac); if(i===0)ctx.moveTo(x,cy-re*ampScale); else ctx.lineTo(x,cy-re*ampScale); }
+    ctx.stroke();
+    ctx.fillStyle='rgba(154,204,182,.7)'; ctx.font='11px Inter'; ctx.fillText('Re ψ(x,t)  (oscillating wave)', wx0+6, y1+12);
+  }
+
+  requestAnimationFrame(()=>{});
+}
+
+function updateStats(){
+  document.getElementById('sEn').textContent=En(st.n).toFixed(2)+' eV';
+  document.getElementById('sE1').textContent=E1().toFixed(2)+' eV';
+  if(st.n<NMAX) document.getElementById('sGap').textContent=(En(st.n+1)-En(st.n)).toFixed(2)+' eV';
+  else document.getElementById('sGap').textContent='—';
+  document.getElementById('sNodes').textContent=(st.n-1);
+  document.getElementById('sLam').textContent=(2*st.L/st.n).toFixed(2)+' nm';
+  document.getElementById('verdict').textContent=
+    `E${st.n<10?'₁₂₃₄₅₆₇₈₉'[st.n-1]:'ₙ'} = n²E₁ = ${En(st.n).toFixed(2)} eV — squeeze the well (smaller L) or lighten the particle and every level climbs as 1/(mL²): confinement costs energy.`;
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; t+=dt; draw(); requestAnimationFrame(loop); }
+
+function bind(sl,nu,key,labId,fmt){
+  const s=document.getElementById(sl), n=document.getElementById(nu), lab=document.getElementById(labId);
+  function set(v){ v=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),v)); if(isNaN(v))return;
+    st[key]=v; s.value=v; n.value=v; lab.textContent=fmt(v); updateStats(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+}
+bind('l','lN','L','lV',v=>(+v).toFixed(2)+' nm');
+bind('m','mN','m','mV',v=>(+v).toFixed(1)+' mₑ');
+
+document.getElementById('mProb').addEventListener('click',()=>{st.prob=true; modeBtns();});
+document.getElementById('mPsi').addEventListener('click',()=>{st.prob=false; modeBtns();});
+function modeBtns(){ document.getElementById('mProb').classList.toggle('on',st.prob); document.getElementById('mPsi').classList.toggle('on',!st.prob); }
+document.getElementById('sSingle').addEventListener('click',()=>{st.sup=false; supBtns();});
+document.getElementById('sSuper').addEventListener('click',()=>{st.sup=true; supBtns(); updateStats();});
+function supBtns(){ document.getElementById('sSingle').classList.toggle('on',!st.sup); document.getElementById('sSuper').classList.toggle('on',st.sup); }
+
+document.getElementById('reset').addEventListener('click',()=>{
+  st.n=2; st.L=1.0; st.m=1.0; st.prob=true; st.sup=false;
+  document.getElementById('l').value=1; document.getElementById('lN').value=1; document.getElementById('lV').textContent='1.00 nm';
+  document.getElementById('m').value=1; document.getElementById('mN').value=1; document.getElementById('mV').textContent='1.0 mₑ';
+  document.getElementById('nV').textContent=2; [...nseg.children].forEach(c=>c.classList.toggle('on',+c.dataset.n===2));
+  modeBtns(); supBtns(); updateStats();
+});
+
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(26,44,40,0.85)',color:'#eef8f3',border:'1px solid rgba(140,210,180,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

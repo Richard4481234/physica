@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pascal's Principle · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#06141a; --bg-1:#0a1f28;
+    --glass:rgba(20,42,52,0.55); --glass-line:rgba(120,200,220,0.16);
+    --ink:#eef8fb; --muted:#9cc4cf; --faint:#5f8f9c;
+    --accent:#56ccde; --accent-soft:#2a6b78; --gold:#ffd27a; --ember:#ff8a5b; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(86,204,222,0.14), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500; color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:32px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px; display:grid; grid-template-columns:300px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r); padding:22px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:600; margin:0 0 14px;}
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(86,204,222,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent); box-shadow:0 0 0 4px rgba(86,204,222,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line); box-shadow:0 22px 60px -34px rgba(0,0,0,.9);}
+  .legend{display:flex; gap:18px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:11px; height:11px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.gold::before{background:var(--gold)} .stat.green::before{background:var(--green)} .stat.ember::before{background:var(--ember)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:19px; margin-top:4px;}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px; background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px; background:var(--glass);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(86,204,222,.25),rgba(86,204,222,.08)); border:1px solid rgba(86,204,222,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .gold{color:var(--gold)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px; background:rgba(86,204,222,.1); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px; background:rgba(255,255,255,.025); border:1px solid var(--glass-line);
+    border-left:3px solid var(--accent); font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="fluids.html" class="back">← Fluid</a>
+    <div class="kicker">Fluid Statics</div>
+    <h1>Pascal's Principle</h1>
+  </div>
+  <div class="sub">Press a small piston and lift a great weight — the hydraulic multiplier explained.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Hydraulic press</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Input force F₁</span><span class="val"><span id="fV">100</span> N</span></div>
+      <input id="force" type="range" min="20" max="400" step="10" value="100">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Area ratio A₂/A₁</span><span class="val"><span id="rV">5</span>×</span></div>
+      <input id="ratio" type="range" min="2" max="12" step="1" value="5">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Load weight</span><span class="val"><span id="wV">400</span> N</span></div>
+      <input id="load" type="range" min="50" max="4000" step="50" value="400">
+    </div>
+    <p style="color:var(--faint); font-size:12px; line-height:1.6; margin:14px 0 0">
+      The pressure you create on the small piston is felt equally everywhere in the fluid — so the big piston
+      pushes back with a force multiplied by the area ratio. The catch: it moves the same factor <i>less</i>.</p>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--ember)"></i>Input force F₁</span>
+      <span><i class="dot" style="background:var(--green)"></i>Output force F₂</span>
+      <span style="margin-left:auto;color:var(--faint)" id="status">—</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Pressure</div><div class="v"><span id="sP">0</span><em>Pa·</em></div></div>
+      <div class="stat green"><div class="k">Output force F₂</div><div class="v"><span id="sF2">0</span><em>N</em></div></div>
+      <div class="stat gold"><div class="k">Mechanical adv.</div><div class="v">×<span id="sMA">0</span></div></div>
+      <div class="stat ember"><div class="k">Result</div><div class="v" id="sRes" style="font-size:15px">—</div></div>
+    </div>
+
+    <div class="formula">
+      <b>P</b> = F₁/A₁ = F₂/A₂ &nbsp;&nbsp;|&nbsp;&nbsp; <b>F₂</b> = F₁ · (A₂/A₁) &nbsp;&nbsp;|&nbsp;&nbsp; d₁·A₁ = d₂·A₂
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>Two pistons sit on the same trapped body of fluid — a small one on the left and a large one on the
+           right, joined at the bottom. Push down on the small piston and the large one pushes up, lifting a load
+           far heavier than the force you applied. That's a <b>hydraulic press</b>, and Pascal's principle is why
+           it works.</p>
+
+        <h4>Pascal's principle</h4>
+        <p>A pressure applied to an enclosed fluid is transmitted <b>undiminished to every part of the fluid</b>
+           and the walls of its container. So the pressure you make under the small piston appears, unchanged,
+           under the big one:</p>
+        <div class="ex-eq">
+          P = F₁ / A₁ = F₂ / A₂ <span class="lbl">same pressure everywhere</span>
+        </div>
+
+        <h4>Force multiplication</h4>
+        <p>Because the pressure is the same but the big piston has more area for it to push on, the output force
+           is multiplied by the ratio of areas:</p>
+        <div class="ex-eq">
+          F₂ = F₁ · (A₂ / A₁) <span class="lbl">the mechanical advantage</span>
+        </div>
+        <p>With a 5× area ratio, a 100 N push becomes a 500 N lift. This is how a hydraulic car jack or the
+           brakes on a car turn a gentle effort into a powerful force.</p>
+
+        <h4>No free lunch</h4>
+        <p>Energy is still conserved — you don't get the force for nothing. The fluid pushed out from under the
+           small piston has to reappear under the big one, so the big piston moves <b>less</b> by exactly the
+           same factor:</p>
+        <div class="ex-eq">
+          d₁ · A₁ = d₂ · A₂ <span class="lbl">push far to lift a little</span>
+        </div>
+        <p>Push the small piston down 50 cm and, at 5×, the load rises just 10 cm. Force × distance — the work —
+           comes out the same on both sides.</p>
+
+        <h4>Things to try</h4>
+        <p>Set a heavy load, then raise the <b>area ratio</b> until the output force finally exceeds it and it
+           lifts. Notice the big piston's stroke shrinks as the ratio grows — the price of the extra force.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={force:$('force'),ratio:$('ratio'),load:$('load'),fV:$('fV'),rV:$('rV'),wV:$('wV'),
+  sP:$('sP'),sF2:$('sF2'),sMA:$('sMA'),sRes:$('sRes'),status:$('status')};
+
+function P(){ return {F1:+els.force.value, ratio:+els.ratio.value, W:+els.load.value}; }
+// A1 = 1 unit, A2 = ratio. P = F1/A1 = F1. F2 = F1*ratio.
+
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.56);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+function arrow(x0,y0,x1,y1,col,wd){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=wd; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0), s=6+wd;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-s*Math.cos(a-0.42),y1-s*Math.sin(a-0.42));ctx.lineTo(x1-s*Math.cos(a+0.42),y1-s*Math.sin(a+0.42));ctx.closePath();ctx.fill(); }
+function rrect(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+let tsec=0;
+function render(){
+  const d=fit(), w=d.w, h=d.h; ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#08161d'; ctx.fillRect(0,0,w,h);
+  const p=P(), ratio=p.ratio;
+  // piston widths represent areas (A ∝ width). large = small × ratio
+  let ws=Math.max(22, 80/Math.sqrt(ratio)), wl=ws*ratio;
+  const baseY=h-40, fluidTop0=h*0.46;
+  const cxS=w*0.26, cxL=w*0.66;
+  if(cxL+wl/2 > w-20){ const k=(w-20-cxL)/(wl/2); wl*=k; ws=wl/ratio; }
+  // reciprocal pump motion: small down sinusoid, large opposite scaled by 1/ratio
+  const A=14, ph=Math.sin(tsec*1.6);
+  const sOff=A*ph, lOff=-A/ratio*ph;
+  const sTop=fluidTop0+sOff, lTop=fluidTop0+lOff;
+
+  // fluid (U shape): two columns + bottom channel
+  ctx.fillStyle='rgba(86,204,222,.22)';
+  ctx.fillRect(cxS-ws/2, sTop, ws, baseY-sTop);
+  ctx.fillRect(cxL-wl/2, lTop, wl, baseY-lTop);
+  ctx.fillRect(cxS-ws/2, baseY-26, (cxL+wl/2)-(cxS-ws/2), 26);   // bottom channel
+  // pressure dots in fluid (equal pressure indicator)
+  ctx.fillStyle='rgba(150,225,240,.5)'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('P', (cxS+cxL)/2, baseY-13);
+  // cylinder walls
+  ctx.strokeStyle='rgba(150,225,240,.4)'; ctx.lineWidth=2;
+  ctx.strokeRect(cxS-ws/2, sTop-2, ws, baseY-sTop+2);
+  ctx.strokeRect(cxL-wl/2, lTop-2, wl, baseY-lTop+2);
+  ctx.fillStyle='rgba(120,200,220,.18)'; ctx.fillRect(cxS-ws/2, baseY-26, (cxL+wl/2)-(cxS-ws/2), 26);
+
+  // pistons
+  ctx.fillStyle='rgba(230,238,242,.92)'; rrect(ctx,cxS-ws/2, sTop-10, ws, 10, 3); ctx.fill();
+  rrect(ctx,cxL-wl/2, lTop-12, wl, 12, 3); ctx.fill();
+  // small piston rod + input force
+  const F1=p.F1, F2=p.F1*ratio, maxF=Math.max(F1,F2,p.W,1);
+  const f1len=24+70*(F1/maxF);
+  arrow(cxS, sTop-12-f1len, cxS, sTop-12, '#ff8a5b', 3);
+  ctx.fillStyle='#ff8a5b'; ctx.font='600 12px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('F₁ '+F1+' N', cxS, sTop-12-f1len-4);
+  // load box on large piston
+  const lifts=F2>=p.W;
+  const lbw=Math.min(wl*0.9,80), lbh=34, lbx=cxL-lbw/2, lby=lTop-12-lbh;
+  ctx.fillStyle=lifts?'rgba(98,210,162,.28)':'rgba(255,120,90,.22)'; ctx.strokeStyle=lifts?'rgba(98,210,162,.8)':'rgba(255,120,90,.8)'; ctx.lineWidth=1.5;
+  rrect(ctx,lbx,lby,lbw,lbh,5); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='rgba(238,248,251,.9)'; ctx.font='600 12px JetBrains Mono, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(p.W+' N', cxL, lby+lbh/2);
+  // output force up
+  const f2len=24+70*(F2/maxF);
+  arrow(cxL+wl/2+16, lTop, cxL+wl/2+16, lTop-f2len, '#62d2a2', 3);
+  ctx.fillStyle='#62d2a2'; ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('F₂ '+F2+' N', cxL+wl/2+22, lTop-f2len*0.6);
+  // area labels
+  ctx.fillStyle='rgba(150,225,240,.7)'; ctx.font='11px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('small piston A₁', cxS, baseY+8);
+  ctx.fillText('large piston A₂ = '+ratio+'·A₁', cxL, baseY+8);
+
+  meters(F1,F2,ratio,p,lifts);
+}
+function meters(F1,F2,ratio,p,lifts){
+  els.sP.textContent=F1.toFixed(0); els.sF2.textContent=F2.toFixed(0); els.sMA.textContent=ratio;
+  els.sRes.textContent= lifts?'Lifts!':'Too heavy';
+  els.status.textContent= lifts? ('F₂ = '+F2+' N ≥ '+p.W+' N — the load rises')
+                                : ('F₂ = '+F2+' N < '+p.W+' N — not enough force');
+}
+
+function loop(ts){ if(loop.l==null)loop.l=ts; let dt=(ts-loop.l)/1000; loop.l=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1); tsec+=dt; render(); requestAnimationFrame(loop); }
+
+els.force.addEventListener('input',()=>els.fV.textContent=els.force.value);
+els.ratio.addEventListener('input',()=>els.rV.textContent=els.ratio.value);
+els.load.addEventListener('input',()=>els.wV.textContent=els.load.value);
+window.addEventListener('resize',render);
+requestAnimationFrame(loop);
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>

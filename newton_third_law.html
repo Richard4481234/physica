@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newton's Third Law · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#080f1c;--bg-1:#0e1a30;--glass:rgba(24,38,62,0.55);--glass-line:rgba(140,180,220,0.16);
+    --ink:#eef4fb;--muted:#9ab2cc;--faint:#6b86a0;--accent:#7cc4ff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(124,196,255,0.15),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(184,155,255,0.10),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#8fd0ff,#7cc4ff);box-shadow:0 6px 18px -6px rgba(124,196,255,.8);color:#08111e;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a1424}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl.hide{display:none}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(124,196,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#eaf4ff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:64px;background:rgba(8,16,28,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(8,16,28,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12.5px;padding:9px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(124,196,255,.2);border-color:rgba(124,196,255,.5);color:var(--ink)}
+  .btns{display:flex;gap:8px;margin-top:6px}
+  button.act{flex:1;background:rgba(124,196,255,.12);border:1px solid rgba(124,196,255,.4);color:var(--ink);font-family:inherit;font-size:13px;font-weight:500;padding:9px 10px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:rgba(124,196,255,.22)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(8,16,28,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="mechanics.html">← Mechanical</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Mechanical · Newton's Laws</div>
+    <h1>Newton's Third Law — Action &amp; Reaction</h1>
+    <p>Every contact force comes in a pair: the table pushes up on the book exactly as hard as the book presses
+       down on the table — equal and opposite, and acting on two different objects.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#67e8a0"></i>force the surface exerts</span><span><i style="background:#ff8a8a"></i>force on the surface</span><span><i style="background:#9ab2cc"></i>weight (a different force)</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Mass of book <span class="val" id="mV">4.0 kg</span></label>
+        <div class="row"><input type="range" id="m" min="1" max="10" step="0.5" value="4"><input type="number" id="mN" min="1" max="10" step="0.5" value="4"></div></div>
+      <div class="ctl"><label style="margin-top:6px"><input type="checkbox" id="wt" style="margin-right:6px;vertical-align:middle">Show weight (gravity, on the book)</label></div>
+      <div class="stats">
+        <div class="s"><span>Table → book (up) N</span><span id="sFA">39 N</span></div>
+        <div class="s"><span>Book → table (down)</span><span id="sFB">39 N</span></div>
+        <div class="s" id="wRow"><span>Weight mg</span><span id="sW">39 N</span></div>
+      </div>
+      <div class="verdict" id="verdict">The two contact forces are equal and opposite — and they act on two different objects.</div>
+    </div>
+  </div>
+  <details class="explainer"><summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A book resting on a table. The table pushes <em>up</em> on the book (the <strong>normal force</strong>,
+      green), and the book pushes <em>down</em> on the table (red) with exactly the same strength. Those two
+      arrows at the contact surface are the <strong>action–reaction pair</strong> — change the book's mass and
+      both grow together, never apart.
+      <h3>The third law</h3>
+      <strong>If object A pushes on object B, then B pushes back on A with a force equal in size and opposite in
+      direction.</strong>
+      <div class="eq">F(table on book) = − F(book on table)</div>
+      The defining feature: the two forces <strong>act on two different objects</strong> (one on the book, one on
+      the table). They are always equal — change the mass and both the up-arrow and the down-arrow grow together,
+      never apart.
+      <h3>Don't confuse it with balanced forces</h3>
+      A very common mix-up: the book's <strong>weight</strong> (gravity pulling it down) and the
+      <strong>normal force</strong> (table pushing it up) are <em>not</em> a third-law pair, even though they're
+      equal and opposite here. They both act on the <strong>same object</strong> (the book) and just happen to
+      balance. A third-law pair never acts on the same object. Weight's true partner is the book pulling the
+      <strong>Earth</strong> upward — equal and opposite, on a different body. Toggle "Show weight" to compare the
+      gray weight arrow (on the book) with the green normal force (also on the book): same body, so not a pair.
+      The real pair is green (on book) and red (on table).
+      <h3>Why it matters</h3>
+      The same idea explains how you walk (you push back on the ground, the ground pushes you forward), how a rocket
+      flies (it pushes exhaust down, the exhaust pushes it up), and why a gun kicks back when it fires. A force can
+      never exist alone — it always has an equal and opposite partner acting on the other object.
+      <h3>Things to try</h3>
+      Pile on more mass and watch both arrows — and both gauges — climb in lockstep, never disagreeing. Turn the
+      weight arrow on and off to keep the action–reaction pair (green + red, on two different objects) straight from
+      the balanced pair of forces (green + gray, both on the book).
+    </div>
+  </details>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){dpr=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=Math.round(W*0.62);
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+const G=9.8;
+const st={m:4,showW:false};
+function arrow(x,y,ux,uy,len,col,w){const m=Math.hypot(ux,uy)||1,dx=ux/m,dy=uy/m;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx*len,y+dy*len);ctx.stroke();const ex=x+dx*len,ey=y+dy*len,a=Math.atan2(dy,dx);
+  ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-11*Math.cos(a-0.4),ey-11*Math.sin(a-0.4));ctx.lineTo(ex-11*Math.cos(a+0.4),ey-11*Math.sin(a+0.4));ctx.closePath();ctx.fill();}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+function drawTable(){
+  const cxp=W*0.5, tableTopY=H*0.62, floorY=H*0.93;
+  // banner (top, clear)
+  ctx.fillStyle='#ffd27a';ctx.font='13px Inter';ctx.textAlign='center';
+  ctx.fillText('Action–reaction pair: equal size, opposite direction — on two different objects', cxp, 22);
+  ctx.textAlign='left';
+  // floor
+  ctx.strokeStyle='rgba(150,180,210,.5)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,floorY);ctx.lineTo(W,floorY);ctx.stroke();
+  // table
+  const tL=cxp-140,tR=cxp+140;
+  ctx.fillStyle='rgba(120,90,60,.55)';ctx.strokeStyle='rgba(180,150,120,.85)';ctx.lineWidth=2;
+  ctx.fillRect(tL,tableTopY,tR-tL,14);ctx.strokeRect(tL,tableTopY,tR-tL,14);
+  ctx.fillRect(tL+16,tableTopY+14,14,floorY-tableTopY-14);ctx.fillRect(tR-30,tableTopY+14,14,floorY-tableTopY-14);
+  // book — sits centered on table
+  const N=st.m*G, bw=66+st.m*2.6, bh=30+st.m*2.2, byTop=tableTopY-bh;
+  ctx.fillStyle='#7cc4ff';ctx.strokeStyle='#bfe3ff';ctx.lineWidth=2;roundRect(cxp-bw/2,byTop,bw,bh,6);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#06203a';ctx.font='bold 12px JetBrains Mono';ctx.textAlign='center';ctx.fillText('book '+st.m+'kg',cxp,byTop+bh/2+4);ctx.textAlign='left';
+  // arrow lengths (kept inside clear space)
+  const Lup=Math.max(30,Math.min(N*1.6, tableTopY-44));
+  const Ldn=Math.max(30,Math.min(N*1.6, floorY-tableTopY-26));
+  // PAIR — green N just LEFT of the book pointing up (force ON the book)
+  const gx=cxp-bw/2-32;
+  arrow(gx,tableTopY,0,-1,Lup,'#67e8a0',4);
+  ctx.fillStyle='#67e8a0';ctx.font='12px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('N: table → book', gx, tableTopY-Lup-9);ctx.textAlign='left';
+  // PAIR — red just RIGHT of the book pointing down (force ON the table)
+  const rx=cxp+bw/2+32;
+  arrow(rx,tableTopY,0,1,Ldn,'#ff8a8a',4);
+  ctx.fillStyle='#ff8a8a';ctx.font='12px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('book → table', rx, tableTopY+Ldn+17);ctx.textAlign='left';
+  // faint link between the pair, behind the book line
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.setLineDash([4,5]);ctx.beginPath();ctx.moveTo(gx,tableTopY+1);ctx.lineTo(rx,tableTopY+1);ctx.stroke();ctx.setLineDash([]);
+  // weight (optional) — its own lane, above the book pointing down (force ON the book, NOT the pair)
+  if(st.showW){
+    const Lw=Math.max(24,Math.min(N*1.6, byTop-44));
+    arrow(cxp,byTop-10-Lw,0,1,Lw,'rgba(160,180,205,.85)',3);
+    ctx.fillStyle='rgba(160,180,205,.9)';ctx.font='12px JetBrains Mono';ctx.textAlign='center';
+    ctx.fillText('weight mg (gravity, on book — not the pair)',cxp,byTop-14-Lw);ctx.textAlign='left';
+  }
+  // gauges in the far corners, equal heights
+  drawGauge(W*0.12, tableTopY, N, '#67e8a0','|table→book|');
+  drawGauge(W*0.88, tableTopY, N, '#ff8a8a','|book→table|');
+}
+
+function drawGauge(x,y,F,col,label){
+  const maxF=10*G, h=78,w=28,frac=Math.max(0,Math.min(1,F/maxF));
+  ctx.strokeStyle='rgba(150,180,210,.4)';ctx.lineWidth=1.4;ctx.strokeRect(x-w/2,y-h,w,h);
+  ctx.fillStyle=col;ctx.fillRect(x-w/2+2,y-2-(h-4)*frac,w-4,(h-4)*frac);
+  ctx.fillStyle='rgba(200,220,240,.85)';ctx.font='11px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText(label,x,y+15);ctx.fillText(F.toFixed(0)+' N',x,y-h-6);ctx.textAlign='left';
+}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#0a1424';ctx.fillRect(0,0,W,H);drawTable();requestAnimationFrame(()=>{});}
+let last=0;function loop(ts){last=ts;draw();updateStats();requestAnimationFrame(loop);}
+function updateStats(){
+  const N=st.m*G;
+  document.getElementById('sFA').textContent=N.toFixed(0)+' N';
+  document.getElementById('sFB').textContent=N.toFixed(0)+' N';
+  document.getElementById('sW').textContent=N.toFixed(0)+' N';
+  document.getElementById('verdict').textContent='Table → book and book → table are equal & opposite, on two different objects. (Weight is a separate force on the book — not part of this pair.)';
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x2){x2=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x2));if(isNaN(x2))return;st[key]=x2;s.value=x2;n.value=x2;lab.textContent=fmt(x2);}
+  s.addEventListener('input',()=>set(parseFloat(s.value)));n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('m','mN','m','mV',v=>(+v).toFixed(1)+' kg');
+document.getElementById('wt').addEventListener('change',e=>{st.showW=e.target.checked;});
+window.addEventListener('resize',fit);
+fit();updateStats();requestAnimationFrame(loop);
+</script>
+</body>
+</html>

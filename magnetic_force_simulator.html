@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charge in a Magnetic Field · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0d0c1c; --bg-1:#151430;
+    --glass:rgba(34,30,58,0.55); --glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb; --muted:#b3aacc; --faint:#7a76a0;
+    --accent:#b89bff; --gold:#ffd27a; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(184,155,255,0.16), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff); box-shadow:0 6px 18px -6px rgba(184,155,255,.8); color:#1a1040; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:14px}
+  .ctl.hide{display:none}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#f1ecff; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#f1ecff; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:64px; background:rgba(16,12,30,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:46px; background:rgba(16,12,30,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(184,155,255,.2); border-color:rgba(184,155,255,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(184,155,255,.12); border:1px solid rgba(184,155,255,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(184,155,255,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(16,12,30,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Charge in a Magnetic Field</h1>
+    <p>A magnetic field pushes a moving charge sideways, always at right angles to its motion. The result is
+       a perfect circle — the basis of cyclotrons, mass spectrometers and the aurora.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <div class="leg">
+        <span><i style="background:#67e8a0"></i>velocity v</span>
+        <span><i style="background:#ffd27a"></i>force F = qv×B</span>
+        <span><i style="background:#b89bff"></i>field B (• out / ✕ in)</span>
+        <span><i style="background:#ff8a8a"></i>+ charge / <span style="color:#8ab4ff">− charge</span></span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Charge q <span class="val" id="qV">+1.0</span></label>
+        <div class="row"><input type="range" id="q" min="-3" max="3" step="0.1" value="1"><input type="number" id="qN" min="-3" max="3" step="0.1" value="1"></div>
+      </div>
+      <div class="ctl">
+        <label>Mass m <span class="val" id="mV">1.0</span></label>
+        <div class="row"><input type="range" id="m" min="0.4" max="5" step="0.1" value="1"><input type="number" id="mN" min="0.4" max="5" step="0.1" value="1"></div>
+      </div>
+      <div class="ctl">
+        <label>Field strength B <span class="val" id="bV">1.0</span></label>
+        <div class="row"><input type="range" id="b" min="0" max="3" step="0.05" value="1"><input type="number" id="bN" min="0" max="3" step="0.05" value="1"></div>
+      </div>
+      <div class="ctl">
+        <label>Field direction</label>
+        <div class="seg"><button id="dirOut" class="on">Out of page •</button><button id="dirIn">Into page ✕</button></div>
+      </div>
+      <div class="ctl">
+        <label>Initial speed <span class="val" id="vV">150</span></label>
+        <div class="row"><input type="range" id="v" min="40" max="280" step="5" value="150"><input type="number" id="vN" min="40" max="280" step="5" value="150"></div>
+      </div>
+      <div class="ctl">
+        <label>Launch angle <span class="val" id="angV">0°</span></label>
+        <div class="row"><input type="range" id="ang" min="0" max="360" step="5" value="0"><input type="number" id="angN" min="0" max="360" step="5" value="0"></div>
+      </div>
+      <div class="ctl">
+        <label>Electric field (crossed)</label>
+        <div class="seg"><button id="eOff" class="on">Off</button><button id="eOn">On (↑)</button></div>
+      </div>
+      <div class="ctl hide" id="eWrap">
+        <label>E field strength <span class="val" id="eV">0.8</span></label>
+        <div class="row"><input type="range" id="e" min="0" max="3" step="0.05" value="0.8"><input type="number" id="eN" min="0" max="3" step="0.05" value="0.8"></div>
+      </div>
+      <div class="btns"><button class="act" id="launch">Launch ↺</button></div>
+      <div class="stats">
+        <div class="s"><span>Speed |v|</span><span id="sV">150</span></div>
+        <div class="s"><span>Gyroradius r = mv/qB</span><span id="sR">100</span></div>
+        <div class="s"><span>Period T = 2πm/qB</span><span id="sT">4.2 s</span></div>
+        <div class="s"><span>Cyclotron freq f</span><span id="sF">0.24 Hz</span></div>
+        <div class="s"><span>Force |F| = qvB</span><span id="sFo">225</span></div>
+        <div class="s" id="driftRow" style="display:none"><span>E×B drift v=E/B</span><span id="sD">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">A positive charge moving right in a field out of the page curves downward.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A charged particle moves through a uniform <strong>magnetic field</strong> that points straight out of (•) or
+      into (✕) the screen. The <strong style="color:#67e8a0">green</strong> arrow is its velocity, the
+      <strong style="color:#ffd27a">gold</strong> arrow is the magnetic force on it, and the curve is the path it
+      traces. Notice the force is always <strong>perpendicular to the velocity</strong> — it never speeds the
+      particle up or slows it down, it only turns it.
+
+      <h3>The Lorentz force</h3>
+      A magnetic field exerts a force on a moving charge given by the cross product:
+      <div class="eq">F = q v × B</div>
+      Its size is F = qvB sin θ (maximum when v is perpendicular to B), and its direction is given by the
+      right-hand rule, flipped for negative charges. Because the force is always sideways, it acts as a
+      <strong>centripetal force</strong> and bends the path into a <strong>circle</strong>. Setting qvB = mv²/r and
+      solving gives the radius and period:
+      <div class="eq">r = m v / (q B)&nbsp;&nbsp;&nbsp;&nbsp;T = 2π m / (q B)&nbsp;&nbsp;&nbsp;&nbsp;f = q B / (2π m)</div>
+      A striking fact: the period and frequency do <strong>not depend on the speed</strong> — a faster particle
+      simply travels a bigger circle in the same time. That constant "cyclotron frequency" is what makes the
+      cyclotron particle accelerator work.
+
+      <h3>What changes the orbit</h3>
+      A <strong>stronger field</strong> or <strong>larger charge</strong> tightens the circle (smaller r); a
+      <strong>heavier</strong> or <strong>faster</strong> particle widens it. Flip the sign of the charge or reverse
+      the field and the particle curves the opposite way — this is exactly how a <strong>mass spectrometer</strong>
+      separates ions, since heavier ones swing wider.
+
+      <h3>Crossed fields: the velocity selector</h3>
+      Switch on a perpendicular <strong>electric field</strong> and the two forces compete. When the electric force
+      qE exactly balances the magnetic force qvB, the particle sails straight through — this happens only at one
+      special speed, v = E/B, so crossed fields act as a <strong>velocity selector</strong>. Off that speed the path
+      becomes a drifting cycloid, with an overall <strong>E×B drift</strong> at velocity E/B regardless of charge.
+
+      <h3>Things to try</h3>
+      Launch a positive charge and then a negative one in the same field to see them curl in opposite directions.
+      Crank up B to shrink the circle; raise the speed to grow it while the period stays put. Turn on the electric
+      field and hunt for the speed v = E/B where the path goes perfectly straight.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=520,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.58);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const D=Math.PI/180;
+const KB=1.5, KE=1.5;   // coupling constants (tuned so motion is visible)
+const st={q:1, m:1, B:1, dir:1, v0:150, ang:0, eOn:false, E:0.8};
+let p={x:0,y:0,vx:0,vy:0}, trail=[];
+
+function launch(){
+  p.x=W*0.34; p.y=H*0.5;
+  const a=st.ang*D; p.vx=Math.cos(a)*st.v0; p.vy=Math.sin(a)*st.v0;
+  trail=[];
+}
+function Bz(){ return -st.B*st.dir; }      // signed field in canvas frame: screen y points DOWN, so the right-handed z-axis points INTO the screen — "out of page" (dir=+1) is canvas-frame −z
+function Evec(){ return st.eOn? [0, -st.E] : [0,0]; }  // E points up (screen -y) when on
+
+function boris(dt){
+  const qm=st.q/st.m;
+  const E=Evec();
+  // half E
+  let vmx=p.vx + qm*E[0]*KE*(dt/2);
+  let vmy=p.vy + qm*E[1]*KE*(dt/2);
+  // rotation by B (z): t = qm*Bz*KB*dt/2
+  const tz=qm*Bz()*KB*(dt/2);
+  const s=2*tz/(1+tz*tz);
+  // v' = vm + vm x t   ; (a x z_hat*tz) = (ay*tz, -ax*tz)
+  const vpx=vmx + vmy*tz;
+  const vpy=vmy - vmx*tz;
+  // v+ = vm + v' x s
+  const vplusx=vmx + vpy*s;
+  const vplusy=vmy - vpx*s;
+  // half E again
+  p.vx=vplusx + qm*E[0]*KE*(dt/2);
+  p.vy=vplusy + qm*E[1]*KE*(dt/2);
+  p.x+=p.vx*dt; p.y+=p.vy*dt;
+  // wrap
+  let wrapped=false;
+  if(p.x<0){p.x+=W;wrapped=true;} if(p.x>W){p.x-=W;wrapped=true;}
+  if(p.y<0){p.y+=H;wrapped=true;} if(p.y>H){p.y-=H;wrapped=true;}
+  if(wrapped) trail.push(null); else trail.push([p.x,p.y]);
+  if(trail.length>1400) trail.shift();
+}
+
+let acc=0;
+function update(dt){
+  acc+=dt; const h=1/240; let n=0;
+  while(acc>=h && n<400){ boris(h); acc-=h; n++; }
+}
+
+function drawField(){
+  const sp=46; ctx.fillStyle='rgba(184,155,255,.28)'; ctx.strokeStyle='rgba(184,155,255,.28)'; ctx.lineWidth=1.2;
+  for(let x=sp/2;x<W;x+=sp) for(let y=sp/2;y<H;y+=sp){
+    if(st.B<=0.001) continue;
+    if(st.dir>0){ ctx.beginPath(); ctx.arc(x,y,1.6,0,7); ctx.fill(); }
+    else { ctx.beginPath(); ctx.moveTo(x-4,y-4); ctx.lineTo(x+4,y+4); ctx.moveTo(x+4,y-4); ctx.lineTo(x-4,y+4); ctx.stroke(); }
+  }
+}
+function arrow(x,y,ux,uy,len,col,w){
+  const m=Math.hypot(ux,uy)||1; const dx=ux/m, dy=uy/m;
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+dx*len,y+dy*len); ctx.stroke();
+  const ex=x+dx*len, ey=y+dy*len, a=Math.atan2(dy,dx);
+  ctx.beginPath(); ctx.moveTo(ex,ey); ctx.lineTo(ex-9*Math.cos(a-0.4),ey-9*Math.sin(a-0.4)); ctx.lineTo(ex-9*Math.cos(a+0.4),ey-9*Math.sin(a+0.4)); ctx.closePath(); ctx.fill();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  drawField();
+  // E field arrows
+  if(st.eOn && st.E>0.001){ ctx.strokeStyle='rgba(124,196,255,.3)'; ctx.fillStyle='rgba(124,196,255,.3)'; ctx.lineWidth=1.2;
+    for(let x=60;x<W;x+=120){ arrow(x,H-14,0,-1,26,'rgba(124,196,255,.35)',1.4); }
+    ctx.fillStyle='rgba(124,196,255,.5)'; ctx.font='11px JetBrains Mono'; ctx.fillText('E', 24, H-20); }
+
+  // trail
+  ctx.strokeStyle='rgba(184,155,255,.7)'; ctx.lineWidth=2; ctx.beginPath(); let pen=false;
+  for(const pt of trail){ if(pt===null){pen=false;continue;} if(!pen){ctx.moveTo(pt[0],pt[1]);pen=true;} else ctx.lineTo(pt[0],pt[1]); }
+  ctx.stroke();
+
+  // velocity & force vectors
+  const sp=Math.hypot(p.vx,p.vy);
+  const Bzz=Bz(), E=Evec();
+  const Fx=st.q*(E[0]*KE + p.vy*Bzz*KB);
+  const Fy=st.q*(E[1]*KE - p.vx*Bzz*KB);
+  if(sp>0.1) arrow(p.x,p.y,p.vx,p.vy,46,'#67e8a0',2.4);
+  if(Math.hypot(Fx,Fy)>0.01) arrow(p.x,p.y,Fx,Fy,40,'#ffd27a',2.4);
+
+  // particle
+  const col=st.q>=0?'#ff8a8a':'#8ab4ff';
+  ctx.beginPath(); ctx.arc(p.x,p.y,8,0,7); ctx.fillStyle=col; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#1a1040'; ctx.font='bold 11px JetBrains Mono'; ctx.textAlign='center';
+  ctx.fillText(st.q>=0?'+':'−', p.x, p.y+4); ctx.textAlign='left';
+
+  requestAnimationFrame(()=>{});
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); requestAnimationFrame(loop); }
+
+function updateStats(){
+  const omega=Math.abs(st.q/st.m*Bz()*KB);   // rad/s (matches Boris rotation)
+  const r = omega>1e-6? st.v0/omega : Infinity;
+  const T = omega>1e-6? 2*Math.PI/omega : Infinity;
+  const F = Math.abs(st.q)*st.v0*st.B*KB;
+  document.getElementById('sV').textContent=st.v0;
+  document.getElementById('sR').textContent= isFinite(r)? r.toFixed(0)+' px' : '∞ (straight)';
+  document.getElementById('sT').textContent= isFinite(T)? T.toFixed(2)+' s' : '∞';
+  document.getElementById('sF').textContent= isFinite(T)? (1/T).toFixed(3)+' Hz' : '0';
+  document.getElementById('sFo').textContent=F.toFixed(0);
+  const dr=document.getElementById('driftRow');
+  if(st.eOn){ dr.style.display='flex'; const vd= st.B>0.001? (st.E*KE/(st.B*KB)) : Infinity;
+    document.getElementById('sD').textContent= isFinite(vd)? vd.toFixed(0)+' (px/s)' : '∞'; }
+  else dr.style.display='none';
+  const v=document.getElementById('verdict');
+  if(st.B<=0.001 && !st.eOn) v.textContent='No field — the charge moves in a straight line at constant speed.';
+  else if(st.eOn){ const vd=st.B>0.001? st.E*KE/(st.B*KB):0;
+    v.textContent=`Crossed E and B: the path goes straight only at the selector speed v = E/B ≈ ${vd.toFixed(0)} px/s; otherwise it drifts.`; }
+  else { const dirw = (st.q*st.dir>=0)?'one way':'the other';
+    v.textContent=`A ${st.q>=0?'positive':'negative'} charge in a field ${st.dir>0?'out of':'into'} the page curls into a circle of radius ${isFinite(r)?r.toFixed(0):'∞'} px.`; }
+}
+
+function bind(sl,nu,key,labId,fmt,relaunch){
+  const s=document.getElementById(sl), n=document.getElementById(nu), lab=document.getElementById(labId);
+  function set(v){ v=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),v)); if(isNaN(v))return;
+    st[key]=v; s.value=v; n.value=v; lab.textContent=fmt(v); updateStats(); if(relaunch)launch(); }
+  s.addEventListener('input',()=>set(parseFloat(s.value)));
+  n.addEventListener('change',()=>set(parseFloat(n.value)));
+}
+bind('q','qN','q','qV',v=>(v>=0?'+':'')+(+v).toFixed(1));
+bind('m','mN','m','mV',v=>(+v).toFixed(1));
+bind('b','bN','B','bV',v=>(+v).toFixed(2));
+bind('v','vN','v0','vV',v=>''+v, true);
+bind('ang','angN','ang','angV',v=>Math.round(v)+'°', true);
+bind('e','eN','E','eV',v=>(+v).toFixed(2));
+
+document.getElementById('dirOut').addEventListener('click',()=>{st.dir=1; dirBtns(); updateStats();});
+document.getElementById('dirIn').addEventListener('click',()=>{st.dir=-1; dirBtns(); updateStats();});
+function dirBtns(){ document.getElementById('dirOut').classList.toggle('on',st.dir>0); document.getElementById('dirIn').classList.toggle('on',st.dir<0); }
+document.getElementById('eOff').addEventListener('click',()=>{st.eOn=false; eBtns(); document.getElementById('eWrap').classList.add('hide'); updateStats();});
+document.getElementById('eOn').addEventListener('click',()=>{st.eOn=true; eBtns(); document.getElementById('eWrap').classList.remove('hide'); updateStats();});
+function eBtns(){ document.getElementById('eOff').classList.toggle('on',!st.eOn); document.getElementById('eOn').classList.toggle('on',st.eOn); }
+
+document.getElementById('launch').addEventListener('click',launch);
+
+window.addEventListener('resize',()=>{fit(); launch();});
+fit(); launch(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electromagnetic Waves · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0d0c1c; --bg-1:#151430;
+    --glass:rgba(34,30,58,0.55); --glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb; --muted:#b3aacc; --faint:#7a76a0;
+    --accent:#b89bff; --gold:#ffd27a; --ered:#ff6b6b; --bblue:#6b9bff; --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%, rgba(184,155,255,0.16), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,196,255,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1)); background-attachment:fixed; min-height:100vh;}
+  a{text-decoration:none; color:inherit}
+  .nav{max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; gap:14px;}
+  .brand{display:flex; align-items:center; gap:11px; font-weight:600; font-size:16px}
+  .brand .mark{width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff); box-shadow:0 6px 18px -6px rgba(184,155,255,.8); color:#1a1040; font-weight:700}
+  .nav .links{margin-left:auto; display:flex; gap:22px; font-size:14px; color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px; margin:0 auto; padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600}
+  .head h1{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(26px,4vw,38px); margin:8px 0 0; letter-spacing:-.02em}
+  .head p{max-width:680px; color:var(--muted); font-size:15px; line-height:1.55; margin:10px 0 0}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 60px; display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .stage{padding:14px}
+  canvas{display:block; width:100%; height:auto; border-radius:12px; background:#0a0918}
+  #spec{margin-top:12px}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif; font-weight:500; font-size:18px; margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; color:var(--muted); margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace; color:var(--ink); font-size:13px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25)); outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#f1ecff; border:2px solid var(--accent); cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#f1ecff; border:2px solid var(--accent); cursor:pointer}
+  input[type=number]{width:96px; background:rgba(16,12,30,.6); border:1px solid var(--glass-line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:12px; border-radius:8px; padding:5px 7px; outline:none}
+  input[type=number]:focus{border-color:var(--accent)}
+  .seg{display:flex; gap:6px; margin-top:2px; flex-wrap:wrap}
+  .seg button{flex:1; min-width:48px; background:rgba(16,12,30,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:12.5px; padding:8px 4px; border-radius:9px; cursor:pointer}
+  .seg button.on{background:rgba(184,155,255,.2); border-color:rgba(184,155,255,.5); color:var(--ink)}
+  .bands{display:flex; gap:5px; margin-top:2px; flex-wrap:wrap}
+  .bands button{background:rgba(16,12,30,.5); border:1px solid var(--glass-line); color:var(--muted);
+    font-family:inherit; font-size:11px; padding:6px 7px; border-radius:8px; cursor:pointer}
+  .bands button.on{background:rgba(184,155,255,.22); border-color:rgba(184,155,255,.5); color:var(--ink)}
+  .btns{display:flex; gap:8px; margin-top:6px}
+  button.act{flex:1; background:rgba(184,155,255,.12); border:1px solid rgba(184,155,255,.4); color:var(--ink);
+    font-family:inherit; font-size:13px; font-weight:500; padding:9px 10px; border-radius:10px; cursor:pointer}
+  button.act:hover{background:rgba(184,155,255,.22)}
+  .stats{margin-top:14px; border-top:1px solid var(--glass-line); padding-top:14px}
+  .stats .s{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace; color:var(--ink)}
+  .verdict{font-size:13px; line-height:1.5; color:var(--gold); background:rgba(255,210,122,.08);
+    border:1px solid rgba(255,210,122,.25); border-radius:10px; padding:10px 12px; margin-top:4px}
+  details.explainer{max-width:1180px; margin:0 auto 50px; padding:0 28px}
+  details.explainer summary{cursor:pointer; list-style:none; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:16px 20px; font-family:'Fraunces',serif; font-size:18px; display:flex; align-items:center; gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto; transition:.2s; color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px; color:var(--muted); font-size:14.5px; line-height:1.7}
+  .exp-body h3{color:var(--ink); font-family:'Fraunces',serif; font-weight:500; font-size:16px; margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace; color:var(--gold); background:rgba(16,12,30,.5);
+    padding:10px 14px; border-radius:10px; margin:8px 0; font-size:13.5px; display:inline-block}
+  .exp-body strong{color:var(--ink); font-weight:600}
+  .leg{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--faint)}
+  .leg i{display:inline-block; width:16px; height:3px; border-radius:2px; margin-right:5px; vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div>
+  </nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Electromagnetic Waves</h1>
+    <p>Light is a self-sustaining ripple of electric and magnetic fields. They oscillate at right angles to each
+       other and to the direction of travel, marching forward together at the speed of light.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage">
+      <canvas id="cv"></canvas>
+      <canvas id="spec"></canvas>
+      <div class="leg">
+        <span><i style="background:#ff6b6b"></i>electric field E (vertical)</span>
+        <span><i style="background:#6b9bff"></i>magnetic field B (into page)</span>
+        <span><i style="background:#b89bff"></i>propagation → at speed c</span>
+      </div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl">
+        <label>Spectrum band</label>
+        <div class="bands" id="bands"></div>
+      </div>
+      <div class="ctl">
+        <label>Wavelength λ <span class="val" id="lamV">550 nm</span></label>
+        <div class="row"><input type="range" id="lam" min="-13" max="3" step="0.01" value="-6.26"></div>
+      </div>
+      <div class="ctl">
+        <label>Amplitude <span class="val" id="ampV">70</span></label>
+        <div class="row"><input type="range" id="amp" min="20" max="120" step="1" value="70"></div>
+      </div>
+      <div class="ctl">
+        <label>Show</label>
+        <div class="seg"><button id="tE" class="on">E field</button><button id="tB" class="on">B field</button><button id="tVec" class="on">Vectors</button></div>
+      </div>
+      <div class="btns"><button class="act" id="reset">Reset</button></div>
+      <div class="stats">
+        <div class="s"><span>Band</span><span id="sBand">Visible</span></div>
+        <div class="s"><span>Wavelength λ</span><span id="sLam">550 nm</span></div>
+        <div class="s"><span>Frequency f = c/λ</span><span id="sF">545 THz</span></div>
+        <div class="s"><span>Period T = 1/f</span><span id="sT">1.83 fs</span></div>
+        <div class="s"><span>Speed c</span><span id="sC">3.00×10⁸ m/s</span></div>
+        <div class="s"><span>Photon energy hf</span><span id="sE">2.25 eV</span></div>
+      </div>
+      <div class="verdict" id="verdict">Visible light — the narrow band our eyes detect.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A travelling electromagnetic wave drawn in 3D. The <strong style="color:#ff6b6b">red</strong> curve is the
+      <strong>electric field E</strong>, oscillating up and down; the <strong style="color:#6b9bff">blue</strong>
+      curve is the <strong>magnetic field B</strong>, oscillating into and out of the page. Both are perpendicular
+      to each other and to the <strong>direction of travel</strong> (to the right) — this is a
+      <strong>transverse</strong> wave. The whole pattern marches to the right at the speed of light.
+
+      <h3>Fields that make each other</h3>
+      Maxwell's great discovery was that a changing electric field creates a magnetic field, and a changing
+      magnetic field creates an electric field. Once started, the two fields keep regenerating each other and the
+      disturbance propagates on its own — no medium required, which is why light crosses empty space. The two
+      fields oscillate <strong>in phase</strong> (they peak together) and their strengths are linked by E = cB.
+      The wave travels at a speed fixed entirely by the electric and magnetic properties of the vacuum:
+      <div class="eq">c = 1 / √(μ₀ ε₀) ≈ 3.00 × 10⁸ m/s</div>
+
+      <h3>Wavelength, frequency and energy</h3>
+      For every electromagnetic wave the speed is the same, so wavelength and frequency trade off:
+      <div class="eq">c = λ f&nbsp;&nbsp;&nbsp;&nbsp;E_photon = h f = h c / λ</div>
+      A long wavelength means a low frequency and low-energy photons; a short wavelength means high frequency and
+      high-energy photons. Slide across the spectrum and watch the wave bunch up (shorter λ, more cycles, faster
+      oscillation) while the speed stays pinned at c.
+
+      <h3>The electromagnetic spectrum</h3>
+      Radio, microwaves, infrared, visible light, ultraviolet, X-rays and gamma rays are all the same kind of
+      wave — they differ only in wavelength, spanning more than twenty orders of magnitude. Our eyes respond to a
+      tiny slice (about 400–700 nm). The high-energy end (UV, X-ray, gamma) carries enough energy per photon to
+      damage molecules, while the low-energy end (radio, microwave) is what we use to broadcast and communicate.
+
+      <h3>Things to try</h3>
+      Jump between bands with the buttons, or sweep the wavelength slider to morph continuously from kilometre-long
+      radio waves to picometre gamma rays, watching the frequency and photon energy change by huge factors while c
+      never budges. Toggle the E and B fields on and off to see them separately, and turn the field vectors on to
+      see the arrows at each point along the wave.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const sp=document.getElementById('spec'), spx=sp.getContext('2d');
+let W=900,H=460,dpr=1, SW=900,SH=64;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  SW=sp.clientWidth; SH=66; sp.width=SW*dpr; sp.height=SH*dpr; sp.style.height=SH+'px'; spx.setTransform(dpr,0,0,dpr,0,0);
+}
+const C=2.998e8, hEV=4.13567e-15; // c m/s, h in eV·s
+const st={logLam:-6.26, amp:70, showE:true, showB:true, showVec:true};
+const lam=()=>Math.pow(10,st.logLam); // metres
+
+const BANDS=[
+  {name:'Radio',     lo:-1,  hi:3,    col:'#8a8aa0'},
+  {name:'Microwave', lo:-3,  hi:-1,   col:'#6f8cd0'},
+  {name:'Infrared',  lo:-6.155, hi:-3, col:'#c0584b'},
+  {name:'Visible',   lo:-6.398, hi:-6.155, col:'#9bd06b'},
+  {name:'Ultraviolet',lo:-8, hi:-6.398, col:'#9a6bd6'},
+  {name:'X-ray',     lo:-11, hi:-8,   col:'#6bb6d6'},
+  {name:'Gamma',     lo:-13, hi:-11,  col:'#c8d0ff'}
+];
+function bandOf(L){ for(const b of BANDS){ if(L>=b.lo && L<b.hi) return b; } return L>=3?BANDS[0]:BANDS[BANDS.length-1]; }
+
+function wlColor(nm){
+  if(nm<380) return [160,120,255]; if(nm>740) return [200,80,70];
+  let r=0,g=0,b=0;
+  if(nm<440){r=-(nm-440)/60;b=1;} else if(nm<490){g=(nm-440)/50;b=1;}
+  else if(nm<510){g=1;b=-(nm-510)/20;} else if(nm<580){r=(nm-510)/70;g=1;}
+  else if(nm<645){r=1;g=-(nm-645)/65;} else {r=1;}
+  return [r*255|0,g*255|0,b*255|0];
+}
+function fmtLen(m){
+  if(m>=1e3) return (m/1e3).toFixed(m>=1e4?0:1)+' km';
+  if(m>=1) return m.toFixed(m>=10?0:2)+' m';
+  if(m>=1e-3) return (m*1e3).toFixed(m>=1e-2?1:2)+' mm';
+  if(m>=1e-6) return (m*1e6).toFixed(2)+' µm';
+  if(m>=1e-9) return (m*1e9).toFixed(m>=1e-7?0:1)+' nm';
+  if(m>=1e-12) return (m*1e12).toFixed(1)+' pm';
+  return (m*1e15).toFixed(1)+' fm';
+}
+function fmtFreq(f){
+  const u=[['Hz',1],['kHz',1e3],['MHz',1e6],['GHz',1e9],['THz',1e12],['PHz',1e15],['EHz',1e18],['ZHz',1e21]];
+  for(let i=u.length-1;i>=0;i--){ if(f>=u[i][1]) return (f/u[i][1]).toFixed(f/u[i][1]>=100?0:2)+' '+u[i][0]; }
+  return f.toExponential(2)+' Hz';
+}
+function fmtTime(s){
+  const u=[['s',1],['ms',1e-3],['µs',1e-6],['ns',1e-9],['ps',1e-12],['fs',1e-15],['as',1e-18],['zs',1e-21]];
+  for(const [n,v] of u){ if(s>=v) return (s/v).toFixed(s/v>=100?0:2)+' '+n; }
+  return s.toExponential(2)+' s';
+}
+function fmtEnergy(eV){
+  if(eV>=1e9) return (eV/1e9).toFixed(2)+' GeV';
+  if(eV>=1e6) return (eV/1e6).toFixed(2)+' MeV';
+  if(eV>=1e3) return (eV/1e3).toFixed(2)+' keV';
+  if(eV>=1) return eV.toFixed(2)+' eV';
+  if(eV>=1e-3) return (eV*1e3).toFixed(2)+' meV';
+  return (eV*1e6).toFixed(2)+' µeV';
+}
+
+// geometry / projection
+let ox,oy,L,depthV;
+function geo(){ ox=W*0.10; oy=H*0.52; L=W*0.82; depthV=[0.62,-0.42]; }
+const nCycles=()=>1.5 + (3-st.logLam)/16*8.5;   // shorter λ -> more cycles on screen
+
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H); geo();
+  const k=nCycles()*2*Math.PI/L, vS=120, omega=k*vS;
+  const A=st.amp, dx=depthV[0], dy=depthV[1];
+
+  // propagation axis
+  ctx.strokeStyle='rgba(184,155,255,.55)'; ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+L+10,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox+L+10,oy); ctx.lineTo(ox+L+2,oy-5); ctx.lineTo(ox+L+2,oy+5); ctx.closePath(); ctx.fillStyle='rgba(184,155,255,.7)'; ctx.fill();
+  ctx.fillStyle='rgba(179,170,204,.75)'; ctx.font='12px Inter'; ctx.fillText('propagation  →  c', ox+L-110, oy-8);
+  // faint depth reference axis
+  ctx.strokeStyle='rgba(107,155,255,.25)'; ctx.setLineDash([3,4]);
+  ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox+dx*A*1.3, oy+dy*A*1.3); ctx.stroke(); ctx.setLineDash([]);
+
+  const wave=z=>Math.sin(k*z - omega*t);
+
+  // field vectors
+  if(st.showVec){
+    const step=Math.max(8, L/120);
+    for(let z=0; z<=L; z+=step){
+      const w=wave(z)*A, axx=ox+z, ayy=oy;
+      if(st.showB){ ctx.strokeStyle='rgba(107,155,255,.5)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(axx,ayy); ctx.lineTo(axx+w*dx, ayy+w*dy); ctx.stroke(); }
+      if(st.showE){ ctx.strokeStyle='rgba(255,107,107,.55)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.moveTo(axx,ayy); ctx.lineTo(axx, ayy-w); ctx.stroke(); }
+    }
+  }
+
+  // B curve (draw first, behind)
+  if(st.showB){
+    ctx.strokeStyle='#6b9bff'; ctx.lineWidth=2.2; ctx.beginPath();
+    for(let z=0;z<=L;z+=2){ const w=wave(z)*A; const X=ox+z+w*dx, Y=oy+w*dy; z===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y); }
+    ctx.stroke();
+  }
+  // E curve
+  if(st.showE){
+    ctx.strokeStyle='#ff6b6b'; ctx.lineWidth=2.4; ctx.beginPath();
+    for(let z=0;z<=L;z+=2){ const w=wave(z)*A; const X=ox+z, Y=oy-w; z===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y); }
+    ctx.stroke();
+  }
+
+  // axis labels
+  ctx.fillStyle='#ff6b6b'; ctx.font='12px JetBrains Mono'; if(st.showE) ctx.fillText('E', ox-2, oy-A-6);
+  ctx.fillStyle='#6b9bff'; if(st.showB) ctx.fillText('B', ox+dx*A+6, oy+dy*A-2);
+
+  // one-wavelength bracket
+  const lamPx=2*Math.PI/k;
+  ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.lineWidth=1; const by=oy+A+24;
+  if(lamPx<L){ ctx.beginPath(); ctx.moveTo(ox, by); ctx.lineTo(ox+lamPx, by); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,by-4); ctx.lineTo(ox,by+4); ctx.moveTo(ox+lamPx,by-4); ctx.lineTo(ox+lamPx,by+4); ctx.stroke();
+    ctx.fillStyle='rgba(255,210,122,.8)'; ctx.font='11px JetBrains Mono'; ctx.fillText('λ', ox+lamPx/2-3, by+14); }
+
+  requestAnimationFrame(()=>{});
+}
+
+function drawSpec(){
+  spx.clearRect(0,0,SW,SH);
+  const x0=8, x1=SW-8, top=4, h=SH-26;
+  const X=L=> x0 + (3 - L)/16 * (x1-x0);   // logLam 3(left)..-13(right)
+  for(const b of BANDS){
+    const xa=X(b.hi), xb=X(b.lo);
+    spx.fillStyle=b.col; spx.globalAlpha=.35; spx.fillRect(Math.min(xa,xb),top,Math.abs(xb-xa),h); spx.globalAlpha=1;
+    spx.fillStyle='rgba(239,238,251,.7)'; spx.font='9px JetBrains Mono';
+    const cxp=(xa+xb)/2; spx.save(); spx.translate(cxp, top+h-3); spx.textAlign='center'; spx.fillText(b.name.slice(0,4), 0,0); spx.restore();
+  }
+  // marker
+  const mx=X(st.logLam); spx.strokeStyle='#fff'; spx.lineWidth=2; spx.beginPath(); spx.moveTo(mx,top-2); spx.lineTo(mx,top+h+2); spx.stroke();
+  spx.fillStyle='#fff'; spx.beginPath(); spx.moveTo(mx,top-2); spx.lineTo(mx-4,top-9); spx.lineTo(mx+4,top-9); spx.closePath(); spx.fill();
+  spx.fillStyle='rgba(122,118,160,.8)'; spx.font='9.5px JetBrains Mono';
+  spx.fillText('long λ (radio)', x0, SH-3); spx.textAlign='right'; spx.fillText('short λ (gamma)', x1, SH-3); spx.textAlign='left';
+}
+
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; t+=dt; draw(); drawSpec(); requestAnimationFrame(loop); }
+
+function updateStats(){
+  const L=lam(), f=C/L, T=1/f, Eev=hEV*f, b=bandOf(st.logLam);
+  document.getElementById('lamV').textContent=fmtLen(L);
+  document.getElementById('ampV').textContent=st.amp;
+  document.getElementById('sBand').textContent=b.name;
+  document.getElementById('sLam').textContent=fmtLen(L);
+  document.getElementById('sF').textContent=fmtFreq(f);
+  document.getElementById('sT').textContent=fmtTime(T);
+  document.getElementById('sC').textContent='3.00×10⁸ m/s';
+  document.getElementById('sE').textContent=fmtEnergy(Eev);
+  const blurb={Radio:'Radio waves — broadcasting, Wi-Fi and radio astronomy.',Microwave:'Microwaves — radar, ovens and mobile/satellite links.',Infrared:'Infrared — heat radiation and night vision.',Visible:'Visible light — the narrow band our eyes detect.',Ultraviolet:'Ultraviolet — sunburn and sterilising lamps.','X-ray':'X-rays — medical imaging; high-energy photons.',Gamma:'Gamma rays — nuclear decay; the most energetic light.'};
+  document.getElementById('verdict').textContent=blurb[b.name]||'';
+  [...document.getElementById('bands').children].forEach(btn=>btn.classList.toggle('on',btn.dataset.name===b.name));
+}
+
+// band buttons
+const bandsEl=document.getElementById('bands');
+const bandMid={Radio:1,Microwave:-2,Infrared:-4.5,Visible:-6.26,Ultraviolet:-7.2,'X-ray':-9.5,Gamma:-12};
+for(const b of BANDS){ const btn=document.createElement('button'); btn.textContent=b.name; btn.dataset.name=b.name;
+  btn.addEventListener('click',()=>{ st.logLam=bandMid[b.name]; document.getElementById('lam').value=st.logLam; updateStats(); }); bandsEl.appendChild(btn); }
+
+document.getElementById('lam').addEventListener('input',e=>{ st.logLam=parseFloat(e.target.value); updateStats(); });
+document.getElementById('amp').addEventListener('input',e=>{ st.amp=parseFloat(e.target.value); updateStats(); });
+function tog(id,key){const b=document.getElementById(id); b.addEventListener('click',()=>{st[key]=!st[key]; b.classList.toggle('on',st[key]);});}
+tog('tE','showE'); tog('tB','showB'); tog('tVec','showVec');
+document.getElementById('reset').addEventListener('click',()=>{
+  st.logLam=-6.26; st.amp=70; st.showE=true; st.showB=true; st.showVec=true;
+  document.getElementById('lam').value=-6.26; document.getElementById('amp').value=70;
+  document.getElementById('tE').classList.add('on'); document.getElementById('tB').classList.add('on'); document.getElementById('tVec').classList.add('on');
+  updateStats();
+});
+
+window.addEventListener('resize',fit);
+fit(); updateStats(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+  const speeds=[1,0.5,0.25,0.1]; let i=0; window.SLOWMO=1;
+  const b=document.createElement('button');
+  b.textContent='⏱ Speed 1×';
+  Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,
+    background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',
+    font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+  b.addEventListener('click',()=>{i=(i+1)%speeds.length; window.SLOWMO=speeds[i]; b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});
+  document.body.appendChild(b);
+})();
+</script>
+</body>
+</html>

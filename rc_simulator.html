@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC Charging · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(16,12,30,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(184,155,255,.2);border-color:rgba(184,155,255,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Capacitor Charging (RC Circuit)</h1>
+    <p>Connect a capacitor to a battery through a resistor and it fills with charge — fast at first, then ever
+       more slowly, in the smooth exponential curve that governs every RC circuit.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#67e8a0"></i>capacitor voltage V_C</span><span><i style="background:#ff8a5b"></i>current I</span><span><i style="background:#ffd27a"></i>time constant τ</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Switch</label>
+        <div class="seg"><button id="mCharge" class="on">Charge</button><button id="mDis">Discharge</button><button id="mOpen">Open</button></div></div>
+      <div class="ctl"><label>Battery EMF V <span class="val" id="vV">6.0 V</span></label>
+        <div class="row"><input type="range" id="v" min="1" max="12" step="0.5" value="6"><input type="number" id="vN" min="1" max="12" step="0.5" value="6"></div></div>
+      <div class="ctl"><label>Resistance R <span class="val" id="rV">1.0 kΩ</span></label>
+        <div class="row"><input type="range" id="r" min="0.2" max="5" step="0.1" value="1"><input type="number" id="rN" min="0.2" max="5" step="0.1" value="1"></div></div>
+      <div class="ctl"><label>Capacitance C <span class="val" id="cV">1000 µF</span></label>
+        <div class="row"><input type="range" id="c" min="100" max="2000" step="50" value="1000"><input type="number" id="cN" min="100" max="2000" step="50" value="1000"></div></div>
+      <div class="stats">
+        <div class="s"><span>Time constant τ = RC</span><span id="sTau">1.00 s</span></div>
+        <div class="s"><span>Capacitor voltage</span><span id="sVc">0.0 V</span></div>
+        <div class="s"><span>Current</span><span id="sI">0.0 mA</span></div>
+        <div class="s"><span>Charge Q = CV_C</span><span id="sQ">0 mC</span></div>
+      </div>
+      <div class="verdict" id="verdict">Charging: the capacitor fills fast at first, then slows as it approaches the battery voltage.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A battery charges a capacitor through a resistor. The blue plates fill with charge, the current dots show the
+      flow (bright when large, fading as it dies), and the graph traces the capacitor voltage (green) and current
+      (orange) over time. Switch between <strong>charge</strong>, <strong>discharge</strong> and
+      <strong>open</strong> to see the curves reverse and flatten.
+
+      <h3>Why the curve bends</h3>
+      At the instant you connect the battery, the empty capacitor offers no back-voltage, so the full EMF drives a
+      large current I = V/R. But every bit of charge that arrives raises the capacitor's voltage, which opposes the
+      battery, shrinking the current. The result is exponential:
+      <div class="eq">V_C(t) = V (1 − e^(−t/RC)),&nbsp;&nbsp;I(t) = (V/R) e^(−t/RC)</div>
+      The voltage rushes up, then eases toward the battery value; the current starts at its maximum and decays
+      away. Discharging is the mirror image — the capacitor drives current back through R and both fall
+      exponentially to zero.
+
+      <h3>The time constant</h3>
+      One number sets the pace: the <strong>time constant</strong>
+      <div class="eq">τ = R · C</div>
+      In one time constant the capacitor reaches <strong>63%</strong> of the way to its final voltage (the gold
+      line on the graph); after about 5τ it's essentially fully charged. A bigger resistor throttles the current;
+      a bigger capacitor holds more charge — either one makes the charging slower. This same τ sets the blink rate
+      of timers, the smoothing in power supplies, and the tone controls in audio gear.
+
+      <h3>Things to try</h3>
+      Charge fully, then hit discharge and watch both curves fall. Increase R or C and see τ grow and everything
+      slow down; the 63%-at-τ mark always lands in the same place relative to τ. Raise the battery EMF and the
+      whole curve scales up while its shape — and τ — stay the same.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+const st={mode:'charge', V:6, R:1, C:1000};   // R in kΩ, C in µF
+function tau(){ return st.R*1000 * st.C*1e-6; }  // s
+let Vc=0, t=0, samples=[];
+function target(){ return st.mode==='charge'? st.V : 0; }
+function update(dt){
+  if(st.mode!=='open'){ const RC=tau(); Vc += (target()-Vc)*(1-Math.exp(-dt/RC)); }
+  t+=dt;
+  const I = st.mode==='open'?0 : (target()-Vc)/(st.R*1000);   // A
+  samples.push({t,Vc,I}); if(samples.length>4000)samples.shift();
+}
+let flowPhase=0;
+function draw(dt){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  const I=st.mode==='open'?0:(target()-Vc)/(st.R*1000);
+  drawCircuit(20,24,W*0.44-20,H-60, I);
+  drawGraph(W*0.48,24,W-24-(W*0.48),H-48);
+  flowPhase+=dt*Math.sign(I)*Math.min(1,Math.abs(I)*400);
+  requestAnimationFrame(()=>{});
+}
+function drawCircuit(x,y,w,h,I){
+  const L=x+16,Rr=x+w-16,T=y+16,B=y+h-16;
+  // wires
+  ctx.strokeStyle='rgba(184,155,255,.6)'; ctx.lineWidth=2.4; ctx.strokeRect(L,T,Rr-L,B-T);
+  // battery (left)
+  ctx.strokeStyle='#b89bff'; ctx.lineWidth=2; const by=(T+B)/2;
+  ctx.beginPath();ctx.moveTo(L,by-16);ctx.lineTo(L,by-8);ctx.moveTo(L-8,by-8);ctx.lineTo(L+8,by-8);ctx.moveTo(L-5,by+2);ctx.lineTo(L+5,by+2);ctx.moveTo(L-8,by+12);ctx.lineTo(L+8,by+12);ctx.moveTo(L,by+12);ctx.lineTo(L,by+16);ctx.stroke();
+  ctx.fillStyle='#b89bff'; ctx.font='11px JetBrains Mono'; ctx.textAlign='right'; ctx.fillText(st.V.toFixed(1)+'V',L-10,by); ctx.textAlign='left';
+  // resistor (top zigzag)
+  const rx=(L+Rr)/2; ctx.strokeStyle='#ffd27a'; ctx.lineWidth=2; ctx.beginPath(); let zx=rx-24; ctx.moveTo(L+14,T);ctx.lineTo(zx,T);
+  for(let i=0;i<6;i++){zx+=8;ctx.lineTo(zx,T+(i%2?6:-6));} ctx.lineTo(Rr-14,T); ctx.stroke();
+  ctx.fillStyle='#ffd27a'; ctx.textAlign='center'; ctx.fillText('R '+st.R.toFixed(1)+'kΩ',rx,T-6);
+  // capacitor (right, plates) charge ∝ Vc
+  const cq=Math.max(0,Math.min(1,Vc/Math.max(st.V,0.1)));
+  ctx.strokeStyle='#67e8a0'; ctx.lineWidth=3; const cym=(T+B)/2;
+  ctx.beginPath();ctx.moveTo(Rr,T+14);ctx.lineTo(Rr,cym-10);ctx.moveTo(Rr-14,cym-10);ctx.lineTo(Rr+14,cym-10);ctx.moveTo(Rr-14,cym+10);ctx.lineTo(Rr+14,cym+10);ctx.moveTo(Rr,cym+10);ctx.lineTo(Rr,B-14);ctx.stroke();
+  // charges on plates
+  ctx.fillStyle='rgba(103,232,162,'+(0.4+0.6*cq)+')'; ctx.font='10px JetBrains Mono'; ctx.textAlign='center';
+  for(let i=0;i<Math.round(cq*6);i++){ ctx.fillText('+',Rr-10+i*4-10,cym-16); ctx.fillText('−',Rr-10+i*4-10,cym+22); }
+  ctx.fillStyle='#67e8a0'; ctx.fillText('C '+st.C+'µF',Rr+2,B+2);
+  // current flow dots
+  const mag=Math.min(1,Math.abs(I)*400);
+  if(mag>0.02){ const per=[[L,T],[Rr,T],[Rr,B],[L,B]]; // loop corners (approx)
+    for(let s=0;s<16;s++){ const u=((s/16 + flowPhase*0.06)%1); const seg=Math.floor(u*4), f=(u*4)%1;
+      const a=per[seg], b=per[(seg+1)%4]; const px=a[0]+(b[0]-a[0])*f, py=a[1]+(b[1]-a[1])*f;
+      ctx.fillStyle='rgba(255,138,91,'+(0.3+0.6*mag)+')'; ctx.beginPath();ctx.arc(px,py,2.4,0,7);ctx.fill(); } }
+  ctx.textAlign='left';
+}
+function drawGraph(x,y,w,h){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,w,h);
+  const x0=x+34,x1=x+w-8,y0=y+h-22,y1=y+10;
+  const win=Math.max(2, tau()*6);   // seconds shown
+  const X=tt=>x1 - (t-tt)/win*(x1-x0), Y=vv=>y0-(vv/st.V)*(y0-y1);
+  ctx.strokeStyle='rgba(170,160,220,.3)'; ctx.lineWidth=1; ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('time →',(x0+x1)/2,y0+4);
+  // 63% line
+  ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.setLineDash([4,4]); ctx.beginPath();ctx.moveTo(x0,Y(0.632*st.V));ctx.lineTo(x1,Y(0.632*st.V));ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,210,122,.8)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('63%', x0+2, Y(0.632*st.V)-2);
+  // Vc trace
+  ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2; ctx.beginPath(); let started=false;
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=Y(s.Vc); started?ctx.lineTo(px,py):(ctx.moveTo(px,py),started=true);} if(started)ctx.stroke();
+  // I trace (scaled to Imax=V/R)
+  const Imax=st.V/(st.R*1000); ctx.strokeStyle='#ff8a5b'; ctx.lineWidth=1.8; ctx.beginPath(); started=false;
+  for(const s of samples){ if(s.t<t-win)continue; const px=X(s.t),py=y0-(Math.abs(s.I)/Imax)*(y0-y1); started?ctx.lineTo(px,py):(ctx.moveTo(px,py),started=true);} if(started)ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.6)'; ctx.font='10px JetBrains Mono'; ctx.textAlign='left'; ctx.fillText('V_C',x0+4,y1); ctx.fillStyle='#ff8a5b'; ctx.fillText('I',x0+30,y1);
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(dt); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const I=st.mode==='open'?0:(target()-Vc)/(st.R*1000);
+  document.getElementById('sTau').textContent=tau().toFixed(2)+' s';
+  document.getElementById('sVc').textContent=Vc.toFixed(2)+' V';
+  document.getElementById('sI').textContent=(I*1000).toFixed(2)+' mA';
+  document.getElementById('sQ').textContent=(st.C*1e-6*Vc*1000).toFixed(1)+' mC';
+  const ve=document.getElementById('verdict');
+  if(st.mode==='charge') ve.textContent= Vc>0.98*st.V? 'Fully charged — the capacitor now matches the battery and no current flows.' : 'Charging: fills fast at first, then eases toward the battery voltage (63% reached at t = τ).';
+  else if(st.mode==='discharge') ve.textContent= Vc<0.02*st.V? 'Fully discharged.' : 'Discharging: the capacitor drives current backward, decaying exponentially to zero.';
+  else ve.textContent='Switch open — the charge is trapped on the capacitor; nothing changes.';
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x); updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('v','vN','V','vV',v=>(+v).toFixed(1)+' V');
+bind('r','rN','R','rV',v=>(+v).toFixed(1)+' kΩ');
+bind('c','cN','C','cV',v=>Math.round(v)+' µF');
+function setMode(m){ st.mode=m; ['Charge','Dis','Open'].forEach((x,i)=>{});
+  document.getElementById('mCharge').classList.toggle('on',m==='charge');
+  document.getElementById('mDis').classList.toggle('on',m==='discharge');
+  document.getElementById('mOpen').classList.toggle('on',m==='open'); }
+document.getElementById('mCharge').addEventListener('click',()=>setMode('charge'));
+document.getElementById('mDis').addEventListener('click',()=>setMode('discharge'));
+document.getElementById('mOpen').addEventListener('click',()=>setMode('open'));
+window.addEventListener('resize',fit);
+fit(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

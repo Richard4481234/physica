@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor &amp; Generator · Physica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-0:#0d0c1c;--bg-1:#151430;--glass:rgba(34,30,58,0.55);--glass-line:rgba(170,160,220,0.16);
+    --ink:#efeefb;--muted:#b3aacc;--faint:#7a76a0;--accent:#b89bff;--gold:#ffd27a;--r:18px;}
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:'Inter',system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,rgba(184,155,255,0.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 110%,rgba(124,196,255,0.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));background-attachment:fixed;min-height:100vh;}
+  a{text-decoration:none;color:inherit}
+  .nav{max-width:1180px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px}
+  .brand .mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#cdb6ff,#b89bff);box-shadow:0 6px 18px -6px rgba(184,155,255,.8);color:#1a1040;font-weight:700}
+  .nav .links{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav .links a:hover{color:var(--ink)}
+  .head{max-width:1180px;margin:0 auto;padding:8px 28px 4px}
+  .head .kicker{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .head h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:8px 0 0;letter-spacing:-.02em}
+  .head p{max-width:680px;color:var(--muted);font-size:15px;line-height:1.55;margin:10px 0 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 28px 60px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+  .stage{padding:14px}
+  canvas{display:block;width:100%;height:auto;border-radius:12px;background:#0a0918}
+  .controls{padding:20px}
+  .controls h2{font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 14px}
+  .ctl{margin-bottom:15px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:13px}
+  .row{display:flex;gap:8px;align-items:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--accent),rgba(184,155,255,.25));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#f1ecff;border:2px solid var(--accent);cursor:pointer}
+  input[type=number]{width:66px;background:rgba(16,12,30,.6);border:1px solid var(--glass-line);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12.5px;border-radius:8px;padding:5px 7px;outline:none}
+  .seg{display:flex;gap:6px;margin-top:2px}
+  .seg button{flex:1;background:rgba(16,12,30,.5);border:1px solid var(--glass-line);color:var(--muted);font-family:inherit;font-size:12px;padding:8px 4px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(184,155,255,.2);border-color:rgba(184,155,255,.5);color:var(--ink)}
+  .stats{margin-top:14px;border-top:1px solid var(--glass-line);padding-top:14px}
+  .stats .s{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px}
+  .stats .s span:first-child{color:var(--faint)}
+  .stats .s span:last-child{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+  .verdict{font-size:13px;line-height:1.5;color:var(--gold);background:rgba(255,210,122,.08);border:1px solid rgba(255,210,122,.25);border-radius:10px;padding:10px 12px;margin-top:4px}
+  details.explainer{max-width:1180px;margin:0 auto 50px;padding:0 28px}
+  details.explainer summary{cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;padding:16px 20px;font-family:'Fraunces',serif;font-size:18px;display:flex;align-items:center;gap:12px}
+  details.explainer summary::-webkit-details-marker{display:none}
+  details.explainer summary .chev{margin-left:auto;transition:.2s;color:var(--accent)}
+  details.explainer[open] summary .chev{transform:rotate(90deg)}
+  .exp-body{padding:18px 24px 4px;color:var(--muted);font-size:14.5px;line-height:1.7}
+  .exp-body h3{color:var(--ink);font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:18px 0 6px}
+  .exp-body .eq{font-family:'JetBrains Mono',monospace;color:var(--gold);background:rgba(16,12,30,.5);padding:10px 14px;border-radius:10px;margin:8px 0;font-size:13.5px;display:inline-block}
+  .exp-body strong{color:var(--ink);font-weight:600}
+  .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--faint)}
+  .leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <nav class="nav"><a class="brand" href="index.html"><span class="mark">P</span> Physica</a>
+    <div class="links"><a href="electromagnetism.html">← Electromagnetism</a><a href="index.html">All fields</a></div></nav>
+  <header class="head">
+    <div class="kicker">Electromagnetism · Experiment</div>
+    <h1>Motor &amp; Generator</h1>
+    <p>The same machine, run both ways: feed a current through a loop in a magnetic field and it spins (motor);
+       crank the loop by hand and it makes electricity (generator). One device, one physics — F = BIL and Faraday's law.</p>
+  </header>
+  <div class="wrap">
+    <div class="panel stage"><canvas id="cv"></canvas>
+      <div class="leg"><span><i style="background:#ffd27a"></i>force F = N·B·I·L on each side</span><span><i style="background:#cdb6ff"></i>ω(t) — motor</span><span><i style="background:#67e8a0"></i>EMF(t) — generator</span><span>⊙ current out of page · ⊗ into page</span></div>
+    </div>
+    <div class="panel controls">
+      <h2>Controls</h2>
+      <div class="ctl"><label>Mode</label>
+        <div class="seg"><button id="mMotor" class="on">Motor</button><button id="mGen">Generator</button></div></div>
+      <div class="ctl"><label>Magnetic field B <span class="val" id="bV">0.50 T</span></label>
+        <div class="row"><input type="range" id="b" min="0.1" max="1" step="0.05" value="0.5"><input type="number" id="bN" min="0.1" max="1" step="0.05" value="0.5"></div></div>
+      <div class="ctl"><label>Coil turns N <span class="val" id="nV">100 turns</span></label>
+        <div class="row"><input type="range" id="n" min="20" max="300" step="10" value="100"><input type="number" id="nN" min="20" max="300" step="10" value="100"></div></div>
+      <div class="ctl" id="ctlI"><label>Current I <span class="val" id="iV">1.5 A</span></label>
+        <div class="row"><input type="range" id="i" min="0.2" max="5" step="0.1" value="1.5"><input type="number" id="iN" min="0.2" max="5" step="0.1" value="1.5"></div></div>
+      <div class="ctl" id="ctlW" style="display:none"><label>Crank speed ω <span class="val" id="wV">6.0 rad/s</span></label>
+        <div class="row"><input type="range" id="w" min="1" max="15" step="0.5" value="6"><input type="number" id="wN" min="1" max="15" step="0.5" value="6"></div></div>
+      <div class="stats">
+        <div class="s"><span id="k1">Torque τ</span><span id="v1">—</span></div>
+        <div class="s"><span id="k2">Angular velocity ω</span><span id="v2">—</span></div>
+        <div class="s"><span id="k3">Steady ω</span><span id="v3">—</span></div>
+        <div class="s"><span id="k4">Spin rate</span><span id="v4">—</span></div>
+      </div>
+      <div class="verdict" id="verdict">Spinning up: the commutator flips the current every half-turn, so the torque always pushes the same way.</div>
+    </div>
+  </div>
+
+  <details class="explainer">
+    <summary>About this experiment <span class="chev">›</span></summary>
+    <div class="exp-body">
+      <h3>What you are looking at</h3>
+      A rectangular coil (10 cm × 10 cm, N turns) sits between the poles of a magnet, pivoted on a horizontal
+      axle. The two circled symbols are the coil's active sides seen end-on: ⊙ means current flowing out of the
+      page, ⊗ into the page. The gold arrows are the magnetic forces on those sides, and the graph on the right
+      records the machine's output over time.
+
+      <h3>Motor: current in, motion out</h3>
+      A wire of length L carrying current I across a field B feels a sideways force
+      <div class="eq">F = B·I·L</div>
+      The two sides of the loop carry current in opposite directions, so their forces point opposite ways — a
+      couple that twists the loop. The torque depends on the loop's orientation θ (angle between the coil's
+      normal and B):
+      <div class="eq">τ = N·I·A·B·sin θ</div>
+      Left alone, that torque would reverse every half-turn and the loop would just wobble. The
+      <strong>split-ring commutator</strong> fixes this: it swaps the current direction through the coil exactly
+      when the loop passes the flip point, so the torque always drives rotation the same way. With a little
+      friction the spin settles where drive and drag balance, at
+      <div class="eq">ω_steady = N·I·A·B·(2/π) / b</div>
+      (2/π is the average of |sin θ| over a turn, and b is the friction coefficient).
+
+      <h3>Generator: motion in, current out</h3>
+      Crank the same loop at angular speed ω and the flux through it, Φ = N·B·A·cos ωt, keeps changing. Faraday's
+      law turns that change into an EMF:
+      <div class="eq">EMF = N·B·A·ω·sin(ωt)</div>
+      With <strong>slip rings</strong> (each terminal stays on its own ring) the output keeps its natural
+      alternation — pure AC. Note ω appears twice: cranking faster makes the sine both taller and faster.
+      The peak is N·B·A·ω and the useful "RMS" value is that divided by √2.
+
+      <h3>One machine, two directions</h3>
+      Motor and generator are the same device run in opposite directions — the deep reason is that the motor
+      effect (F = qv×B pushing charges sideways) and the generator effect (the same force pushing charges along
+      the wire when you move it) are one and the same Lorentz force. Every real motor generates a "back-EMF" as
+      it spins, and every generator feels a resisting torque when you draw current: energy conservation, enforced
+      by the physics itself.
+
+      <h3>Things to try</h3>
+      In motor mode, double the current and watch the steady ω double — then watch the spin-up get snappier too.
+      Switch to generator mode and crank slowly, then quickly: the EMF sine grows taller and squeezes together at
+      the same time. Raise N or B in either mode and everything scales — τ and EMF are both proportional to N·B·A.
+    </div>
+  </details>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W=900,H=460,dpr=1;
+function fit(){
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth; H=Math.round(W*0.50);
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+// physics constants: loop 10cm x 10cm
+const AREA=0.01, LEN=0.1, IROT=0.08, FR=0.05;
+const st={mode:'motor', B:0.5, N:100, I:1.5, crank:6};
+let th=0.25, w=0, t=0, samples=[];
+function wss(){ return st.N*st.I*AREA*st.B*(2/Math.PI)/FR; }
+function emfNow(){ return st.N*st.B*AREA*w*Math.sin(th); }
+function update(dt){
+  if(st.mode==='motor'){
+    const tau=st.N*st.I*AREA*st.B*Math.abs(Math.sin(th)) - FR*w;
+    w+=tau/IROT*dt; th+=w*dt;
+    samples.push({t, w, tau:st.N*st.I*AREA*st.B*Math.abs(Math.sin(th))});
+  } else {
+    w=st.crank; th+=w*dt;
+    samples.push({t, emf:emfNow()});
+  }
+  t+=dt; if(samples.length>6000)samples.shift();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#0a0918'; ctx.fillRect(0,0,W,H);
+  drawMachine(14,14,W*0.46,H-28);
+  drawGraph(W*0.50,20,W-20-W*0.50,H-44);
+  requestAnimationFrame(()=>{});
+}
+function drawMachine(x,y,wd,ht){
+  const cx=x+wd/2, cy=y+ht*0.46, rpx=Math.min(wd,ht)*0.20;
+  // pole pieces
+  const pw=wd*0.16, ph=ht*0.62, gapL=cx-rpx-24, gapR=cx+rpx+24;
+  ctx.fillStyle='rgba(255,107,107,.16)'; ctx.strokeStyle='rgba(255,138,138,.7)'; ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.rect(gapL-pw, cy-ph/2, pw, ph); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='rgba(124,196,255,.14)'; ctx.strokeStyle='rgba(124,196,255,.7)';
+  ctx.beginPath(); ctx.rect(gapR, cy-ph/2, pw, ph); ctx.fill(); ctx.stroke();
+  ctx.font='700 20px Fraunces,serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#ff9b9b'; ctx.fillText('N', gapL-pw/2, cy);
+  ctx.fillStyle='#9bd0f5'; ctx.fillText('S', gapR+pw/2, cy);
+  // B field arrows N->S (+x)
+  ctx.strokeStyle='rgba(184,155,255,.4)'; ctx.fillStyle='rgba(184,155,255,.4)'; ctx.lineWidth=1.3;
+  for(let i=-1;i<=1;i++){ const fy=cy+i*ph*0.30; arrow(gapL,fy,gapR-gapL,0,gapR-gapL-6,1.3,'rgba(184,155,255,.4)'); }
+  ctx.font='11px JetBrains Mono'; ctx.fillStyle='rgba(184,155,255,.8)';
+  ctx.fillText('B = '+st.B.toFixed(2)+' T', cx, cy-ph/2-10);
+  // rotating loop: sides at normal angle th ± 90 (canvas y down => py = cy - r sin a)
+  const a1=th+Math.PI/2;
+  const p1=[cx+rpx*Math.cos(a1), cy-rpx*Math.sin(a1)];
+  const p2=[cx-rpx*Math.cos(a1), cy+rpx*Math.sin(a1)];
+  // loop plane (edge-on line)
+  ctx.strokeStyle='rgba(239,238,251,.85)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+  // normal (dashed)
+  ctx.strokeStyle='rgba(255,210,122,.45)'; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+rpx*0.9*Math.cos(th), cy-rpx*0.9*Math.sin(th)); ctx.stroke(); ctx.setLineDash([]);
+  // current direction: motor = commutated sign(sin th); generator = sign of EMF
+  let cur;
+  if(st.mode==='motor') cur = Math.sin(th)>=0? 1 : -1;
+  else cur = emfNow()>=0? 1 : -1;
+  // side1 carries out-of-page current when cur>0
+  wireSymbol(p1[0],p1[1], cur>0);
+  wireSymbol(p2[0],p2[1], cur<0);
+  // force arrows F = N B I L, vertical: out-of-page side pushed UP (F = IL ẑ×Bx̂ = +ŷ)
+  const Fmag = st.N*st.B*(st.mode==='motor'?st.I:0.5)*LEN;
+  const fl=Math.min(46, 12+Fmag*3);
+  arrow(p1[0],p1[1],0, cur>0?-fl:fl, fl,2.2,'#ffd27a');
+  arrow(p2[0],p2[1],0, cur>0?fl:-fl, fl,2.2,'#ffd27a');
+  ctx.fillStyle='#ffd27a'; ctx.font='10px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('F = N·B·I·L', p1[0]+12, p1[1]+(cur>0?-fl:fl)*0.6);
+  // axle + commutator / slip rings
+  ctx.fillStyle='rgba(179,170,204,.9)'; ctx.beginPath(); ctx.arc(cx,cy,3.4,0,7); ctx.fill();
+  const ry=cy+ph/2+18;
+  ctx.textAlign='center'; ctx.font='10.5px JetBrains Mono';
+  if(st.mode==='motor'){
+    // split-ring commutator: two arcs with gaps, rotating with th
+    ctx.lineWidth=3;
+    ctx.strokeStyle='#cdb6ff'; ctx.beginPath(); ctx.arc(cx,ry,9, th+0.18, th+Math.PI-0.18); ctx.stroke();
+    ctx.strokeStyle='#8f7bd8'; ctx.beginPath(); ctx.arc(cx,ry,9, th+Math.PI+0.18, th+2*Math.PI-0.18); ctx.stroke();
+    // brushes
+    ctx.fillStyle='#ffd27a'; ctx.fillRect(cx-16,ry-2.5,5,5); ctx.fillRect(cx+11,ry-2.5,5,5);
+    ctx.fillStyle='rgba(179,170,204,.8)'; ctx.fillText('split-ring commutator', cx, ry+22);
+  } else {
+    ctx.lineWidth=2.4;
+    ctx.strokeStyle='#cdb6ff'; ctx.beginPath(); ctx.arc(cx-7,ry,8,0,7); ctx.stroke();
+    ctx.strokeStyle='#8f7bd8'; ctx.beginPath(); ctx.arc(cx+7,ry,8,0,7); ctx.stroke();
+    ctx.fillStyle='#ffd27a'; ctx.fillRect(cx-7-2.5,ry-14,5,5); ctx.fillRect(cx+7-2.5,ry-14,5,5);
+    ctx.fillStyle='rgba(179,170,204,.8)'; ctx.fillText('slip rings → AC out', cx, ry+22);
+  }
+  // omega label
+  ctx.fillStyle='rgba(239,238,251,.75)'; ctx.font='11px JetBrains Mono'; ctx.textAlign='left';
+  ctx.fillText('ω = '+w.toFixed(1)+' rad/s', x+6, y+14);
+}
+function wireSymbol(px,py,outOfPage){
+  ctx.beginPath(); ctx.arc(px,py,8,0,7);
+  ctx.fillStyle='#151430'; ctx.fill();
+  ctx.strokeStyle='#efeefb'; ctx.lineWidth=1.8; ctx.stroke();
+  ctx.strokeStyle='#efeefb'; ctx.fillStyle='#efeefb';
+  if(outOfPage){ ctx.beginPath(); ctx.arc(px,py,2.2,0,7); ctx.fill(); }
+  else { ctx.beginPath(); ctx.moveTo(px-4.2,py-4.2); ctx.lineTo(px+4.2,py+4.2); ctx.moveTo(px+4.2,py-4.2); ctx.lineTo(px-4.2,py+4.2); ctx.stroke(); }
+}
+function arrow(x,y,dx,dy,maxLen,lw,col){
+  const m=Math.hypot(dx,dy); if(m<1e-6)return;
+  const s=Math.min(1,maxLen/m), ex=x+dx*s, ey=y+dy*s;
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=lw;
+  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(ex,ey); ctx.stroke();
+  const a=Math.atan2(ey-y,ex-x);
+  ctx.beginPath(); ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-7*Math.cos(a-0.44),ey-7*Math.sin(a-0.44));
+  ctx.lineTo(ex-7*Math.cos(a+0.44),ey-7*Math.sin(a+0.44)); ctx.closePath(); ctx.fill();
+}
+function drawGraph(x,y,wd,ht){
+  ctx.fillStyle='rgba(16,12,30,.5)'; ctx.fillRect(x,y,wd,ht);
+  const x0=x+40,x1=x+wd-8,y0=y+ht-24,y1=y+12;
+  ctx.strokeStyle='rgba(170,160,220,.3)'; ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,y1);ctx.lineTo(x0,y0);ctx.lineTo(x1,y0);ctx.stroke();
+  ctx.fillStyle='rgba(179,170,204,.7)'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('time →',(x0+x1)/2,y0+6);
+  if(st.mode==='motor'){
+    const win=8, ymax=Math.max(wss()*1.15, w*1.15, 1);
+    const X=tt=>x1-(t-tt)/win*(x1-x0), Y=vv=>y0-(vv/ymax)*(y0-y1);
+    // steady line
+    ctx.strokeStyle='rgba(255,210,122,.5)'; ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(x0,Y(wss()));ctx.lineTo(x1,Y(wss()));ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,210,122,.8)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='left';
+    ctx.fillText('ω steady ≈ '+wss().toFixed(1), x0+4, Y(wss())-11);
+    ctx.strokeStyle='#cdb6ff'; ctx.lineWidth=2; ctx.beginPath(); let s0=false;
+    for(const s of samples){ if(s.t<t-win||s.w===undefined)continue; const px=X(s.t),py=Y(s.w); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+    ctx.fillStyle='#cdb6ff'; ctx.font='10px JetBrains Mono'; ctx.fillText('ω(t) rad/s', x0+4, y1);
+  } else {
+    const pk=Math.max(1e-3, st.N*st.B*AREA*st.crank), win=Math.max(1.2, 3*2*Math.PI/Math.max(0.5,st.crank));
+    const X=tt=>x1-(t-tt)/win*(x1-x0), ym=(y0+y1)/2, Y=vv=>ym-(vv/pk)*(y0-y1)/2*0.86;
+    ctx.strokeStyle='rgba(170,160,220,.25)'; ctx.beginPath();ctx.moveTo(x0,ym);ctx.lineTo(x1,ym);ctx.stroke();
+    ctx.strokeStyle='rgba(255,210,122,.4)'; ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(x0,Y(pk));ctx.lineTo(x1,Y(pk));ctx.moveTo(x0,Y(-pk));ctx.lineTo(x1,Y(-pk));ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,210,122,.8)'; ctx.font='9px JetBrains Mono'; ctx.textAlign='left';
+    ctx.fillText('±NBAω = '+pk.toFixed(2)+' V', x0+4, Y(pk)-11);
+    ctx.strokeStyle='#67e8a0'; ctx.lineWidth=2; ctx.beginPath(); let s0=false;
+    for(const s of samples){ if(s.t<t-win||s.emf===undefined)continue; const px=X(s.t),py=Y(s.emf); s0?ctx.lineTo(px,py):(ctx.moveTo(px,py),s0=true);} if(s0)ctx.stroke();
+    ctx.fillStyle='#67e8a0'; ctx.font='10px JetBrains Mono'; ctx.fillText('EMF(t)', x0+4, y1);
+  }
+  ctx.textBaseline='alphabetic';
+}
+let last=0;
+function loop(ts){ const dt=Math.min(0.05,(ts-last)/1000||0.016)*(window.SLOWMO||1); last=ts; update(dt); draw(); updateStats(); requestAnimationFrame(loop); }
+function updateStats(){
+  const k1=document.getElementById('k1'),v1=document.getElementById('v1'),
+        k2=document.getElementById('k2'),v2=document.getElementById('v2'),
+        k3=document.getElementById('k3'),v3=document.getElementById('v3'),
+        k4=document.getElementById('k4'),v4=document.getElementById('v4'),
+        ve=document.getElementById('verdict');
+  if(st.mode==='motor'){
+    const tauNow=st.N*st.I*AREA*st.B*Math.abs(Math.sin(th));
+    k1.textContent='Torque τ = NIAB·|sin θ|'; v1.textContent=tauNow.toFixed(2)+' N·m';
+    k2.textContent='Angular velocity ω';      v2.textContent=w.toFixed(1)+' rad/s';
+    k3.textContent='Steady ω = NIAB(2/π)/b';  v3.textContent=wss().toFixed(1)+' rad/s';
+    k4.textContent='Spin rate';               v4.textContent=(w/(2*Math.PI)).toFixed(1)+' rev/s';
+    ve.textContent = w<0.88*wss()
+      ? 'Spinning up: the commutator flips the current every half-turn, so the torque always pushes the same way.'
+      : 'Steady spin: friction now balances the average commutated torque — ω levels off at NIAB(2/π)/b ≈ '+wss().toFixed(1)+' rad/s.';
+  } else {
+    const pk=st.N*st.B*AREA*st.crank;
+    k1.textContent='EMF now = NBAω·sin ωt'; v1.textContent=emfNow().toFixed(2)+' V';
+    k2.textContent='Peak EMF = N·B·A·ω';    v2.textContent=pk.toFixed(2)+' V';
+    k3.textContent='RMS voltage';           v3.textContent=(pk/Math.SQRT2).toFixed(2)+' V';
+    k4.textContent='AC frequency ω/2π';     v4.textContent=(st.crank/(2*Math.PI)).toFixed(2)+' Hz';
+    ve.textContent='Slip rings keep each terminal on the same wire, so the output alternates: crank faster and the sine grows taller AND faster — EMF ∝ ω twice over.';
+  }
+}
+function bind(sl,nu,key,labId,fmt){const s=document.getElementById(sl),n=document.getElementById(nu),lab=document.getElementById(labId);
+  function set(x){x=Math.max(parseFloat(s.min),Math.min(parseFloat(s.max),x));if(isNaN(x))return;st[key]=x;s.value=x;n.value=x;lab.textContent=fmt(x);updateStats();}
+  s.addEventListener('input',()=>set(parseFloat(s.value))); n.addEventListener('change',()=>set(parseFloat(n.value)));}
+bind('b','bN','B','bV',v=>(+v).toFixed(2)+' T');
+bind('n','nN','N','nV',v=>Math.round(v)+' turns');
+bind('i','iN','I','iV',v=>(+v).toFixed(1)+' A');
+bind('w','wN','crank','wV',v=>(+v).toFixed(1)+' rad/s');
+function setMode(m){
+  st.mode=m; samples=[]; t=0;
+  if(m==='motor'){ w=0; th=0.25; } else { w=st.crank; }
+  document.getElementById('mMotor').classList.toggle('on',m==='motor');
+  document.getElementById('mGen').classList.toggle('on',m==='generator');
+  document.getElementById('ctlI').style.display = m==='motor'?'block':'none';
+  document.getElementById('ctlW').style.display = m==='motor'?'none':'block';
+  updateStats();
+}
+document.getElementById('mMotor').addEventListener('click',()=>setMode('motor'));
+document.getElementById('mGen').addEventListener('click',()=>setMode('generator'));
+window.addEventListener('resize',fit);
+fit(); requestAnimationFrame(loop);
+</script>
+<script>
+(function(){const speeds=[1,0.5,0.25,0.1];let i=0;window.SLOWMO=1;const b=document.createElement('button');b.textContent='⏱ Speed 1×';
+Object.assign(b.style,{position:'fixed',left:'18px',bottom:'18px',zIndex:9999,background:'rgba(34,30,58,0.85)',color:'#efeefb',border:'1px solid rgba(170,160,220,0.4)',font:'500 13px Inter,sans-serif',padding:'9px 14px',borderRadius:'10px',cursor:'pointer',backdropFilter:'blur(8px)'});
+b.addEventListener('click',()=>{i=(i+1)%speeds.length;window.SLOWMO=speeds[i];b.textContent='⏱ Speed '+(speeds[i]===1?'1×':speeds[i]+'×');});document.body.appendChild(b);})();
+</script>
+</body>
+</html>

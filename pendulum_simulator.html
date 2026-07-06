@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendulum · Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0e1a; --bg-1:#11152a;
+    --glass:rgba(28,34,58,0.55); --glass-line:rgba(140,160,220,0.16);
+    --ink:#eef1fb; --muted:#9aa6cc; --faint:#6b76a0;
+    --accent:#7cc4ff; --accent-soft:#3b6ea8;
+    --ember:#ff8a5b; --gold:#ffd27a; --green:#62d2a2;
+    --r:18px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(124,196,255,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(255,138,91,0.08), transparent 55%),
+      linear-gradient(160deg,var(--bg-0),var(--bg-1));
+    background-attachment:fixed; min-height:100vh;}
+  header{max-width:1180px; margin:0 auto; padding:34px 28px 8px;
+    display:flex; align-items:baseline; gap:16px; flex-wrap:wrap;}
+  .back{display:inline-block; margin-bottom:10px; font-size:13px; font-weight:500;
+    color:var(--muted); text-decoration:none; transition:color .15s ease;}
+  .back:hover{color:var(--accent)}
+  .kicker{font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--accent); font-weight:600;}
+  h1{font-family:'Fraunces',serif; font-weight:600; font-size:34px; margin:2px 0 0; letter-spacing:-.01em;}
+  header .sub{color:var(--muted); font-size:14px; margin-left:auto; max-width:340px; text-align:right; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 28px 40px;
+    display:grid; grid-template-columns:320px 1fr; gap:22px; align-items:start;}
+  @media (max-width:920px){.wrap{grid-template-columns:1fr} header .sub{text-align:left;margin-left:0}}
+
+  .panel{background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r);
+    padding:22px; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 18px 50px -28px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.04);}
+  .group-label{font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--faint); font-weight:600; margin:0 0 14px;}
+
+  .ctrl{margin-bottom:18px}
+  .ctrl .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px}
+  .ctrl .name{font-size:13.5px; color:var(--muted)}
+  .ctrl .val{font-family:'JetBrains Mono',monospace; font-size:15px; color:var(--ink)}
+  .ctrl .val em{color:var(--faint); font-style:normal; font-size:12px; margin-left:2px}
+  .num{width:64px; text-align:right; padding:3px 6px; border-radius:7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:15px;
+    outline:none; transition:border-color .15s ease,box-shadow .15s ease; -moz-appearance:textfield;}
+  .num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .num:focus{border-color:var(--accent); box-shadow:0 0 12px -4px rgba(124,196,255,.6)}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+    background:linear-gradient(90deg,var(--accent-soft),rgba(124,196,255,.15)); outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--ink); border:3px solid var(--accent);
+    box-shadow:0 0 0 4px rgba(124,196,255,.12), 0 2px 8px rgba(0,0,0,.5); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--accent);cursor:pointer}
+
+  .seg{display:flex; gap:6px; flex-wrap:wrap}
+  .seg button{flex:1 1 auto; min-width:58px; padding:9px 6px; border-radius:10px;
+    border:1px solid var(--glass-line); background:rgba(255,255,255,.03);
+    color:var(--muted); font-size:12.5px; font-weight:500; cursor:pointer; transition:all .15s ease; font-family:inherit;}
+  .seg button:hover{color:var(--ink); border-color:rgba(124,196,255,.4)}
+  .seg button.on{background:linear-gradient(135deg,rgba(124,196,255,.22),rgba(124,196,255,.08));
+    color:var(--ink); border-color:var(--accent); box-shadow:0 0 16px -4px rgba(124,196,255,.5);}
+  .seg button .g{display:block; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--faint); margin-top:3px}
+  .seg button.on .g{color:var(--accent)}
+  .customg{display:flex; align-items:center; gap:10px; margin-top:12px}
+  .customg .cg-label{font-size:12.5px; color:var(--muted); white-space:nowrap}
+  .customg input{flex:1; min-width:0; padding:9px 11px; border-radius:10px;
+    background:rgba(255,255,255,.04); border:1px solid var(--glass-line);
+    color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:14px; outline:none; transition:border-color .15s ease;}
+  .customg input:focus{border-color:var(--accent); box-shadow:0 0 14px -4px rgba(124,196,255,.5)}
+  .customg input.on{border-color:var(--accent)}
+  .customg .cg-unit{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--faint)}
+
+  .actions{display:flex; gap:10px; margin-top:6px}
+  .btn{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer;
+    font-family:inherit; font-size:14px; font-weight:600; transition:all .15s ease;}
+  .btn.play{color:#08111e; background:linear-gradient(135deg,#8fd0ff,#5aa8ee); box-shadow:0 8px 24px -8px rgba(124,196,255,.7);}
+  .btn.play:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.04); color:var(--muted); border:1px solid var(--glass-line);}
+  .btn.ghost:hover{color:var(--ink); border-color:rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(1px)}
+  .divider{height:1px; background:var(--glass-line); margin:20px 0}
+
+  canvas{width:100%; display:block; border-radius:var(--r); border:1px solid var(--glass-line);
+    box-shadow:0 22px 60px -34px rgba(0,0,0,.9); cursor:default;}
+  .legend{display:flex; gap:20px; margin-top:14px; padding:0 4px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .dot{width:10px; height:10px; border-radius:50%}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:18px}
+  @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{position:relative; padding:14px 15px; border-radius:13px; overflow:hidden;
+    background:rgba(255,255,255,.025); border:1px solid var(--glass-line);}
+  .stat::before{content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); opacity:.85;}
+  .stat.ember::before{background:var(--ember)} .stat.gold::before{background:var(--gold)} .stat.green::before{background:var(--green)}
+  .stat .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+  .stat .v{font-family:'JetBrains Mono',monospace; font-size:20px; margin-top:4px; letter-spacing:-.5px}
+  .stat .v em{font-style:normal; font-size:11px; color:var(--muted); margin-left:3px}
+
+  .formula{margin-top:14px; padding:14px 18px; border-radius:13px;
+    background:rgba(255,255,255,.02); border:1px solid var(--glass-line);
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); line-height:1.9;}
+  .formula b{color:var(--accent); font-weight:500}
+
+  .explainer{margin-top:16px; border:1px solid var(--glass-line); border-radius:14px;
+    background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); overflow:hidden;}
+  .explainer>summary{list-style:none; cursor:pointer; padding:16px 20px; display:flex; align-items:center; gap:12px;
+    font-family:'Fraunces',serif; font-size:18px; font-weight:500; color:var(--ink); transition:background .15s ease;}
+  .explainer>summary::-webkit-details-marker{display:none}
+  .explainer>summary:hover{background:rgba(255,255,255,.03)}
+  .explainer>summary .ico{width:26px; height:26px; border-radius:8px; flex:none; display:grid; place-items:center;
+    background:linear-gradient(135deg,rgba(124,196,255,.25),rgba(124,196,255,.08));
+    border:1px solid rgba(124,196,255,.35); color:var(--accent); font-size:15px;}
+  .explainer>summary .chev{margin-left:auto; color:var(--faint); transition:transform .2s ease; font-size:13px}
+  .explainer[open]>summary .chev{transform:rotate(180deg)}
+  .explainer>summary .hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--faint); font-weight:400}
+  .ex-body{padding:4px 22px 22px; color:var(--muted); font-size:14.5px; line-height:1.72}
+  .ex-body h4{color:var(--ink); font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+    letter-spacing:.04em; text-transform:uppercase; margin:20px 0 8px;}
+  .ex-body h4:first-child{margin-top:8px}
+  .ex-body p{margin:0 0 12px} .ex-body b{color:var(--ink); font-weight:600}
+  .ex-body .accent{color:var(--accent)} .ex-body .ember{color:var(--ember)}
+  .ex-body .mono{font-family:'JetBrains Mono',monospace; font-size:13px;
+    background:rgba(124,196,255,.08); color:var(--accent); padding:1px 6px; border-radius:5px}
+  .ex-eq{margin:10px 0 14px; padding:14px 18px; border-radius:11px;
+    background:rgba(255,255,255,.025); border:1px solid var(--glass-line); border-left:3px solid var(--accent);
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--ink); line-height:2;}
+  .ex-eq .lbl{color:var(--faint); font-size:11px; font-family:'Inter',sans-serif; margin-left:10px}
+  .ex-body ul{margin:0 0 12px; padding-left:0; list-style:none}
+  .ex-body li{position:relative; padding-left:20px; margin-bottom:8px}
+  .ex-body li::before{content:'→'; position:absolute; left:0; color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <a href="mechanics.html" class="back">← Mechanical</a>
+    <div class="kicker">Oscillation &amp; Energy</div>
+    <h1>Pendulum</h1>
+  </div>
+  <div class="sub">A bob swinging under gravity — explore period, amplitude, damping and the energy exchange.</div>
+</header>
+
+<div class="wrap">
+  <aside class="panel">
+    <p class="group-label">Pendulum</p>
+    <div class="ctrl">
+      <div class="row"><span class="name">Length L</span>
+        <span class="val"><input id="LNum" class="num" type="number" min="0.2" max="3" step="0.05" value="1.5"><em>m</em></span></div>
+      <input id="L" type="range" min="0.2" max="3" step="0.05" value="1.5">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Initial angle θ₀</span>
+        <span class="val"><input id="aNum" class="num" type="number" min="2" max="170" step="1" value="40"><em>°</em></span></div>
+      <input id="ang" type="range" min="2" max="170" step="1" value="40">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Bob mass</span>
+        <span class="val"><input id="mNum" class="num" type="number" min="0.5" max="10" step="0.5" value="2"><em>kg</em></span></div>
+      <input id="m" type="range" min="0.5" max="10" step="0.5" value="2">
+    </div>
+    <div class="ctrl">
+      <div class="row"><span class="name">Damping</span>
+        <span class="val"><input id="cNum" class="num" type="number" min="0" max="2" step="0.05" value="0"><em>1/s</em></span></div>
+      <input id="c" type="range" min="0" max="2" step="0.05" value="0">
+    </div>
+
+    <p class="group-label" style="margin-top:24px">Gravitational Field</p>
+    <div class="seg" id="grav">
+      <button data-g="9.81" class="on">Earth<span class="g">9.81</span></button>
+      <button data-g="1.62">Moon<span class="g">1.62</span></button>
+      <button data-g="3.71">Mars<span class="g">3.71</span></button>
+      <button data-g="24.79">Jupiter<span class="g">24.8</span></button>
+      <button data-g="8.87">Venus<span class="g">8.87</span></button>
+      <button data-g="0.5">µ-grav<span class="g">0.50</span></button>
+    </div>
+    <div class="customg">
+      <label class="cg-label" for="gCustom">Custom g</label>
+      <input id="gCustom" type="number" min="0.01" max="100" step="0.01" placeholder="e.g. 6.0">
+      <span class="cg-unit">m/s²</span>
+    </div>
+
+    <div class="divider"></div>
+    <div class="actions">
+      <button class="btn play" id="play">Swing ▶</button>
+      <button class="btn ghost" id="reset">Reset</button>
+    </div>
+  </aside>
+
+  <main>
+    <canvas id="cv"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Kinetic energy</span>
+      <span><i class="dot" style="background:var(--gold)"></i>Potential energy</span>
+      <span style="margin-left:auto;color:var(--faint)">The bar shows energy trading between motion and height</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Period T</div><div class="v"><span id="sT">–</span><em>s</em></div></div>
+      <div class="stat gold"><div class="k">Small-angle T₀</div><div class="v"><span id="sT0">–</span><em>s</em></div></div>
+      <div class="stat green"><div class="k">Frequency</div><div class="v"><span id="sF">–</span><em>Hz</em></div></div>
+      <div class="stat ember"><div class="k">Max speed</div><div class="v"><span id="sV">–</span><em>m/s</em></div></div>
+    </div>
+
+    <div class="formula">
+      <b>θ̈</b> = −(g / L)·sin θ − b·θ̇ &nbsp;&nbsp;|&nbsp;&nbsp;
+      <b>T₀</b> = 2π·√(L / g)
+    </div>
+
+    <details class="explainer">
+      <summary>
+        <span class="ico">i</span>
+        About this experiment
+        <span class="hint">— click to learn the physics</span>
+        <span class="chev">▼</span>
+      </summary>
+      <div class="ex-body">
+        <h4>What you're looking at</h4>
+        <p>A <b>simple pendulum</b> is a bob of mass <span class="mono">m</span> on a rigid, massless rod of
+           length <span class="mono">L</span>, free to swing about a fixed pivot. Pull it to an initial angle
+           <span class="accent">θ₀</span> and release: gravity pulls it back toward the bottom, it overshoots,
+           and it oscillates back and forth. Press <b>Swing</b> to animate it, and add <b>damping</b> to model
+           friction and air resistance gradually stealing its energy.</p>
+
+        <h4>The restoring force</h4>
+        <p>At an angle θ, the component of gravity along the arc pulls the bob back toward equilibrium.
+           Newton's second law for rotation gives the equation of motion:</p>
+        <div class="ex-eq">
+          θ̈ = −(g / L)·sin θ <span class="lbl">undamped</span><br>
+          θ̈ = −(g / L)·sin θ − b·θ̇ <span class="lbl">with damping b</span>
+        </div>
+        <p>The simulation solves this with a <b>4th-order Runge–Kutta</b> integrator, so it stays accurate
+           even at large swing angles where a simple formula would fail.</p>
+
+        <h4>Small angles: simple harmonic motion</h4>
+        <p>For small swings, <span class="mono">sin θ ≈ θ</span>, and the equation becomes that of a
+           <b>simple harmonic oscillator</b>. Its period is famously <b>independent of amplitude and mass</b>,
+           depending only on length and gravity:</p>
+        <div class="ex-eq">
+          T₀ = 2π·√(L / g) <span class="lbl">small-angle period</span>
+        </div>
+        <p>This is why a longer pendulum swings more slowly, and why the same pendulum on the Moon
+           (weaker g) takes much longer to complete a swing.</p>
+
+        <h4>Large angles: the period grows</h4>
+        <p>Once the amplitude is large, the <span class="mono">sin θ</span> term matters and the true period
+           is <b>longer</b> than T₀. The exact value involves a complete elliptic integral, which the
+           <b>Period T</b> card computes. At 90° the period is about 18% longer than the small-angle value;
+           near 170° it more than doubles.</p>
+
+        <h4>Energy exchange</h4>
+        <p>Without damping, total mechanical energy is conserved — it simply shuttles between two forms,
+           shown by the bar above the swing:</p>
+        <ul>
+          <li><b class="accent">Kinetic energy</b> <span class="mono">½·m·L²·θ̇²</span> is greatest at the
+            bottom, where the bob moves fastest.</li>
+          <li><b class="ember">Potential energy</b> <span class="mono">m·g·L·(1 − cos θ)</span> is greatest at
+            the turning points, where the bob is highest and momentarily still.</li>
+        </ul>
+        <p>The maximum speed, reached at the lowest point, follows from energy conservation:
+           <span class="mono">v_max = √(2·g·L·(1 − cos θ₀))</span>.</p>
+
+        <h4>What is damping?</h4>
+        <p><b>Damping</b> is any resistance that gradually drains energy from the motion — for a real pendulum
+           it's mostly <b>air resistance</b> and <b>friction at the pivot</b>. Unlike gravity, which only
+           redirects energy back and forth between kinetic and potential, a damping force <b>removes</b>
+           mechanical energy from the system, turning it into heat. It always pushes <b>against</b> the
+           direction of motion and grows with speed, modelled here as a force proportional to the bob's
+           velocity:</p>
+        <div class="ex-eq">
+          damping torque = − b · θ̇ <span class="lbl">b = damping strength, θ̇ = angular velocity</span>
+        </div>
+        <p>The visible effect: each swing is a little smaller than the last, so the bob traces a shrinking
+           arc inside a slowly <b>decaying envelope</b>, and the energy bar steadily empties until the pendulum
+           settles at rest at the bottom. With the damping control at <b>0</b> there's no energy loss and it
+           swings forever; turn it up and the higher the value, the faster the oscillations die away. (Push it
+           very high and the bob barely swings at all — it just eases back to the bottom.) Real clocks fight
+           this loss by feeding in a tiny push each swing to keep the amplitude steady.</p>
+
+        <h4>Things to try</h4>
+        <p>Change the <b>mass</b> and confirm the period doesn't move at all. Quadruple the <b>length</b> and
+           see the period exactly double. Compare a small 10° swing (T ≈ T₀) with a wide 150° swing on the
+           same pendulum to see the large-angle slowdown. Finally, nudge the <b>damping</b> up a little and
+           watch the swings shrink lap by lap as energy leaks away — then set it high and see the bob barely
+           swing before stopping.</p>
+      </div>
+    </details>
+  </main>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const els={L:$('L'),ang:$('ang'),m:$('m'),c:$('c'),
+  LNum:$('LNum'),aNum:$('aNum'),mNum:$('mNum'),cNum:$('cNum'),gCustom:$('gCustom'),
+  sT:$('sT'),sT0:$('sT0'),sF:$('sF'),sV:$('sV'),
+  play:$('play'),reset:$('reset')};
+function clampNum(el){const mn=+el.min,mx=+el.max;let v=parseFloat(el.value);
+  if(!isFinite(v))v=mn; return Math.min(mx,Math.max(mn,v));}
+let gravity=9.81;
+
+function params(){return {L:clampNum(els.LNum), th0:clampNum(els.aNum)*Math.PI/180,
+  m:clampNum(els.mNum), c:clampNum(els.cNum), g:gravity};}
+
+// ── state ──
+let th=0, om=0, trail=[];
+function initState(){const p=params(); th=p.th0; om=0; trail=[];}
+
+// ── analytic stats ──
+function agm(a,b){for(let i=0;i<40;i++){const na=(a+b)/2; b=Math.sqrt(a*b); a=na;} return a;}
+function statsCalc(){
+  const p=params();
+  const T0=2*Math.PI*Math.sqrt(p.L/p.g);
+  const k=Math.sin(p.th0/2), kp=Math.sqrt(Math.max(0,1-k*k));
+  const T=2*Math.PI*Math.sqrt(p.L/p.g)/agm(1,kp);
+  const vmax=Math.sqrt(2*p.g*p.L*(1-Math.cos(p.th0)));
+  els.sT.textContent=T.toFixed(2); els.sT0.textContent=T0.toFixed(2);
+  els.sF.textContent=(1/T).toFixed(3); els.sV.textContent=vmax.toFixed(2);
+}
+
+// ── physics (RK4) ──
+function deriv(t,o,p){return [o, -(p.g/p.L)*Math.sin(t) - p.c*o];}
+function integrate(dt){
+  const p=params();
+  const k1=deriv(th,om,p);
+  const k2=deriv(th+dt/2*k1[0], om+dt/2*k1[1], p);
+  const k3=deriv(th+dt/2*k2[0], om+dt/2*k2[1], p);
+  const k4=deriv(th+dt*k3[0], om+dt*k3[1], p);
+  th+=dt/6*(k1[0]+2*k2[0]+2*k3[0]+k4[0]);
+  om+=dt/6*(k1[1]+2*k2[1]+2*k3[1]+k4[1]);
+}
+
+// ── render ──
+function fit(){const dpr=window.devicePixelRatio||1; const w=cv.clientWidth, h=Math.round(cv.clientWidth*0.6);
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); return {w,h};}
+
+function render(){
+  const d=fit(); const p=params();
+  ctx.clearRect(0,0,d.w,d.h);
+  // backdrop
+  const bg=ctx.createLinearGradient(0,0,0,d.h);
+  bg.addColorStop(0,'#131934'); bg.addColorStop(.6,'#182142'); bg.addColorStop(1,'#1d2954');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,d.w,d.h);
+  const vg=ctx.createRadialGradient(d.w/2,d.h*0.42,d.h*0.12,d.w/2,d.h*0.5,d.w*0.72);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(2,4,10,.45)');
+  ctx.fillStyle=vg; ctx.fillRect(0,0,d.w,d.h);
+
+  // energy bar (top)
+  drawEnergyBar(d,p);
+
+  // geometry
+  const cx=d.w/2, topY=d.h*0.20;
+  const avail=d.h-topY-34, PPM=avail/3.0;     // 3 m fills the height
+  const Lpx=p.L*PPM;
+  const bx=cx+Lpx*Math.sin(th), by=topY+Lpx*Math.cos(th);
+  const R=12+5*Math.cbrt(p.m);
+
+  // swing range arc (±θ₀ from start) + equilibrium line
+  ctx.strokeStyle='rgba(140,160,220,.16)'; ctx.lineWidth=1; ctx.setLineDash([4,6]);
+  ctx.beginPath();ctx.moveTo(cx,topY);ctx.lineTo(cx,topY+Lpx+R+10);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(124,196,255,.18)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(cx,topY,Lpx, Math.PI/2-p.th0, Math.PI/2+p.th0);ctx.stroke();
+
+  // angle wedge (current)
+  ctx.fillStyle='rgba(124,196,255,.10)';
+  ctx.beginPath();ctx.moveTo(cx,topY);
+  ctx.arc(cx,topY,38, Math.PI/2, Math.PI/2+th, th<0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(154,166,204,.8)'; ctx.font='600 12px JetBrains Mono, monospace';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText((th*180/Math.PI).toFixed(0)+'°', cx+10, topY+30);
+
+  // bob trail
+  for(let i=0;i<trail.length;i++){
+    const a=(i+1)/trail.length;
+    ctx.fillStyle='rgba(124,196,255,'+(0.10*a).toFixed(3)+')';
+    ctx.beginPath();ctx.arc(trail[i][0],trail[i][1],R*(0.5+0.4*a),0,7);ctx.fill();
+  }
+
+  // rod
+  const rg=ctx.createLinearGradient(cx,topY,bx,by);
+  rg.addColorStop(0,'rgba(207,232,255,.5)'); rg.addColorStop(1,'rgba(124,196,255,.85)');
+  ctx.strokeStyle=rg; ctx.lineWidth=3; ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(cx,topY);ctx.lineTo(bx,by);ctx.stroke();
+
+  // pivot
+  ctx.fillStyle='rgba(154,166,204,.5)';
+  ctx.beginPath();ctx.arc(cx,topY,5,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(154,166,204,.3)';ctx.lineWidth=6;
+  ctx.beginPath();ctx.moveTo(cx-22,topY);ctx.lineTo(cx+22,topY);ctx.stroke();
+
+  // bob (glossy sphere)
+  const halo=ctx.createRadialGradient(bx,by,1,bx,by,R*1.8);
+  halo.addColorStop(0,'rgba(124,196,255,.34)'); halo.addColorStop(1,'rgba(124,196,255,0)');
+  ctx.fillStyle=halo; ctx.beginPath();ctx.arc(bx,by,R*1.8,0,7);ctx.fill();
+  const g=ctx.createRadialGradient(bx-R*0.38,by-R*0.42,R*0.1,bx,by,R*1.05);
+  g.addColorStop(0,'#ffffff'); g.addColorStop(.18,'#cfe8ff'); g.addColorStop(.55,'#7cc4ff'); g.addColorStop(1,'rgba(124,196,255,.85)');
+  ctx.save(); ctx.shadowColor='rgba(124,196,255,.55)'; ctx.shadowBlur=22;
+  ctx.fillStyle=g; ctx.beginPath();ctx.arc(bx,by,R,0,7);ctx.fill(); ctx.restore();
+  ctx.fillStyle='rgba(255,255,255,.85)'; ctx.beginPath();ctx.arc(bx-R*0.34,by-R*0.36,R*0.13,0,7);ctx.fill();
+
+  // live speed readout
+  const speed=Math.abs(om*p.L);
+  ctx.fillStyle='rgba(124,196,255,.9)'; ctx.font='600 12px JetBrains Mono, monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(speed.toFixed(2)+' m/s', bx, by+R+8);
+}
+
+function drawEnergyBar(d,p){
+  const KE=0.5*p.m*Math.pow(om*p.L,2);
+  const PE=p.m*p.g*p.L*(1-Math.cos(th));
+  const E=KE+PE;
+  const E0=p.m*p.g*p.L*(1-Math.cos(p.th0));   // initial total (reference)
+  const x=24, y=20, w=d.w-48, h=12;
+  // track
+  ctx.fillStyle='rgba(255,255,255,.05)';
+  rrect(x,y,w,h,6);ctx.fill();
+  // current total width (shrinks with damping)
+  const tot=E0>1e-9?Math.min(1,E/E0):0;
+  const kFrac=E>1e-9?KE/E:0;
+  const wTot=w*tot;
+  // KE portion
+  ctx.fillStyle='#7cc4ff'; rrect(x,y,wTot*kFrac,h,6);ctx.fill();
+  // PE portion
+  ctx.fillStyle='#ffd27a'; rrect(x+wTot*kFrac,y,wTot*(1-kFrac),h,6);ctx.fill();
+  // label
+  ctx.fillStyle='rgba(154,166,204,.7)'; ctx.font='10px JetBrains Mono, monospace';
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('ENERGY  '+E.toFixed(1)+' J', x, y-3);
+  ctx.textAlign='right';
+  ctx.fillText('KE '+KE.toFixed(1)+'  ·  PE '+PE.toFixed(1)+' J', x+w, y-3);
+}
+function rrect(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+// ── loop ──
+let raf=null,last=null,playing=false;
+function loop(ts){
+  if(last==null)last=ts;
+  let dt=(ts-last)/1000; last=ts; if(dt>0.05)dt=0.05; dt*=(window.SLOWMO||1);
+  const sub=8; for(let i=0;i<sub;i++) integrate(dt/sub);
+  // trail in screen coords
+  const d={w:cv.clientWidth,h:Math.round(cv.clientWidth*0.6)};
+  const cx=d.w/2, topY=d.h*0.20, avail=d.h-topY-34, PPM=avail/3.0, Lpx=params().L*PPM;
+  trail.push([cx+Lpx*Math.sin(th), topY+Lpx*Math.cos(th)]);
+  if(trail.length>16)trail.shift();
+  render();
+  raf=requestAnimationFrame(loop);
+}
+function play(){ if(playing){cancelAnimationFrame(raf);playing=false;els.play.textContent='Swing ▶';return;}
+  playing=true; last=null; els.play.textContent='Pause ⏸'; raf=requestAnimationFrame(loop);}
+function reset(){ cancelAnimationFrame(raf); playing=false; els.play.textContent='Swing ▶';
+  initState(); statsCalc(); render();}
+
+// ── wiring ──
+function changed(){ if(!playing){initState();} statsCalc(); if(!playing)render();}
+function linkSlider(slider,num){slider.addEventListener('input',()=>{num.value=slider.value;changed();});}
+function linkNum(num,slider){
+  num.addEventListener('input',()=>{const v=parseFloat(num.value);
+    if(isFinite(v))slider.value=Math.min(+num.max,Math.max(+num.min,v)); changed();});
+  num.addEventListener('change',()=>{num.value=clampNum(num);slider.value=num.value;changed();});
+}
+linkSlider(els.L,els.LNum); linkSlider(els.ang,els.aNum); linkSlider(els.m,els.mNum); linkSlider(els.c,els.cNum);
+linkNum(els.LNum,els.L); linkNum(els.aNum,els.ang); linkNum(els.mNum,els.m); linkNum(els.cNum,els.c);
+
+document.getElementById('grav').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...e.currentTarget.children].forEach(c=>c.classList.remove('on'));
+  b.classList.add('on'); gravity=+b.dataset.g;
+  els.gCustom.value=''; els.gCustom.classList.remove('on'); changed();
+});
+els.gCustom.addEventListener('input',()=>{
+  const v=parseFloat(els.gCustom.value);
+  if(isFinite(v)&&v>0){gravity=v; els.gCustom.classList.add('on');
+    [...document.getElementById('grav').children].forEach(c=>c.classList.remove('on')); changed();}
+  else els.gCustom.classList.remove('on');
+});
+els.play.addEventListener('click',play);
+els.reset.addEventListener('click',reset);
+window.addEventListener('resize',()=>{if(!playing)render();});
+
+initState(); statsCalc(); render();
+</script>
+<script>
+window.SLOWMO=1;(function(){var sp=[1,0.5,0.25,0.1],i=0,b=document.createElement('button');
+b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13px;border-radius:11px;border:1px solid rgba(140,160,220,.35);background:rgba(16,18,34,.82);color:#cfe0ff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
+b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
+</script>
+</body>
+</html>
