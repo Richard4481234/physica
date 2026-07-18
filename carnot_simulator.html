@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Turn a temperature difference into work — and meet the ultimate limit on efficiency.">
+  <meta name="theme-color" content="#0b0e1a">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBiMGUxYSIvPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdjYzRmZiIgc3Ryb2tlLXdpZHRoPSIxLjciPjxlbGxpcHNlIGN4PSIxNiIgY3k9IjE2IiByeD0iMTEiIHJ5PSI0LjYiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSg2MCAxNiAxNikiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSgxMjAgMTYgMTYpIi8+PC9nPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjIuNiIgZmlsbD0iI2I4OWJmZiIvPjwvc3ZnPg==">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Physica">
+  <meta property="og:title" content="Heat Engine &amp; Carnot Cycle · Physica">
+  <meta property="og:description" content="Turn a temperature difference into work — and meet the ultimate limit on efficiency.">
+  <meta property="og:url" content="https://physica.knovay.com/carnot_simulator.html">
+  <meta property="og:image" content="https://physica.knovay.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Heat Engine &amp; Carnot Cycle · Physica">
+  <meta name="twitter:description" content="Turn a temperature difference into work — and meet the ultimate limit on efficiency.">
+  <meta name="twitter:image" content="https://physica.knovay.com/og-image.png">
 <title>Heat Engine &amp; Carnot Cycle · Physica</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -394,5 +407,81 @@ b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13p
 function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
 b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
 </script>
+<script>/* Physica motion & performance: prefers-reduced-motion + pause when tab hidden */
+(function(){
+  if(window.__physicaMP)return; window.__physicaMP=1;
+  var raf=window.requestAnimationFrame?window.requestAnimationFrame.bind(window):function(c){return setTimeout(function(){c(Date.now());},16);};
+  var frames=0, paused=!!document.hidden, rmHold=false, q=[], playBtn=null;
+  try{var mq=window.matchMedia('(prefers-reduced-motion: reduce)'); rmHold=!!(mq&&mq.matches);}catch(e){}
+  window.requestAnimationFrame=function(cb){
+    if(frames>1&&(paused||rmHold)){ if(rmHold&&!paused)ensurePlay(); q.push(cb); return -1; }
+    frames++; return raf(cb);
+  };
+  function flush(){ var a=q; q=[]; for(var i=0;i<a.length;i++) raf(a[i]); }
+  document.addEventListener('visibilitychange',function(){ var h=!!document.hidden; if(h===paused)return; paused=h; if(!paused&&!rmHold)flush(); });
+  function ensurePlay(){
+    if(playBtn||!document.body)return;
+    playBtn=document.createElement('button');
+    playBtn.textContent='\u25B6 Play animation';
+    playBtn.setAttribute('aria-label','Play animation \u2014 motion is reduced by your system settings');
+    playBtn.style.cssText='position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:99999;background:rgba(20,26,46,.92);color:#eef1fb;border:1px solid rgba(150,170,230,.55);font:500 13px Inter,system-ui,sans-serif;padding:9px 16px;border-radius:10px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -12px rgba(0,0,0,.8)';
+    playBtn.addEventListener('click',function(){ rmHold=false; if(playBtn){playBtn.remove(); playBtn=null;} if(!paused)flush(); });
+    document.body.appendChild(playBtn);
+  }
+  try{ var s=document.createElement('style'); s.textContent='@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}'; (document.head||document.documentElement).appendChild(s); }catch(e){}
+})();
+</script>
+<script>/* Physica favorites & private notes (localStorage, per-browser) */
+(function(){
+  if(window.__physicaFN)return; window.__physicaFN=1;
+  var KF='physica.favorites', KN='physica.notes';
+  var id=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  function load(k,d){ try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;} }
+  function save(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} }
+  function favs(){ return load(KF,[]); }
+  function isFav(){ return favs().indexOf(id)>-1; }
+  function toggleFav(){ var f=favs(),i=f.indexOf(id); if(i>-1)f.splice(i,1); else f.push(id); save(KF,f); paintFav(); }
+  function notesAll(){ return load(KN,{}); }
+  function getNote(){ return notesAll()[id]||''; }
+  function setNote(t){ var n=notesAll(); if(t)n[id]=t; else delete n[id]; save(KN,n); }
+  var title=(document.title||id).split(/\s+·\s+/)[0].trim();
+  function E(tag,css,htmlv){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(htmlv!=null)e.innerHTML=htmlv; return e; }
+
+  var BTN='display:flex;align-items:center;gap:7px;background:rgba(18,22,40,.86);color:#eef1fb;border:1px solid rgba(150,170,230,.35);font:500 13px Inter,system-ui,sans-serif;padding:9px 13px;border-radius:10px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)';
+  var wrap=E('div','position:fixed;right:18px;bottom:18px;z-index:9998;display:flex;gap:8px');
+  var favBtn=E('button',BTN), noteBtn=E('button',BTN);
+  favBtn.setAttribute('aria-label','Save this experiment as a favorite');
+  noteBtn.setAttribute('aria-label','Open your private notes for this experiment');
+  function paintFav(){ var on=isFav(); favBtn.innerHTML=(on?'★':'☆')+' <span>'+(on?'Favorited':'Favorite')+'</span>';
+    favBtn.style.borderColor=on?'rgba(255,210,122,.7)':'rgba(150,170,230,.35)'; favBtn.style.color=on?'#ffd27a':'#eef1fb'; }
+  function paintNote(){ var has=!!getNote(); noteBtn.innerHTML='✎ <span>Notes</span>'+(has?' <b style="color:#7cc4ff">•</b>':''); }
+  favBtn.addEventListener('click',toggleFav);
+  wrap.appendChild(favBtn); wrap.appendChild(noteBtn);
+
+  var panel=E('div','position:fixed;top:0;right:0;height:100%;width:min(390px,92vw);z-index:10000;transform:translateX(106%);transition:transform .28s ease;background:rgba(12,16,28,.98);border-left:1px solid rgba(150,170,230,.25);box-shadow:-24px 0 70px -34px rgba(0,0,0,.95);display:flex;flex-direction:column');
+  var head=E('div','padding:22px 22px 14px;border-bottom:1px solid rgba(150,170,230,.16)');
+  head.appendChild(E('div','font-family:Fraunces,Georgia,serif;font-size:20px;color:#eef1fb;margin-bottom:5px','Your notes'));
+  head.appendChild(E('div','font-size:12.5px;color:#9aa6cc;line-height:1.55','<b style="color:#cfd6ee;font-weight:600">'+title.replace(/</g,'&lt;')+'</b><br>Private to this browser · saved automatically'));
+  var ta=E('textarea','flex:1;border:0;outline:none;resize:none;background:transparent;color:#eef1fb;font:14.5px/1.7 Inter,system-ui,sans-serif;padding:18px 22px');
+  ta.setAttribute('placeholder','Jot anything — observations, formulas to remember, questions to revisit…');
+  var foot=E('div','padding:12px 22px 18px;border-top:1px solid rgba(150,170,230,.16);display:flex;justify-content:space-between;align-items:center');
+  var stat=E('span','font-size:11.5px;color:#6b76a0;font-family:JetBrains Mono,monospace','');
+  var closeB=E('button','background:rgba(124,196,255,.14);color:#dcebff;border:1px solid rgba(124,196,255,.4);font:500 13px Inter,system-ui,sans-serif;padding:8px 15px;border-radius:9px;cursor:pointer','Close');
+  foot.appendChild(stat); foot.appendChild(closeB);
+  panel.appendChild(head); panel.appendChild(ta); panel.appendChild(foot);
+  var open=false, tmr=null;
+  function openP(){ ta.value=getNote(); stat.textContent=getNote()?'saved':''; open=true; panel.style.transform='none'; setTimeout(function(){ta.focus();},260); }
+  function closeP(){ open=false; panel.style.transform='translateX(106%)'; }
+  noteBtn.addEventListener('click',function(){ open?closeP():openP(); });
+  closeB.addEventListener('click',closeP);
+  ta.addEventListener('input',function(){ stat.textContent='saving…'; clearTimeout(tmr); tmr=setTimeout(function(){ setNote(ta.value.trim()); stat.textContent='saved'; paintNote(); },300); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&open)closeP(); });
+
+  function mount(){ if(!document.body)return; document.body.appendChild(wrap); document.body.appendChild(panel); paintFav(); paintNote(); }
+  window.addEventListener('physica:change',function(){ paintFav(); paintNote(); if(open&&document.activeElement!==ta){ ta.value=getNote(); stat.textContent=getNote()?'saved':''; } });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount); else mount();
+})();
+</script>
+<script type="module" src="physica-app.js"></script>
 </body>
 </html>

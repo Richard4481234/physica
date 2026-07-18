@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A growing lab that spans the great branches of physics. Pick a field to step into its experiments — launch them, tune them, and watch the laws of nature play…">
+  <meta name="theme-color" content="#0b0e1a">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBiMGUxYSIvPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdjYzRmZiIgc3Ryb2tlLXdpZHRoPSIxLjciPjxlbGxpcHNlIGN4PSIxNiIgY3k9IjE2IiByeD0iMTEiIHJ5PSI0LjYiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSg2MCAxNiAxNikiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSgxMjAgMTYgMTYpIi8+PC9nPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjIuNiIgZmlsbD0iI2I4OWJmZiIvPjwvc3ZnPg==">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Physica">
+  <meta property="og:title" content="Physica · Interactive Physics Lab">
+  <meta property="og:description" content="A growing lab that spans the great branches of physics. Pick a field to step into its experiments — launch them, tune them, and watch the laws of nature play…">
+  <meta property="og:url" content="https://physica.knovay.com/index.html">
+  <meta property="og:image" content="https://physica.knovay.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Physica · Interactive Physics Lab">
+  <meta name="twitter:description" content="A growing lab that spans the great branches of physics. Pick a field to step into its experiments — launch them, tune them, and watch the laws of nature play…">
+  <meta name="twitter:image" content="https://physica.knovay.com/og-image.png">
 <title>Physica · Interactive Physics Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,6 +88,32 @@
 
   footer{max-width:1160px; margin:0 auto; padding:20px 28px 50px; color:var(--faint);
     font-size:13px; border-top:1px solid var(--glass-line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px}
+
+  .myfav{max-width:1160px; margin:0 auto; padding:6px 28px 0}
+  .myfav .fav-head{display:flex; align-items:baseline; gap:14px; margin-bottom:18px}
+  .myfav .fav-head h2{font-family:'Fraunces',serif; font-weight:500; font-size:24px; margin:0; display:flex; align-items:center; gap:9px}
+  .myfav .fav-head h2 .st{color:var(--gold)}
+  .myfav .fav-head .cnt{color:var(--faint); font-size:13px; font-family:'JetBrains Mono',monospace}
+  .myfav .fav-head .rule{flex:1; height:1px; background:var(--glass-line)}
+  .myfav .fav-head a{color:var(--accent); font-size:13px; font-family:'JetBrains Mono',monospace; white-space:nowrap}
+  .myfav .fav-head a:hover{color:var(--ink)}
+  .favgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px}
+  .fcell{position:relative}
+  .fcard{display:flex; gap:13px; align-items:flex-start; background:var(--glass); border:1px solid var(--glass-line);
+    border-radius:14px; padding:15px 44px 15px 17px; height:100%; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease}
+  .fcard:hover{transform:translateY(-3px); border-color:var(--hl,rgba(124,196,255,.4)); box-shadow:0 20px 44px -26px rgba(0,0,0,.9)}
+  .fdot{flex:none; width:9px; height:9px; border-radius:50%; margin-top:7px; box-shadow:0 0 10px -1px currentColor}
+  .fbody{min-width:0}
+  .ftop{display:flex; align-items:baseline; gap:10px; justify-content:space-between}
+  .fcard h3{font-family:'Fraunces',serif; font-weight:500; font-size:17px; margin:0; line-height:1.2}
+  .ffield{flex:none; font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; border:1px solid; border-radius:99px; padding:3px 8px; opacity:.9}
+  .fcard p{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .fstar{position:absolute; top:12px; right:12px; z-index:2; width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:rgba(10,14,26,.5); border:1px solid var(--glass-line); color:var(--gold); font-size:15px; line-height:1; cursor:pointer; transition:.15s; padding:0}
+  .fstar:hover{transform:scale(1.1); border-color:rgba(255,210,122,.6)}
+  .fnote{position:absolute; top:14px; right:48px; z-index:2; color:var(--accent); font-size:12px; display:none}
+  .fnote.show{display:block}
 </style>
 </head>
 <body>
@@ -93,7 +132,7 @@
     </div>
     <div class="links">
       <a href="#fields">Fields</a>
-      <a href="mechanics.html">Mechanical</a>
+      <a href="experiments.html">All experiments</a><a href="experiments.html#favorites">★ Favorites</a>
     </div>
   </nav>
 
@@ -104,10 +143,21 @@
        experiments — launch them, tune them, and watch the laws of nature play out in real time.</p>
   </header>
 
+  <section class="myfav" id="myFavs" style="display:none">
+    <div class="fav-head">
+      <h2><span class="st">★</span> My Favorites</h2>
+      <span class="cnt" id="favCount"></span>
+      <div class="rule"></div>
+      <a href="experiments.html#favorites">Manage all →</a>
+    </div>
+    <div class="favgrid" id="favGrid"></div>
+  </section>
+
+
   <section class="sec" id="fields">
     <div class="sec-head">
       <h2>Fields of Physics</h2>
-      <span>all 6 fields live · 64 experiments</span>
+      <span>all 6 fields live · 67 experiments</span><a href="experiments.html" style="margin-left:18px;color:var(--accent);font-size:13px;font-family:'JetBrains Mono',monospace;white-space:nowrap">Search all 67 →</a>
       <div class="rule"></div>
     </div>
 
@@ -215,13 +265,13 @@
         <div class="body">
           <h3>Modern</h3>
           <p>Physics beyond the classical world: the photoelectric effect, the quantum atom, and relativity.</p>
-          <div class="meta"><span>quantum · atomic · relativity</span><span class="go">Preview →</span></div>
+          <div class="meta"><span>quantum · atomic · relativity</span><span class="go">Enter →</span></div>
         </div>
       </a>
 
       <!-- FLUID -->
       <a class="card" href="fluids.html" style="--hl:rgba(86,204,222,.5)">
-        <span class="num">06</span><span class="badge live">4 experiments</span>
+        <span class="num">06</span><span class="badge live">7 experiments</span>
         <div class="art">
           <svg viewBox="0 0 360 158" preserveAspectRatio="xMidYMid slice">
             <rect width="360" height="158" fill="#0c1a22"/>
@@ -244,8 +294,48 @@
 
   <footer>
     <span>Physica · an interactive physics lab built for curiosity.</span>
-    <span>Four fields on the way.</span>
+    <span>More experiments always in the works.</span>
   </footer>
 
+
+  <script>
+  /* Physica "My Favorites" hub section (reads localStorage) */
+  (function(){
+    var DATA=[{"h":"projectile_simulator.html","t":"Projectile Motion","f":"Mechanical","c":"#7cc4ff","d":"An interactive study of a body in free flight under uniform gravity — no air resistance."},{"h":"newton_first_law.html","t":"Newton's First Law","f":"Mechanical","c":"#7cc4ff","d":"An object keeps doing what it's doing — staying still, or moving in a straight line at constant speed — until a net force changes it. Remove friction and a…"},{"h":"newton_second_law.html","t":"Newton's Second Law","f":"Mechanical","c":"#7cc4ff","d":"Push on a mass and it accelerates. The bigger the force the faster it speeds up; the heavier the object the more sluggishly it responds. Acceleration is…"},{"h":"newton_third_law.html","t":"Newton's Third Law","f":"Mechanical","c":"#7cc4ff","d":"Every contact force comes in a pair: the table pushes up on the book exactly as hard as the book presses down on the table — equal and opposite, and acting…"},{"h":"atwood_simulator.html","t":"Atwood Machine","f":"Mechanical","c":"#7cc4ff","d":"Two masses hang from a string over a pulley. The heavier one falls, dragging the lighter one up — but gently, because both masses share the same…"},{"h":"double_pendulum_simulator.html","t":"Double Pendulum","f":"Mechanical","c":"#7cc4ff","d":"Hang one pendulum from the end of another and the tidy, predictable swing gives way to wild, unrepeatable motion — the textbook example of deterministic…"},{"h":"standing_wave_simulator.html","t":"Standing Waves on a String","f":"Mechanical","c":"#7cc4ff","d":"Pin a string at both ends and only special \"resonant\" shapes survive — the harmonics. Each is really two waves travelling in opposite directions, frozen into…"},{"h":"projectile_drag_simulator.html","t":"Projectile with Air Drag","f":"Mechanical","c":"#7cc4ff","d":"In a vacuum every projectile traces a perfect parabola. Add air resistance and the path shrinks, tilts, and comes down steeper than it went up — real life…"},{"h":"doppler_simulator.html","t":"Doppler Effect","f":"Mechanical","c":"#7cc4ff","d":"A moving source runs into its own waves, packing them tighter ahead and stretching them behind — which is why a passing siren drops in pitch as it goes by…"},{"h":"beats_simulator.html","t":"Beats","f":"Mechanical","c":"#7cc4ff","d":"Sound two close notes together and they don't just blur — the combined loudness pulses, swelling and fading at a rate equal to the difference in their…"},{"h":"pendulum_simulator.html","t":"Pendulum","f":"Mechanical","c":"#7cc4ff","d":"A bob swinging under gravity — explore period, amplitude, damping and the energy exchange."},{"h":"spring_simulator.html","t":"Mass on a Spring","f":"Mechanical","c":"#7cc4ff","d":"Pull a mass on a spring and release it — the cleanest example of simple harmonic motion."},{"h":"energy_conservation_simulator.html","t":"Conservation of Energy","f":"Mechanical","c":"#7cc4ff","d":"A ball on a frictionless track trades height for speed — but its total energy never changes."},{"h":"circular_motion_simulator.html","t":"Circular Motion & Centripetal Force","f":"Mechanical","c":"#7cc4ff","d":"Whirl a mass in a circle and see the inward force that keeps it from flying off in a straight line."},{"h":"rolling_simulator.html","t":"Rolling Without Slipping","f":"Mechanical","c":"#7cc4ff","d":"Roll shapes down a ramp — which reaches the bottom first depends only on how their mass is distributed."},{"h":"angular_momentum_simulator.html","t":"Angular Momentum","f":"Mechanical","c":"#7cc4ff","d":"Pull the spinning weights inward and watch it whirl faster — the figure-skater effect."},{"h":"orbital_simulator.html","t":"Orbital Mechanics","f":"Mechanical","c":"#7cc4ff","d":"Launch a satellite around a star and trace the conic sections of Kepler's orbits."},{"h":"gravitation_simulator.html","t":"Gravitation: Force & Potential Energy","f":"Mechanical","c":"#7cc4ff","d":"Two masses pull on each other. Set their separation, or release them and watch energy convert."},{"h":"kepler_laws.html","t":"Kepler's Three Laws","f":"Mechanical","c":"#7cc4ff","d":"Before Newton explained why planets move as they do, Johannes Kepler discovered three precise rules describing how they move, drawn from decades of…"},{"h":"collision_simulator.html","t":"Collisions","f":"Mechanical","c":"#7cc4ff","d":"Two bodies on a frictionless track. Compare elastic, inelastic, and perfectly inelastic impacts."},{"h":"torque_lever_simulator.html","t":"Torque & Levers","f":"Mechanical","c":"#7cc4ff","d":"Slide two masses along a balanced beam and find the exact spot where they cancel. Torque is force times distance — which is why a child far from the pivot…"},{"h":"driven_oscillator_simulator.html","t":"Driven Oscillator & Resonance","f":"Mechanical","c":"#7cc4ff","d":"Push a mass on a spring with a rhythmic force and sweep the rhythm. Hit the system's natural frequency and tiny pushes build into huge swings — resonance…"},{"h":"friction_incline_simulator.html","t":"Friction on an Incline","f":"Mechanical","c":"#7cc4ff","d":"Tilt the ramp and watch static friction hold the block — right up to the critical angle tan θ = μs, where it breaks loose and slides on weaker kinetic…"},{"h":"center_of_mass_simulator.html","t":"Center of Mass","f":"Mechanical","c":"#7cc4ff","d":"Two bodies collide — or one blows apart — while a gold × tracks their center of mass. However violent the event, the × sails on in a perfectly straight line:…"},{"h":"kinetic_theory_simulator.html","t":"Kinetic Theory of Gases","f":"Thermal","c":"#ff8a5b","d":"Watch molecules collide, and see temperature, pressure and the Maxwell–Boltzmann distribution emerge."},{"h":"heat_conduction_simulator.html","t":"Heat Conduction","f":"Thermal","c":"#ff8a5b","d":"Hold the ends of a rod at fixed temperatures and watch heat flow from hot to cold."},{"h":"carnot_simulator.html","t":"Heat Engine & Carnot Cycle","f":"Thermal","c":"#ff8a5b","d":"Turn a temperature difference into work — and meet the ultimate limit on efficiency."},{"h":"entropy_simulator.html","t":"Entropy & Diffusion","f":"Thermal","c":"#ff8a5b","d":"Two gases start separated. Lift the partition and watch them mix — and entropy climb."},{"h":"first_law_simulator.html","t":"First Law of Thermodynamics","f":"Thermal","c":"#ff8a5b","d":"Add heat, push the piston, and watch energy balance the books: ΔU = Q − W."},{"h":"maxwell_boltzmann_simulator.html","t":"Maxwell–Boltzmann Distribution","f":"Thermal","c":"#ff8a5b","d":"In a gas the molecules don't all move at one speed — collisions constantly reshuffle their energy into a lop-sided bell curve of speeds. Heat the gas and the…"},{"h":"gas_laws_simulator.html","t":"Gas Laws","f":"Thermal","c":"#ff8a5b","d":"Squeeze a gas, heat it, add more of it — pressure, volume, temperature and amount all trade off through one tidy relationship: the ideal gas law, PV = NkT."},{"h":"blackbody_simulator.html","t":"Blackbody Radiation","f":"Thermal","c":"#ff8a5b","d":"Every warm object glows. The hotter it gets, the more it radiates and the bluer that glow becomes — a universal curve that connects a dying ember, the Sun…"},{"h":"phase_change_simulator.html","t":"Phase Changes & Latent Heat","f":"Thermal","c":"#ff8a5b","d":"Heat ice steadily and its temperature climbs — until it hits 0 °C, where it stalls. All the incoming energy goes into melting, not warming. Those flat…"},{"h":"coulomb_simulator.html","t":"Coulomb's Law & Field Lines","f":"Electromagnetism","c":"#b89bff","d":"Place charges, then watch the electric field lines and the forces they exert on each other."},{"h":"magnetic_force_simulator.html","t":"Charge in a Magnetic Field","f":"Electromagnetism","c":"#b89bff","d":"A magnetic field pushes a moving charge sideways, always at right angles to its motion. The result is a perfect circle — the basis of cyclotrons, mass…"},{"h":"circuit_simulator.html","t":"Circuit Builder","f":"Electromagnetism","c":"#b89bff","d":"Snap together batteries, resistors, bulbs and meters, then watch the current flow."},{"h":"em_wave_simulator.html","t":"Electromagnetic Waves","f":"Electromagnetism","c":"#b89bff","d":"Light is a self-sustaining ripple of electric and magnetic fields. They oscillate at right angles to each other and to the direction of travel, marching…"},{"h":"faraday_simulator.html","t":"Electromagnetic Induction","f":"Electromagnetism","c":"#b89bff","d":"Move a magnet near a coil and it drives a current — but only while it's moving. Faraday's law: a changing magnetic flux makes electricity, and the faster it…"},{"h":"rlc_simulator.html","t":"RLC Circuit & Resonance","f":"Electromagnetism","c":"#b89bff","d":"A resistor, inductor and capacitor driven by an AC source. At one special frequency they conspire to let a huge current through — resonance, the same trick…"},{"h":"rc_simulator.html","t":"RC Charging","f":"Electromagnetism","c":"#b89bff","d":"Connect a capacitor to a battery through a resistor and it fills with charge — fast at first, then ever more slowly, in the smooth exponential curve that…"},{"h":"motor_generator_simulator.html","t":"Motor & Generator","f":"Electromagnetism","c":"#b89bff","d":"The same machine, run both ways: feed a current through a loop in a magnetic field and it spins (motor); crank the loop by hand and it makes electricity…"},{"h":"capacitor_simulator.html","t":"Capacitor & Dielectrics","f":"Electromagnetism","c":"#b89bff","d":"Two parallel plates store charge and energy in the field between them. Resize the plates, stretch the gap, then slide a dielectric slab in — and see why what…"},{"h":"transformer_simulator.html","t":"Transformer","f":"Electromagnetism","c":"#b89bff","d":"Two coils share one iron core, coupled only by magnetic flux. The turns ratio sets the voltage ratio — step it up or step it down — while the power flowing…"},{"h":"lc_oscillator_simulator.html","t":"LC Oscillator","f":"Electromagnetism","c":"#b89bff","d":"Charge a capacitor, connect it to an inductor, and the energy sloshes back and forth forever — electric field to magnetic field and back — the…"},{"h":"reflection_simulator.html","t":"Reflection of Light","f":"Optical","c":"#7cc4ff","d":"Bounce light off a mirror — the angle in equals the angle out, every time."},{"h":"refraction_simulator.html","t":"Refraction & Snell's Law","f":"Optical","c":"#7cc4ff","d":"Light bends as it crosses between materials — and can be trapped entirely inside the denser one."},{"h":"mirror_simulator.html","t":"Mirror Ray Diagrams","f":"Optical","c":"#7cc4ff","d":"Place an object in front of a curved mirror and trace the principal rays to find the image. Watch it flip between a real, inverted image and a virtual…"},{"h":"lens_simulator.html","t":"Lens Ray Diagrams","f":"Optical","c":"#7cc4ff","d":"Place an object near a thin lens and trace the three principal rays to locate its image — a real, inverted projection or a magnified, upright virtual image…"},{"h":"double_slit_simulator.html","t":"Double-Slit Interference","f":"Optical","c":"#7cc4ff","d":"Light passing through two narrow slits spreads out and overlaps, adding up to bright and dark bands on a screen — Young's experiment, the clearest proof that…"},{"h":"single_slit_simulator.html","t":"Single-Slit Diffraction","f":"Optical","c":"#7cc4ff","d":"A single narrow slit bends light into a broad central bright band flanked by progressively fainter side fringes — diffraction, the spreading of waves when…"},{"h":"dispersion_simulator.html","t":"Dispersion & the Spectrum","f":"Optical","c":"#7cc4ff","d":"White light is a mixture of every colour. A glass prism bends each colour by a slightly different amount — violet most, red least — so the beam fans out into…"},{"h":"polarization_simulator.html","t":"Polarization & Malus's Law","f":"Optical","c":"#7cc4ff","d":"Light's electric field can point in any transverse direction. A polarizer lets through only one direction — so chaining filters at different angles dims…"},{"h":"diffraction_grating_simulator.html","t":"Diffraction Grating","f":"Optical","c":"#7cc4ff","d":"Start with two slits and add more, one by one. The bright fringes stay exactly where they were — but grow taller and razor-thin, turning soft interference…"},{"h":"thin_film_simulator.html","t":"Thin-Film Interference","f":"Optical","c":"#7cc4ff","d":"Light bouncing off the top and bottom of a soap film races itself — and the winner depends on the colour. Tune the thickness and watch wavelengths cancel and…"},{"h":"photoelectric_simulator.html","t":"Photoelectric Effect","f":"Modern","c":"#62d2a2","d":"Shine light on a metal and, if each photon carries enough energy, electrons are knocked free. Brightness changes how many — but only the colour (frequency)…"},{"h":"bohr_model_simulator.html","t":"Bohr Model of the Atom","f":"Modern","c":"#62d2a2","d":"An electron may orbit the nucleus only in certain fixed shells. When it jumps between them it emits or absorbs a single photon — and the colours of those…"},{"h":"special_relativity_simulator.html","t":"Special Relativity","f":"Modern","c":"#62d2a2","d":"Because the speed of light is the same for everyone, a moving clock must tick slower and a moving object must shrink along its motion. Speed the ship toward…"},{"h":"quantum_well_simulator.html","t":"Quantum Well","f":"Modern","c":"#62d2a2","d":"Trap a particle between two walls and quantum mechanics takes over: it can only hold certain discrete energies, and at each one it spreads out as a standing…"},{"h":"black_hole_simulator.html","t":"Black Hole","f":"Modern","c":"#62d2a2","d":"Gravity so strong that not even light escapes. Around it, spacetime is bent enough to warp the stars behind into a glowing ring and to make time itself crawl…"},{"h":"radioactive_decay_simulator.html","t":"Radioactive Decay & Half-Life","f":"Modern","c":"#62d2a2","d":"Every atom decays completely at random — yet the population follows a perfectly smooth exponential law. Watch hundreds of individual dice-rolls add up to N =…"},{"h":"buoyancy_simulator.html","t":"Buoyancy & Archimedes' Principle","f":"Fluid","c":"#56ccde","d":"Drop an object into a fluid and see whether it floats or sinks — and the upward force that decides."},{"h":"bernoulli_simulator.html","t":"Bernoulli's Principle","f":"Fluid","c":"#56ccde","d":"Squeeze a flow through a narrow throat: it speeds up, and its pressure drops."},{"h":"pascal_simulator.html","t":"Pascal's Principle","f":"Fluid","c":"#56ccde","d":"Press a small piston and lift a great weight — the hydraulic multiplier explained."},{"h":"viscosity_turbulence_simulator.html","t":"Viscosity & Turbulence","f":"Fluid","c":"#56ccde","d":"Watch fluid stream past a cylinder. Turn viscosity up and the flow glides past in smooth laminar sheets; turn it down and the wake breaks into a marching…"},{"h":"stokes_drag_simulator.html","t":"Stokes Drag & Terminal Velocity","f":"Fluid","c":"#56ccde","d":"Drop a sphere into a thick fluid and it does not accelerate forever. Drag climbs with speed until it exactly cancels gravity, and the sphere coasts at a…"},{"h":"poiseuille_simulator.html","t":"Poiseuille Flow","f":"Fluid","c":"#56ccde","d":"Push a viscous fluid steadily through a pipe and it does not slide as a block — it flows fastest down the middle and clings to the walls, tracing a perfect…"},{"h":"surface_tension_simulator.html","t":"Surface Tension & Capillary Rise","f":"Fluid","c":"#56ccde","d":"A liquid's skin behaves like a stretched elastic sheet. Dip a narrow tube and that skin hauls the whole column upward against gravity — climbing higher the…"}];
+    var KF='physica.favorites', KN='physica.notes';
+    function load(k,d){ try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;} }
+    function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    var sec=document.getElementById('myFavs'), grid=document.getElementById('favGrid'), cnt=document.getElementById('favCount');
+    var by={}; DATA.forEach(function(x){by[x.h]=x;});
+    function render(){
+      var favs=load(KF,[]), notes=load(KN,{});
+      var items=favs.slice().reverse().map(function(h){return by[h];}).filter(Boolean);
+      if(!items.length){ sec.style.display='none'; return; }
+      sec.style.display='';
+      cnt.textContent=items.length+(items.length===1?' experiment':' experiments');
+      grid.innerHTML=items.map(function(x){
+        var hn=!!notes[x.h];
+        return '<div class="fcell" data-h="'+esc(x.h)+'">'
+          +'<a class="fcard" href="'+esc(x.h)+'" style="--hl:'+x.c+'66"><span class="fdot" style="background:'+x.c+'"></span>'
+          +'<div class="fbody"><div class="ftop"><h3>'+esc(x.t)+'</h3>'
+          +'<span class="ffield" style="color:'+x.c+';border-color:'+x.c+'55">'+esc(x.f)+'</span></div>'
+          +'<p>'+esc(x.d)+'</p></div></a>'
+          +'<button class="fstar" aria-label="Remove from favorites" title="Remove from favorites">★</button>'
+          +'<span class="fnote'+(hn?' show':'')+'" title="You have notes on this experiment">✎</span></div>';
+      }).join('');
+    }
+    grid.addEventListener('click',function(e){
+      var st=e.target.closest&&e.target.closest('.fstar'); if(!st)return;
+      e.preventDefault(); e.stopPropagation();
+      var h=st.closest('.fcell').dataset.h, f=load(KF,[]), i=f.indexOf(h);
+      if(i>-1)f.splice(i,1); try{localStorage.setItem(KF,JSON.stringify(f));}catch(e){} render();
+    });
+    render();
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden)render(); });
+    window.addEventListener('physica:change',render);
+  })();
+  </script>
+
+<script type="module" src="physica-app.js"></script>
 </body>
 </html>

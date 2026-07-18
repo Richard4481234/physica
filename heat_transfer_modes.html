@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Heat always flows from hot to cold — but it can travel by several different mechanisms. Each panel below animates one of them so you can see how the energy…">
+  <meta name="theme-color" content="#0b0e1a">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBiMGUxYSIvPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdjYzRmZiIgc3Ryb2tlLXdpZHRoPSIxLjciPjxlbGxpcHNlIGN4PSIxNiIgY3k9IjE2IiByeD0iMTEiIHJ5PSI0LjYiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSg2MCAxNiAxNikiLz48ZWxsaXBzZSBjeD0iMTYiIGN5PSIxNiIgcng9IjExIiByeT0iNC42IiB0cmFuc2Zvcm09InJvdGF0ZSgxMjAgMTYgMTYpIi8+PC9nPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjIuNiIgZmlsbD0iI2I4OWJmZiIvPjwvc3ZnPg==">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Physica">
+  <meta property="og:title" content="The Modes of Heat Transfer · Physica">
+  <meta property="og:description" content="Heat always flows from hot to cold — but it can travel by several different mechanisms. Each panel below animates one of them so you can see how the energy…">
+  <meta property="og:url" content="https://physica.knovay.com/heat_transfer_modes.html">
+  <meta property="og:image" content="https://physica.knovay.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Modes of Heat Transfer · Physica">
+  <meta name="twitter:description" content="Heat always flows from hot to cold — but it can travel by several different mechanisms. Each panel below animates one of them so you can see how the energy…">
+  <meta name="twitter:image" content="https://physica.knovay.com/og-image.png">
 <title>The Modes of Heat Transfer · Physica</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -294,5 +307,30 @@ b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:60;padding:9px 13p
 function u(){window.SLOWMO=sp[i];b.textContent=window.SLOWMO===1?'⏱ Speed 1×':'🐢 '+window.SLOWMO+'×';b.style.color=window.SLOWMO===1?'#cfe0ff':'#7cc4ff';b.style.borderColor=window.SLOWMO===1?'rgba(140,160,220,.35)':'#7cc4ff';}
 b.onclick=function(){i=(i+1)%sp.length;u();};u();document.body.appendChild(b);})();
 </script>
+<script>/* Physica motion & performance: prefers-reduced-motion + pause when tab hidden */
+(function(){
+  if(window.__physicaMP)return; window.__physicaMP=1;
+  var raf=window.requestAnimationFrame?window.requestAnimationFrame.bind(window):function(c){return setTimeout(function(){c(Date.now());},16);};
+  var frames=0, paused=!!document.hidden, rmHold=false, q=[], playBtn=null;
+  try{var mq=window.matchMedia('(prefers-reduced-motion: reduce)'); rmHold=!!(mq&&mq.matches);}catch(e){}
+  window.requestAnimationFrame=function(cb){
+    if(frames>1&&(paused||rmHold)){ if(rmHold&&!paused)ensurePlay(); q.push(cb); return -1; }
+    frames++; return raf(cb);
+  };
+  function flush(){ var a=q; q=[]; for(var i=0;i<a.length;i++) raf(a[i]); }
+  document.addEventListener('visibilitychange',function(){ var h=!!document.hidden; if(h===paused)return; paused=h; if(!paused&&!rmHold)flush(); });
+  function ensurePlay(){
+    if(playBtn||!document.body)return;
+    playBtn=document.createElement('button');
+    playBtn.textContent='\u25B6 Play animation';
+    playBtn.setAttribute('aria-label','Play animation \u2014 motion is reduced by your system settings');
+    playBtn.style.cssText='position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:99999;background:rgba(20,26,46,.92);color:#eef1fb;border:1px solid rgba(150,170,230,.55);font:500 13px Inter,system-ui,sans-serif;padding:9px 16px;border-radius:10px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -12px rgba(0,0,0,.8)';
+    playBtn.addEventListener('click',function(){ rmHold=false; if(playBtn){playBtn.remove(); playBtn=null;} if(!paused)flush(); });
+    document.body.appendChild(playBtn);
+  }
+  try{ var s=document.createElement('style'); s.textContent='@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}'; (document.head||document.documentElement).appendChild(s); }catch(e){}
+})();
+</script>
+<script type="module" src="physica-app.js"></script>
 </body>
 </html>
