@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 /* ---- config (apiKey is a public identifier; security is enforced by Firestore rules) ---- */
@@ -219,6 +219,34 @@ function buildUI() {
   document.body.appendChild(ov);
 
   paintChip();
+  initVisitCounter();
+}
+
+/* =========================================================================
+   VISIT COUNTER — global, server-side (Firestore stats/site.visits)
+   Displays live in #visitCount if present (hub). Counts once per browser session.
+   ========================================================================= */
+function initVisitCounter() {
+  var el = document.getElementById('visitCount');
+  if (!el || !db) return;
+  var ref = doc(db, 'stats', 'site');
+  // Live display — ticks up as other visitors arrive.
+  onSnapshot(ref,
+    function (s) {
+      var v = (s.exists() && typeof s.data().visits === 'number') ? s.data().visits : 0;
+      el.textContent = v.toLocaleString();
+      var line = document.getElementById('visitLine'); if (line) line.style.visibility = 'visible';
+    },
+    function (e) { console.warn('[physica] visit counter read:', e && (e.code || e.message)); }
+  );
+  // Count this visit once per browser session.
+  try {
+    if (!sessionStorage.getItem('physica.counted')) {
+      sessionStorage.setItem('physica.counted', '1');
+      setDoc(ref, { visits: increment(1) }, { merge: true })
+        .catch(function (e) { console.warn('[physica] visit counter write:', e && (e.code || e.message)); });
+    }
+  } catch (e) { /* sessionStorage unavailable — skip counting, still displays */ }
 }
 
 function paintChip() {
