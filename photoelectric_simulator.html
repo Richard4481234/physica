@@ -527,5 +527,21 @@ fit(); setSwatch(); updateStats(); requestAnimationFrame(loop);
 })();
 </script>
 <script type="module" src="physica-app.js"></script>
+<style>
+.phx{--a:var(--accent,#7cc4ff);padding:6px 20px 64px;display:flex;justify-content:center;font-family:Inter,system-ui,sans-serif}
+.phx-box{width:100%;max-width:760px;background:rgba(255,255,255,.02);border:1px solid rgba(150,170,230,.15);border-radius:16px;padding:26px 28px}
+.phx-kicker{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--a);margin-bottom:12px}
+.phx-lead{font-size:15px;line-height:1.72;color:#cfd6ee;margin:0 0 20px}
+.phx-eq{font-family:'JetBrains Mono',monospace;font-size:20px;color:#eef1fb;text-align:center;padding:16px;margin:0 0 20px;background:rgba(124,196,255,.06);border:1px solid rgba(124,196,255,.16);border-radius:12px}
+.phx-eq sub{font-size:.66em;vertical-align:-.25em}.phx-eq sup{font-size:.66em}
+.phx-vars{display:grid;grid-template-columns:1fr 1fr;gap:7px 24px;margin:0 0 22px}
+.phx-vars>div{display:flex;gap:9px;align-items:baseline;font-size:13px}
+.phx-vars dt{font-family:'JetBrains Mono',monospace;color:var(--a);white-space:nowrap;margin:0}
+.phx-vars dd{margin:0;color:#9aa6cc;line-height:1.5}
+.phx-try-h{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8aa0c8;margin-bottom:9px}
+.phx-try ul{margin:0;padding-left:18px;color:#cfd6ee;font-size:13.5px;line-height:1.7}
+.phx-try li{margin-bottom:5px}
+@media(max-width:560px){.phx-vars{grid-template-columns:1fr}}
+</style><section class="phx" aria-label="The physics behind this experiment"><div class="phx-box"><div class="phx-kicker">The physics</div><p class="phx-lead">Shine light on a metal and it can eject electrons — but only if each photon carries enough energy. Below a threshold frequency no electrons appear no matter how bright the light; above it, brighter light frees more electrons while higher frequency makes them faster. This stubborn threshold is what forced physics to accept that light arrives in quantized packets.</p><div class="phx-eq">K<sub>max</sub> = hf − φ</div><dl class="phx-vars"><div><dt>K<sub>max</sub></dt><dd>max kinetic energy of an ejected electron</dd></div><div><dt>h</dt><dd>Planck&#39;s constant, 6.63×10⁻³⁴ J·s</dd></div><div><dt>f</dt><dd>frequency of the light (Hz)</dd></div><div><dt>φ</dt><dd>work function — energy binding electrons to the metal</dd></div></dl><div class="phx-try"><span class="phx-try-h">Try this</span><ul><li>Drop the frequency below threshold — turn intensity all the way up and still nothing comes out.</li><li>Raise the intensity — more electrons flow, but their maximum speed doesn&#39;t change.</li><li>Raise the frequency — ejected electrons leave with more energy (higher K_max).</li></ul></div></div></section>
 </body>
 </html>
