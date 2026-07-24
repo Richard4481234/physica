@@ -339,11 +339,30 @@
 
 <script type="module" src="physica-app.js"></script>
 
-<!-- "Report an issue" button — floating; opens a comment box that emails the Knovay team. -->
+<!-- Feedback writer: issue reports go straight to Firestore (physica-69f62/feedback), no email app. -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  var KVPHYS = { apiKey:"AIzaSyDqdhi8AAnjNyOR0sWkdr5_fC1_wmy4F-o", authDomain:"physica-69f62.firebaseapp.com",
+    projectId:"physica-69f62", storageBucket:"physica-69f62.firebasestorage.app",
+    messagingSenderId:"335856818743", appId:"1:335856818743:web:6979546a0e3cbb60aabdb2" };
+  var kvDb = getFirestore(initializeApp(KVPHYS, "kvfeedback"));
+  window.knovayFeedback = function(payload){
+    payload = payload || {};
+    return addDoc(collection(kvDb, "feedback"), {
+      message: String(payload.message || ""), email: String(payload.email || ""),
+      site: String(payload.site || "Physica"), page: String(payload.page || ""),
+      ua: String(payload.ua || ""), createdAt: serverTimestamp()
+    });
+  };
+</script>
+
+<!-- "Report an issue" button — floating; opens a comment box that submits straight to Firestore (no email app). -->
 <script>
 (function(){
   if (window.__knovayReport) return; window.__knovayReport = true;
-  var TO="lirichard448@gmail.com,knovay2@gmail.com", SITE="Physica", ACCENT="#4f6bed", BOTTOM="18px";
+  var SITE="Physica", ACCENT="#4f6bed", BOTTOM="18px";
   function ready(fn){ if(document.body) fn(); else document.addEventListener("DOMContentLoaded",fn); }
   function injectStyle(){
     if(document.getElementById("kv-report-style")) return;
@@ -368,7 +387,9 @@
       ".kv-cancel:hover{border-color:#9aa0aa;color:#1a1a1a;}",
       ".kv-send{background:"+ACCENT+";color:#fff;}",
       ".kv-send:hover{filter:brightness(1.06);}",
-      ".kv-send:disabled{opacity:.5;cursor:default;}"
+      ".kv-send:disabled{opacity:.5;cursor:default;}",
+      "#kv-report-actions .kv-status{flex:1;text-align:left;font-size:12px;color:#c0392b;line-height:1.35;}",
+      ".kv-ok{width:46px;height:46px;border-radius:50%;background:#e7f7ee;color:#1e7a3c;display:grid;place-items:center;font-size:24px;font-weight:800;margin:2px 0 12px;}"
     ].join("");
     var s=document.createElement("style"); s.id="kv-report-style"; s.textContent=css; document.head.appendChild(s);
   }
@@ -381,7 +402,7 @@
   function buildModal(){
     var ex=document.getElementById("kv-report-ov"); if(ex) return ex;
     var ov=document.createElement("div"); ov.id="kv-report-ov"; ov.setAttribute("role","dialog"); ov.setAttribute("aria-modal","true"); ov.setAttribute("aria-label","Report an issue");
-    ov.innerHTML='<div id="kv-report-card"><h3>Report an issue</h3><p class="kv-sub">Spotted a bug, a wrong answer, or something confusing? Tell us — it goes straight to the Knovay team.</p><div class="kv-row"><label for="kv-msg">Your comment</label><textarea id="kv-msg" placeholder="Describe the issue…"></textarea></div><div class="kv-row"><label for="kv-email">Your email (optional)</label><input id="kv-email" type="email" placeholder="so we can reply"></div><div id="kv-report-actions"><button class="kv-btn kv-cancel" type="button">Cancel</button><button class="kv-btn kv-send" type="button" disabled>Send report</button></div></div>';
+    ov.innerHTML='<div id="kv-report-card"><h3>Report an issue</h3><p class="kv-sub">Spotted a bug, a wrong answer, or something confusing? Tell us — it goes straight to the Knovay team.</p><div class="kv-row"><label for="kv-msg">Your comment</label><textarea id="kv-msg" placeholder="Describe the issue…"></textarea></div><div class="kv-row"><label for="kv-email">Your email (optional)</label><input id="kv-email" type="email" placeholder="so we can reply"></div><div id="kv-report-actions"><span class="kv-status" aria-live="polite"></span><button class="kv-btn kv-cancel" type="button">Cancel</button><button class="kv-btn kv-send" type="button" disabled>Send report</button></div></div>';
     document.body.appendChild(ov);
     var msg=ov.querySelector("#kv-msg"), email=ov.querySelector("#kv-email"), send=ov.querySelector(".kv-send"), cancel=ov.querySelector(".kv-cancel");
     msg.addEventListener("input",function(){ send.disabled=msg.value.trim().length===0; });
@@ -391,13 +412,28 @@
     document.addEventListener("keydown",function(e){ if(e.key==="Escape" && ov.classList.contains("on")) closeModal(); });
     return ov;
   }
-  function openModal(){ injectStyle(); var ov=buildModal(); ov.classList.add("on"); var m=ov.querySelector("#kv-msg"); if(m) setTimeout(function(){ try{m.focus();}catch(e){} },30); }
+  function openModal(){
+    injectStyle();
+    var old=document.getElementById("kv-report-ov"); if(old && old.parentNode) old.parentNode.removeChild(old);
+    var ov=buildModal(); ov.classList.add("on");
+    var m=ov.querySelector("#kv-msg"); if(m) setTimeout(function(){ try{m.focus();}catch(e){} },30);
+  }
   function closeModal(){ var ov=document.getElementById("kv-report-ov"); if(ov) ov.classList.remove("on"); }
   function submit(comment,replyEmail){
     comment=(comment||"").trim(); if(!comment) return; replyEmail=(replyEmail||"").trim();
-    var body="Comment:\r\n"+comment+"\r\n\r\n"+(replyEmail?("Reply to: "+replyEmail+"\r\n"):"")+"Page: "+location.href+"\r\n"+"Site: "+SITE+"\r\n"+"When: "+new Date().toString()+"\r\n"+"Browser: "+navigator.userAgent;
-    var url="mailto:"+TO+"?subject="+encodeURIComponent("Knovay issue report — "+SITE)+"&body="+encodeURIComponent(body);
-    try{ window.location.href=url; }catch(e){} closeModal();
+    var ov=document.getElementById("kv-report-ov"); if(!ov) return;
+    var send=ov.querySelector(".kv-send"), status=ov.querySelector(".kv-status");
+    if(status) status.textContent="";
+    if(send){ send.disabled=true; send.textContent="Sending…"; }
+    var payload={ message:comment, email:replyEmail, site:SITE, page:location.href, ua:navigator.userAgent };
+    function fail(){ if(send){ send.disabled=false; send.textContent="Send report"; } if(status) status.textContent="Couldn't send just now — please try again."; }
+    try{ if(typeof window.knovayFeedback==="function"){ window.knovayFeedback(payload).then(showThanks, fail); } else { fail(); } }catch(e){ fail(); }
+  }
+  function showThanks(){
+    var ov=document.getElementById("kv-report-ov"); if(!ov) return;
+    var card=ov.querySelector("#kv-report-card"); if(!card) return;
+    card.innerHTML='<div class="kv-ok" aria-hidden="true">&#10003;</div><h3>Thanks for the report!</h3><p class="kv-sub">It went straight to the Knovay team — we appreciate you taking the time.</p><div id="kv-report-actions"><button class="kv-btn kv-send kv-done" type="button">Close</button></div>';
+    var d=card.querySelector(".kv-done"); if(d) d.addEventListener("click", closeModal);
   }
   ready(function(){ injectStyle(); buildButton(); });
 })();
