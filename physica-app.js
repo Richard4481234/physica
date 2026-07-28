@@ -158,6 +158,12 @@ const CSS = `
 .pxa-sw-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex:none;line-height:1}
 .pxa-sw-cur{font-weight:700}
 .pxa-sw-tick{margin-left:auto;color:#7cc4ff;font-size:13px}
+.pxa-copy{display:flex;align-items:center;gap:7px;background:rgba(18,22,40,.86);color:#eef1fb;
+  border:1px solid rgba(150,170,230,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
+  cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
+.pxa-copy:hover{border-color:rgba(124,196,255,.6)}
+.pxa-copy svg{display:block;flex:0 0 auto}
+@media (max-width:600px){.pxa-copy span{display:none}}
 @media (max-width:520px){.pxa-sw-btn span:not(.pxa-sw-chev){display:none}}
 #pxa-ov{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;
   background:rgba(4,7,14,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -242,17 +248,80 @@ function buildLabSwitcher() {
   return wrap;
 }
 
+/* ---- copy-link-to-setup: share a simulator at its current settings ----
+   Encodes the page's control values into ?setup= and restores them on load.
+   Only appears on pages that actually have tunable controls (the simulators). */
+function pxaOwnUI(c) { return c.closest && (c.closest('#pxa-ov') || c.closest('#pxa-top') || c.closest('#kv-report-ov')); }
+function collectState() {
+  var out = {};
+  document.querySelectorAll('input[id], select[id]').forEach(function (c) {
+    if (pxaOwnUI(c)) return;                       // skip our own account / switcher / report inputs
+    var t = (c.type || '').toLowerCase();
+    if (t === 'checkbox') out[c.id] = c.checked ? 1 : 0;
+    else if (t === 'radio') { if (c.checked) out[c.id] = c.value; }
+    else out[c.id] = c.value;
+  });
+  return out;
+}
+function applyState(obj) {
+  Object.keys(obj).forEach(function (id) {
+    var c = document.getElementById(id);
+    if (!c || pxaOwnUI(c)) return;
+    var t = (c.type || '').toLowerCase();
+    if (t === 'checkbox') c.checked = (obj[id] == 1);
+    else if (t === 'radio') c.checked = (String(c.value) === String(obj[id]));
+    else c.value = obj[id];
+    try { c.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+    try { c.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+  });
+}
+function applyStateFromURL() {
+  try {
+    var raw = new URLSearchParams(location.search).get('setup');
+    if (!raw) return;
+    var obj = JSON.parse(raw);
+    if (obj && typeof obj === 'object') applyState(obj);
+  } catch (e) {}
+}
+function fallbackCopy(text, ok) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    if (ok) ok();
+  } catch (e) {}
+}
+function buildCopyLink() {
+  var b = el('button', { type: 'button', class: 'pxa-copy', 'aria-label': 'Copy a link to this setup' },
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 13a4 4 0 0 0 5.66 0l3-3a4 4 0 1 0-5.66-5.66l-1.5 1.5M14 11a4 4 0 0 0-5.66 0l-3 3a4 4 0 1 0 5.66 5.66l1.5-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Copy link</span>');
+  b.addEventListener('click', function () {
+    var url = location.origin + location.pathname + '?setup=' + encodeURIComponent(JSON.stringify(collectState()));
+    function ok() { var t = b.querySelector('span'); if (t) { var old = t.textContent; t.textContent = 'Copied ✓'; setTimeout(function () { t.textContent = old; }, 1600); } }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, function () { fallbackCopy(url, ok); });
+    else fallbackCopy(url, ok);
+  });
+  return b;
+}
+
 function buildUI() {
   if (document.getElementById('pxa-chip')) return;
   document.head.appendChild(el('style', null, CSS));
 
   const top = el('div', { id: 'pxa-top' });
+  const hasControls = document.querySelector('input[type=range], input[type=number], select');
+  if (hasControls) top.appendChild(buildCopyLink());                        // simulators only
   if (!document.getElementById('psw')) top.appendChild(buildLabSwitcher());  // hub already has an inline switcher
 
   chip = el('button', { id: 'pxa-chip', 'aria-label': 'Account' });
   chip.addEventListener('click', openModal);
   top.appendChild(chip);
   document.body.appendChild(top);
+
+  if (hasControls) {
+    if (document.readyState === 'complete') setTimeout(applyStateFromURL, 90);
+    else window.addEventListener('load', function () { setTimeout(applyStateFromURL, 90); });
+  }
 
   ov = el('div', { id: 'pxa-ov' });
   modal = el('div', { id: 'pxa-modal' });
