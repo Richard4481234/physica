@@ -356,11 +356,14 @@ function buildUI() {
 function initVisitCounter() {
   var el = document.getElementById('visitCount');
   if (!el || !db) return;
+  try { var cv = parseInt(localStorage.getItem('physica.vc') || '', 10);   // instant paint from cache (no "—" flash on repeat visits)
+        if (!isNaN(cv)) { el.textContent = cv.toLocaleString(); var l0 = document.getElementById('visitLine'); if (l0) l0.style.visibility = 'visible'; } } catch (e) {}
   var ref = doc(db, 'stats', 'site');
   // Live display — ticks up as other visitors arrive.
   onSnapshot(ref,
     function (s) {
       var v = (s.exists() && typeof s.data().visits === 'number') ? s.data().visits : 0;
+      try { localStorage.setItem('physica.vc', String(v)); } catch (e) {}
       el.textContent = v.toLocaleString();
       var line = document.getElementById('visitLine'); if (line) line.style.visibility = 'visible';
     },
