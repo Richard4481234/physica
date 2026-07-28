@@ -131,7 +131,8 @@ if (auth) {
    UI — floating chip + modal (works on every page regardless of its nav)
    ========================================================================= */
 const CSS = `
-#pxa-chip{position:fixed;top:14px;right:16px;z-index:9997;display:flex;align-items:center;gap:8px;
+#pxa-top{position:fixed;top:14px;right:16px;z-index:9997;display:flex;align-items:center;gap:8px}
+#pxa-chip{display:flex;align-items:center;gap:8px;
   background:rgba(18,22,40,.86);color:#eef1fb;border:1px solid rgba(150,170,230,.35);
   font:600 13px Inter,system-ui,sans-serif;padding:8px 13px;border-radius:99px;cursor:pointer;
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
@@ -139,6 +140,25 @@ const CSS = `
 #pxa-chip .pxa-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font:700 12px Inter,sans-serif;color:#08111e;background:linear-gradient(135deg,#8fd0ff,#b89bff);
   background-size:cover;background-position:center;overflow:hidden;flex:0 0 auto}
+.pxa-sw{position:relative}
+.pxa-sw-btn{display:flex;align-items:center;gap:7px;background:rgba(18,22,40,.86);color:#eef1fb;
+  border:1px solid rgba(150,170,230,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
+  cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
+.pxa-sw-btn:hover{border-color:rgba(124,196,255,.6)}
+.pxa-sw-btn svg{display:block;flex:0 0 auto}
+.pxa-sw-chev{font-size:10px;color:#9aa6cc;transition:transform .15s}
+.pxa-sw.open .pxa-sw-chev{transform:rotate(180deg)}
+.pxa-sw-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:188px;background:#141a2e;
+  border:1px solid rgba(150,170,230,.28);border-radius:13px;box-shadow:0 20px 50px -14px rgba(0,0,0,.78);
+  padding:6px;display:none;z-index:10000}
+.pxa-sw.open .pxa-sw-menu{display:block}
+.pxa-sw-menu a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;text-decoration:none;
+  color:#eef1fb;font-size:14px;font-weight:500}
+.pxa-sw-menu a:hover{background:rgba(140,160,220,.12)}
+.pxa-sw-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex:none;line-height:1}
+.pxa-sw-cur{font-weight:700}
+.pxa-sw-tick{margin-left:auto;color:#7cc4ff;font-size:13px}
+@media (max-width:520px){.pxa-sw-btn span:not(.pxa-sw-chev){display:none}}
 #pxa-ov{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;
   background:rgba(4,7,14,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #pxa-ov.on{display:flex}
@@ -203,13 +223,36 @@ function el(tag, attrs, html) {
   return n;
 }
 
+/* Cross-product "labs" switcher — added to the top-right cluster on every page.
+   Skipped when the page already has an inline switcher (the hub's #psw). */
+function buildLabSwitcher() {
+  const wrap = el('div', { id: 'pxa-sw', class: 'pxa-sw' },
+    '<button type="button" class="pxa-sw-btn" aria-haspopup="true" aria-expanded="false" aria-label="Switch labs">'
+    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.6"/><path d="M7 16.5 L12 7.5 L17 16.5" stroke="#7cc4ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+    + '<span>Physica</span><span class="pxa-sw-chev">▾</span></button>'
+    + '<div class="pxa-sw-menu" role="menu">'
+    + '<a role="menuitem" href="https://knovay.com/"><span class="pxa-sw-ic" style="background:rgba(120,140,230,.16);color:#9db4ff">⌂</span> Knovay home</a>'
+    + '<a role="menuitem" href="https://geoproof.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(124,196,255,.16);color:#7cc4ff">△</span> GeoProof</a>'
+    + '<a role="menuitem" class="pxa-sw-cur" aria-current="page" href="https://physica.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(184,155,255,.16);color:#b89bff">⚛</span> Physica <span class="pxa-sw-tick">✓</span></a>'
+    + '</div>');
+  const btn = wrap.querySelector('.pxa-sw-btn');
+  btn.addEventListener('click', function (e) { e.stopPropagation(); const o = wrap.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  document.addEventListener('click', function (e) { if (wrap.classList.contains('open') && !wrap.contains(e.target)) { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && wrap.classList.contains('open')) { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+  return wrap;
+}
+
 function buildUI() {
   if (document.getElementById('pxa-chip')) return;
   document.head.appendChild(el('style', null, CSS));
 
+  const top = el('div', { id: 'pxa-top' });
+  if (!document.getElementById('psw')) top.appendChild(buildLabSwitcher());  // hub already has an inline switcher
+
   chip = el('button', { id: 'pxa-chip', 'aria-label': 'Account' });
   chip.addEventListener('click', openModal);
-  document.body.appendChild(chip);
+  top.appendChild(chip);
+  document.body.appendChild(top);
 
   ov = el('div', { id: 'pxa-ov' });
   modal = el('div', { id: 'pxa-modal' });
