@@ -114,6 +114,21 @@
   .fstar:hover{transform:scale(1.1); border-color:rgba(255,210,122,.6)}
   .fnote{position:absolute; top:14px; right:48px; z-index:2; color:var(--accent); font-size:12px; display:none}
   .fnote.show{display:block}
+
+  /* cross-product labs switcher */
+  .psw{position:relative;display:inline-flex}
+  .psw-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--glass-line);background:var(--glass);color:var(--ink);cursor:pointer;font:600 13.5px/1 'Inter',sans-serif;padding:8px 13px;border-radius:999px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .psw-btn:hover{border-color:rgba(124,196,255,.5)}
+  .psw-btn svg{display:block}
+  .psw-chev{font-size:10px;color:var(--muted);transition:transform .15s}
+  .psw.open .psw-chev{transform:rotate(180deg)}
+  .psw-menu{position:absolute;top:calc(100% + 8px);left:0;min-width:190px;background:#141a2e;border:1px solid var(--glass-line);border-radius:13px;box-shadow:0 20px 50px -14px rgba(0,0,0,.7);padding:6px;display:none;z-index:60}
+  .psw.open .psw-menu{display:block}
+  .psw-menu a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
+  .psw-menu a:hover{background:rgba(140,160,220,.12)}
+  .psw-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex:none;line-height:1}
+  .psw-cur{font-weight:700}
+  .psw-tick{margin-left:auto;color:var(--accent);font-size:13px}
 </style>
 </head>
 <body>
@@ -129,6 +144,17 @@
         </svg>
       </span>
       Physica
+    </div>
+    <div class="psw" id="psw">
+      <button type="button" class="psw-btn" id="psw-btn" aria-haspopup="true" aria-expanded="false" aria-label="Switch labs">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.6"/><path d="M7 16.5 L12 7.5 L17 16.5" stroke="#7cc4ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        <span>Physica</span><span class="psw-chev">▾</span>
+      </button>
+      <div class="psw-menu" role="menu">
+        <a role="menuitem" href="https://knovay.com/"><span class="psw-ic" style="background:rgba(120,140,230,.16);color:#9db4ff">⌂</span> Knovay home</a>
+        <a role="menuitem" href="https://geoproof.knovay.com/"><span class="psw-ic" style="background:rgba(124,196,255,.16);color:#7cc4ff">△</span> GeoProof</a>
+        <a role="menuitem" class="psw-cur" aria-current="page" href="https://physica.knovay.com/"><span class="psw-ic" style="background:rgba(184,155,255,.16);color:#b89bff">⚛</span> Physica <span class="psw-tick">✓</span></a>
+      </div>
     </div>
     <div class="links">
       <a href="#fields">Fields</a>
@@ -436,6 +462,15 @@
     var d=card.querySelector(".kv-done"); if(d) d.addEventListener("click", closeModal);
   }
   ready(function(){ injectStyle(); buildButton(); });
+})();
+</script>
+<script>
+(function(){
+  var sw=document.getElementById('psw'), btn=document.getElementById('psw-btn');
+  if(!sw||!btn) return;
+  btn.addEventListener('click',function(e){ e.stopPropagation(); var o=sw.classList.toggle('open'); btn.setAttribute('aria-expanded', o?'true':'false'); });
+  document.addEventListener('click',function(e){ if(sw.classList.contains('open') && !sw.contains(e.target)){ sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); } });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && sw.classList.contains('open')){ sw.classList.remove('open'); btn.setAttribute('aria-expanded','false'); } });
 })();
 </script>
 </body>
