@@ -261,10 +261,20 @@ function collectState() {
     else if (t === 'radio') { if (c.checked) out[c.id] = c.value; }
     else out[c.id] = c.value;
   });
+  // segmented preset controls (Physica house style: <div class="seg" id="..."> with the active <button class="on">)
+  var seg = {};
+  document.querySelectorAll('.seg[id]').forEach(function (g) {
+    if (pxaOwnUI(g)) return;
+    var btns = Array.prototype.slice.call(g.querySelectorAll('button'));
+    var i = -1; btns.forEach(function (b, k) { if (b.classList.contains('on')) i = k; });
+    if (i >= 0) seg[g.id] = i;
+  });
+  if (Object.keys(seg).length) out.__seg = seg;
   return out;
 }
 function applyState(obj) {
   Object.keys(obj).forEach(function (id) {
+    if (id === '__seg') return;
     var c = document.getElementById(id);
     if (!c || pxaOwnUI(c)) return;
     var t = (c.type || '').toLowerCase();
@@ -273,6 +283,11 @@ function applyState(obj) {
     else c.value = obj[id];
     try { c.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
     try { c.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+  });
+  if (obj.__seg) Object.keys(obj.__seg).forEach(function (gid) {   // restore preset buttons by clicking the right one
+    var g = document.getElementById(gid); if (!g) return;
+    var btns = g.querySelectorAll('button'); var i = obj.__seg[gid];
+    if (btns[i] && !btns[i].classList.contains('on')) { try { btns[i].click(); } catch (e) {} }
   });
 }
 function applyStateFromURL() {
