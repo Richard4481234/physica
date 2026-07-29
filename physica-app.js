@@ -240,6 +240,7 @@ function buildLabSwitcher() {
     + '<a role="menuitem" href="https://knovay.com/"><span class="pxa-sw-ic" style="background:rgba(120,140,230,.16);color:#9db4ff">⌂</span> Knovay home</a>'
     + '<a role="menuitem" href="https://geoproof.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(124,196,255,.16);color:#7cc4ff">△</span> GeoProof</a>'
     + '<a role="menuitem" class="pxa-sw-cur" aria-current="page" href="https://physica.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(184,155,255,.16);color:#b89bff">⚛</span> Physica <span class="pxa-sw-tick">✓</span></a>'
+    + '<a role="menuitem" href="https://calculo.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(92,214,176,.16);color:#5cd6b0">∫</span> Calculo</a>'
     + '</div>');
   const btn = wrap.querySelector('.pxa-sw-btn');
   btn.addEventListener('click', function (e) { e.stopPropagation(); const o = wrap.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
