@@ -34,6 +34,33 @@ try {
 }
 
 /* =========================================================================
+   LIGHT THEME — recolor each sim page's dark palette to light.
+   Runs on sim pages only (the hub is already light); skips the account +
+   report-widget styles (already light). Keeps each sim's saturated figure
+   colors, lightens dark backgrounds, darkens light text.
+   ========================================================================= */
+(function lightTheme(){
+  try {
+    var file = (location.pathname.replace(/\/+$/,'').split('/').pop()) || 'index.html';
+    if (file === 'index.html' || file === '') return;   // hub is statically light
+    var EX = {'#7cc4ff':'#1668c4','#8fd0ff':'#1f74b5','#5aa8ee':'#2f6fb0','#5a9bff':'#2f5fc0','#9bd0f5':'#3a7fb5','#3a7fd0':'#2b5fa8','#3a5fb0':'#2b4f95','#6b9bff':'#3a5fc0','#9fd0ff':'#3a7fb5','#bfe3ff':'#4a7fb0','#cfe8ff':'#4a7fb0','#bfe1ff':'#4a7fb0','#eaf4ff':'#5a7f9c','#eef4fb':'#5a6472','#e6eef2':'#5a6472','#eef8fb':'#5a6472','#eafcff':'#5a7f8c','#ff8a5b':'#d65426','#ff7a59':'#cf4a20','#ff9a4d':'#cf6a15','#ffb37a':'#c07a2e','#ffb083':'#c07a2e','#ffb347':'#b9770e','#ff9b8a':'#c25136','#ffd9a3':'#b9861f','#ffe0a3':'#b9861f','#ffc46b':'#bf861f','#ffd27a':'#bf7c0f','#62d2a2':'#128a5e','#67e8a0':'#118a54','#4fc99a':'#0f8258','#8fe7c2':'#2f9a72','#8cd2b4':'#2f9a72','#8fe0b0':'#2f9a72','#bff0d6':'#3a9a72','#8fe6f2':'#128fa6','#7fe0ee':'#0e8fa6','#9fe9ff':'#0e8fa6','#aef0fa':'#0e8fa6','#56ccde':'#0e8fa6','#b89bff':'#6c46d6','#cdb6ff':'#7a5fd0','#9a90c0':'#6a5f95','#8f86b8':'#6a5f95','#b3aacc':'#6a6f8c','#ff6b6b':'#d43b3b','#ff8a8a':'#d24a4a','#ff9b9b':'#d24a4a','#eef1fb':'#1b2430','#efeefb':'#1b2430','#f6eef0':'#3a3040','#e6d2dc':'#7a5f6a','#9aa6cc':'#59626f','#6b76a0':'#8a92a0','#9ab2cc':'#5a6b80','#9cc4cf':'#4a6b74','#d2dcf0':'#6b7480','#5a6e8c':'#5a6472','#6b86a0':'#5a6b80','#6b9a86':'#4a6b58','#5f8f9c':'#4a6b74','#c8a48c':'#8a6a52','#cca6aa':'#8a6a6e','#9a7670':'#7a5a54','#caa46a':'#8a6a3a','#c98fb0':'#8a5f74'};
+    function lum(r,g,b){ return (r*299+g*587+b*114)/1000; }
+    function hh(m){ var r=parseInt(m.slice(1,3),16),g=parseInt(m.slice(3,5),16),b=parseInt(m.slice(5,7),16),L=lum(r,g,b),s=Math.max(r,g,b)-Math.min(r,g,b); if(L<62)return '#ffffff'; if(L>206&&s<44)return '#1b2430'; if(L>172&&s<64)return '#5a6472'; return m; }
+    function tx(str){ if(!str)return str;
+      str=str.replace(/#[0-9a-fA-F]{6}/g,function(m){ var k=m.toLowerCase(); return EX[k]||hh(k); });
+      str=str.replace(/rgba?\((\d+),\s*(\d+),\s*(\d+)([^)]*)\)/g,function(m,r,g,b,rest){ r=+r;g=+g;b=+b; var L=lum(r,g,b),s=Math.max(r,g,b)-Math.min(r,g,b),pre=/^rgba/i.test(m)?'rgba(':'rgb('; if(L<62)return pre+'255,255,255'+rest+')'; if(L>206&&s<44)return pre+'27,36,48'+rest+')'; if(L>172&&s<64)return pre+'90,100,114'+rest+')'; return m; });
+      return str;
+    }
+    function skip(sel){ return sel && /pxa|kv-|#kv|\.kv/.test(sel); }
+    function walk(rules){ for(var j=0;j<rules.length;j++){ var r=rules[j]; if(r.style){ if(!skip(r.selectorText)){ var c=r.style.cssText,x=tx(c); if(x!==c)r.style.cssText=x; } } if(r.cssRules)walk(r.cssRules); } }
+    for(var i=0;i<document.styleSheets.length;i++){ var sh=document.styleSheets[i],rl; try{ rl=sh.cssRules; }catch(e){ continue; } if(rl)walk(rl); }
+    document.querySelectorAll('[style]').forEach(function(el){ if(el.closest && el.closest('#pxa-ov,#pxa-chip,.pxa-sw,#kv-report-card,#kv-report-btn,#kv-report-ov'))return; var c=el.getAttribute('style'),x=tx(c); if(x!==c)el.setAttribute('style',x); });
+    document.querySelectorAll('[fill],[stroke],[stop-color]').forEach(function(el){ ['fill','stroke','stop-color'].forEach(function(a){ var v=el.getAttribute(a); if(v){ var x=tx(v); if(x!==v)el.setAttribute(a,x); } }); });
+    var g=document.createElement('style'); g.textContent='html,body{background:#e7ecef !important}'; (document.head||document.documentElement).appendChild(g);
+  } catch(e) {}
+})();
+
+/* =========================================================================
    DATA BRIDGE — localStorage <-> Firestore
    ========================================================================= */
 const origSet = Storage.prototype.setItem;
@@ -133,71 +160,71 @@ if (auth) {
 const CSS = `
 #pxa-top{position:fixed;top:14px;right:16px;z-index:9997;display:flex;align-items:center;gap:8px}
 #pxa-chip{display:flex;align-items:center;gap:8px;
-  background:rgba(18,22,40,.86);color:#eef1fb;border:1px solid rgba(150,170,230,.35);
+  background:rgba(255,255,255,.86);color:#1b2430;border:1px solid rgba(40,58,84,.35);
   font:600 13px Inter,system-ui,sans-serif;padding:8px 13px;border-radius:99px;cursor:pointer;
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
-#pxa-chip:hover{border-color:rgba(124,196,255,.6)}
+#pxa-chip:hover{border-color:rgba(31,111,178,.6)}
 #pxa-chip .pxa-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font:700 12px Inter,sans-serif;color:#08111e;background:linear-gradient(135deg,#8fd0ff,#b89bff);
+  font:700 12px Inter,sans-serif;color:#ffffff;background:linear-gradient(135deg,#1f74b5,#6c46d6);
   background-size:cover;background-position:center;overflow:hidden;flex:0 0 auto}
 .pxa-sw{position:relative}
-.pxa-sw-btn{display:flex;align-items:center;gap:7px;background:rgba(18,22,40,.86);color:#eef1fb;
-  border:1px solid rgba(150,170,230,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
+.pxa-sw-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.86);color:#1b2430;
+  border:1px solid rgba(40,58,84,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
   cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
-.pxa-sw-btn:hover{border-color:rgba(124,196,255,.6)}
+.pxa-sw-btn:hover{border-color:rgba(31,111,178,.6)}
 .pxa-sw-btn svg{display:block;flex:0 0 auto}
-.pxa-sw-chev{font-size:10px;color:#9aa6cc;transition:transform .15s}
+.pxa-sw-chev{font-size:10px;color:#59626f;transition:transform .15s}
 .pxa-sw.open .pxa-sw-chev{transform:rotate(180deg)}
-.pxa-sw-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:188px;background:#141a2e;
-  border:1px solid rgba(150,170,230,.28);border-radius:13px;box-shadow:0 20px 50px -14px rgba(0,0,0,.78);
+.pxa-sw-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:188px;background:#ffffff;
+  border:1px solid rgba(40,58,84,.28);border-radius:13px;box-shadow:0 20px 50px -14px rgba(0,0,0,.78);
   padding:6px;display:none;z-index:10000}
 .pxa-sw.open .pxa-sw-menu{display:block}
 .pxa-sw-menu a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;text-decoration:none;
-  color:#eef1fb;font-size:14px;font-weight:500}
-.pxa-sw-menu a:hover{background:rgba(140,160,220,.12)}
+  color:#1b2430;font-size:14px;font-weight:500}
+.pxa-sw-menu a:hover{background:rgba(40,58,84,.12)}
 .pxa-sw-ic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px;flex:none;line-height:1}
 .pxa-sw-cur{font-weight:700}
-.pxa-sw-tick{margin-left:auto;color:#7cc4ff;font-size:13px}
-.pxa-copy{display:flex;align-items:center;gap:7px;background:rgba(18,22,40,.86);color:#eef1fb;
-  border:1px solid rgba(150,170,230,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
+.pxa-sw-tick{margin-left:auto;color:#1668c4;font-size:13px}
+.pxa-copy{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.86);color:#1b2430;
+  border:1px solid rgba(40,58,84,.35);font:600 13px Inter,system-ui,sans-serif;padding:8px 12px;border-radius:99px;
   cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 24px -14px rgba(0,0,0,.85)}
-.pxa-copy:hover{border-color:rgba(124,196,255,.6)}
+.pxa-copy:hover{border-color:rgba(31,111,178,.6)}
 .pxa-copy svg{display:block;flex:0 0 auto}
 @media (max-width:600px){.pxa-copy span{display:none}}
 @media (max-width:520px){.pxa-sw-btn span:not(.pxa-sw-chev){display:none}}
 #pxa-ov{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;
-  background:rgba(4,7,14,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #pxa-ov.on{display:flex}
-#pxa-modal{width:min(400px,94vw);background:rgba(14,18,32,.98);border:1px solid rgba(150,170,230,.28);
+#pxa-modal{width:min(400px,94vw);background:rgba(255,255,255,.98);border:1px solid rgba(40,58,84,.28);
   border-radius:18px;box-shadow:0 40px 120px -30px rgba(0,0,0,.9);padding:26px 26px 24px;
-  font-family:Inter,system-ui,sans-serif;color:#eef1fb;position:relative}
+  font-family:Inter,system-ui,sans-serif;color:#1b2430;position:relative}
 #pxa-modal h2{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:24px;margin:0 0 4px}
-#pxa-modal .pxa-sub{font-size:13px;color:#9aa6cc;line-height:1.55;margin:0 0 18px}
-#pxa-modal label{display:block;font-size:12px;color:#9aa6cc;margin:12px 0 5px;font-weight:500}
-#pxa-modal input{width:100%;box-sizing:border-box;background:rgba(8,11,20,.7);border:1px solid rgba(150,170,230,.28);
-  color:#eef1fb;font:14px Inter,sans-serif;padding:11px 13px;border-radius:10px;outline:none}
-#pxa-modal input:focus{border-color:rgba(124,196,255,.65)}
-#pxa-modal .pxa-primary{width:100%;margin-top:18px;background:linear-gradient(135deg,#7cc4ff,#b89bff);color:#08111e;
+#pxa-modal .pxa-sub{font-size:13px;color:#59626f;line-height:1.55;margin:0 0 18px}
+#pxa-modal label{display:block;font-size:12px;color:#59626f;margin:12px 0 5px;font-weight:500}
+#pxa-modal input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.7);border:1px solid rgba(40,58,84,.28);
+  color:#1b2430;font:14px Inter,sans-serif;padding:11px 13px;border-radius:10px;outline:none}
+#pxa-modal input:focus{border-color:rgba(31,111,178,.65)}
+#pxa-modal .pxa-primary{width:100%;margin-top:18px;background:linear-gradient(135deg,#1668c4,#6c46d6);color:#ffffff;
   border:0;font:700 14px Inter,sans-serif;padding:12px;border-radius:11px;cursor:pointer}
 #pxa-modal .pxa-primary:disabled{opacity:.55;cursor:default}
-#pxa-modal .pxa-or{display:flex;align-items:center;gap:12px;color:#6b76a0;font-size:11.5px;margin:16px 0}
-#pxa-modal .pxa-or::before,#pxa-modal .pxa-or::after{content:"";flex:1;height:1px;background:rgba(150,170,230,.2)}
+#pxa-modal .pxa-or{display:flex;align-items:center;gap:12px;color:#8a92a0;font-size:11.5px;margin:16px 0}
+#pxa-modal .pxa-or::before,#pxa-modal .pxa-or::after{content:"";flex:1;height:1px;background:rgba(40,58,84,.2)}
 #pxa-modal .pxa-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
   background:#fff;color:#1f2430;border:0;font:600 14px Inter,sans-serif;padding:11px;border-radius:11px;cursor:pointer}
 #pxa-modal .pxa-google:hover{background:#f1f3f7}
-#pxa-modal .pxa-foot{margin-top:16px;font-size:12.5px;color:#9aa6cc;text-align:center;line-height:1.7}
-#pxa-modal .pxa-link{color:#7cc4ff;cursor:pointer;background:0;border:0;font:inherit;padding:0}
+#pxa-modal .pxa-foot{margin-top:16px;font-size:12.5px;color:#59626f;text-align:center;line-height:1.7}
+#pxa-modal .pxa-link{color:#1668c4;cursor:pointer;background:0;border:0;font:inherit;padding:0}
 #pxa-modal .pxa-link:hover{text-decoration:underline}
 #pxa-modal .pxa-msg{margin-top:14px;font-size:12.5px;line-height:1.5;padding:9px 12px;border-radius:9px;display:none}
-#pxa-modal .pxa-msg.err{display:block;background:rgba(255,138,91,.12);border:1px solid rgba(255,138,91,.4);color:#ffb59a}
-#pxa-modal .pxa-msg.ok{display:block;background:rgba(98,210,162,.12);border:1px solid rgba(98,210,162,.4);color:#9fe3c6}
-#pxa-x{position:absolute;top:14px;right:15px;background:0;border:0;color:#6b76a0;font-size:22px;line-height:1;cursor:pointer}
-#pxa-x:hover{color:#eef1fb}
-#pxa-acct{font-size:13.5px;color:#cfd6ee;line-height:1.6}
-#pxa-acct b{color:#eef1fb}
-#pxa-modal .pxa-signout{width:100%;margin-top:18px;background:rgba(255,138,91,.1);border:1px solid rgba(255,138,91,.4);
-  color:#ffb59a;font:600 13.5px Inter,sans-serif;padding:11px;border-radius:11px;cursor:pointer}
-#pxa-modal .pxa-signout:hover{background:rgba(255,138,91,.16)}
+#pxa-modal .pxa-msg.err{display:block;background:rgba(214,84,38,.12);border:1px solid rgba(214,84,38,.4);color:#a8341a}
+#pxa-modal .pxa-msg.ok{display:block;background:rgba(18,138,94,.12);border:1px solid rgba(18,138,94,.4);color:#0c5e46}
+#pxa-x{position:absolute;top:14px;right:15px;background:0;border:0;color:#8a92a0;font-size:22px;line-height:1;cursor:pointer}
+#pxa-x:hover{color:#1b2430}
+#pxa-acct{font-size:13.5px;color:#59626f;line-height:1.6}
+#pxa-acct b{color:#1b2430}
+#pxa-modal .pxa-signout{width:100%;margin-top:18px;background:rgba(214,84,38,.1);border:1px solid rgba(214,84,38,.4);
+  color:#a8341a;font:600 13.5px Inter,sans-serif;padding:11px;border-radius:11px;cursor:pointer}
+#pxa-modal .pxa-signout:hover{background:rgba(214,84,38,.16)}
 `;
 
 let chip, ov, modal, mode = 'signin';
@@ -234,13 +261,13 @@ function el(tag, attrs, html) {
 function buildLabSwitcher() {
   const wrap = el('div', { id: 'pxa-sw', class: 'pxa-sw' },
     '<button type="button" class="pxa-sw-btn" aria-haspopup="true" aria-expanded="false" aria-label="Switch labs">'
-    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.6"/><path d="M7 16.5 L12 7.5 L17 16.5" stroke="#7cc4ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.6"/><path d="M7 16.5 L12 7.5 L17 16.5" stroke="#1668c4" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
     + '<span>Physica</span><span class="pxa-sw-chev">▾</span></button>'
     + '<div class="pxa-sw-menu" role="menu">'
-    + '<a role="menuitem" href="https://knovay.com/"><span class="pxa-sw-ic" style="background:rgba(120,140,230,.16);color:#9db4ff">⌂</span> Knovay home</a>'
-    + '<a role="menuitem" href="https://geoproof.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(124,196,255,.16);color:#7cc4ff">△</span> GeoProof</a>'
-    + '<a role="menuitem" class="pxa-sw-cur" aria-current="page" href="https://physica.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(184,155,255,.16);color:#b89bff">⚛</span> Physica <span class="pxa-sw-tick">✓</span></a>'
-    + '<a role="menuitem" href="https://calculo.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(92,214,176,.16);color:#5cd6b0">∫</span> Calculo</a>'
+    + '<a role="menuitem" href="https://knovay.com/"><span class="pxa-sw-ic" style="background:rgba(40,58,84,.16);color:#4a63c9">⌂</span> Knovay home</a>'
+    + '<a role="menuitem" href="https://geoproof.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(31,111,178,.16);color:#1668c4">△</span> GeoProof</a>'
+    + '<a role="menuitem" class="pxa-sw-cur" aria-current="page" href="https://physica.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(108,70,214,.16);color:#6c46d6">⚛</span> Physica <span class="pxa-sw-tick">✓</span></a>'
+    + '<a role="menuitem" href="https://calculo.knovay.com/"><span class="pxa-sw-ic" style="background:rgba(14,156,116,.16);color:#0e9c74">∫</span> Calculo</a>'
     + '</div>');
   const btn = wrap.querySelector('.pxa-sw-btn');
   btn.addEventListener('click', function (e) { e.stopPropagation(); const o = wrap.classList.toggle('open'); btn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
